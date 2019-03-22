@@ -151,6 +151,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
+    PRESHARED_KEY=$( wg genpsk )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     CLIENT_ADDRESS="${PRIVATE_SUBNET::-4}3"
 
@@ -167,6 +168,7 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
 
     echo "[Interface]
@@ -176,6 +178,7 @@ DNS = $CLIENT_DNS
 MTU = 1420
 [Peer]
 PublicKey = $SERVER_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = 25" > $HOME/client-wg0.conf
@@ -217,6 +220,7 @@ else
     fi
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
+    PRESHARED_KEY=$( wg genpsk )
     PRIVATE_SUBNET=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK=$( echo $PRIVATE_SUBNET | cut -d "/" -f 2 )
     SERVER_ENDPOINT=$( head -n1 $WG_CONFIG | awk '{print $3}')
@@ -227,6 +231,7 @@ else
     echo "# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
 
     echo "[Interface]
@@ -236,6 +241,7 @@ DNS = $CLIENT_DNS
 MTU = 1420
 [Peer]
 PublicKey = $SERVER_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = 0.0.0.0/0, ::/0 
 Endpoint = $SERVER_ENDPOINT
 PersistentKeepalive = 25" > $HOME/$CLIENT_NAME-wg0.conf
