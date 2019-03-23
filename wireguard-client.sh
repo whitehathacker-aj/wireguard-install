@@ -33,7 +33,7 @@ fi
         apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode iptables-persistent -y
+        apt-get install wireguard resolvconf -y
         
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -43,11 +43,11 @@ fi
         apt-get dist-upgrade -y
         apt-get autoremove clean -y
         apt-get install build-essential haveged -y
-        apt-get install wireguard qrencode iptables-persistent -y
+        apt-get install wireguard resolvconf -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum update -y
         yum install epel-release -y
-        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
+        yum install wireguard-dkms wireguard-tools -y
     fi
