@@ -12,5 +12,7 @@ curl -O https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wir
 bash wireguard-client.sh
 ```
 
-To show VPN status, run 
-sudo wg show
+To show VPN status
+```
+wg show
+```
