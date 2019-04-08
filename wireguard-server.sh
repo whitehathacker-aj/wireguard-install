@@ -83,6 +83,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "   8) FDN"
         echo "   9) DNS.WATCH"
         echo "   10) Yandex Basic"
+        echo "   11) Unbound"
         read -p "DNS [1-10]: " -e -i 1 DNS_CHOICE
 
         case $DNS_CHOICE in
@@ -115,6 +116,9 @@ if [ ! -f "$WG_CONFIG" ]; then
             ;;
             10)
             CLIENT_DNS="77.88.8.8,77.88.8.1"
+            ;;
+            11)
+            CLIENT_DNS="10.8.0.1"
             ;;
         esac
         
