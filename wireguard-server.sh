@@ -37,12 +37,12 @@ if [ ! -f "$WG_CONFIG" ]; then
     PRIVATE_SUBNET_MASK=$( echo $PRIVATE_SUBNET | cut -d "/" -f 2 )
     GATEWAY_ADDRESS="${PRIVATE_SUBNET::-4}1"
 
-    if [ "$SERVER_HOST" == "" ]; then
-        SERVER_HOST="$(wget -O - -q https://checkip.amazonaws.com)"
+    if [ "$SERVER_HOST_FOUR" == "" ]; then
+        SERVER_HOST_FOUR="$(wget -O - -q -4 ifconfig.co)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IP address is $SERVER_HOST. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            read -p "Servers public IP address is $SERVER_HOST_FOUR. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
-                echo "Aborted. Use environment variable SERVER_HOST to set the correct public IP address"
+                echo "Aborted. Use environment variable SERVER_HOST_FOUR to set the correct public IP address"
                 exit
             fi
         fi
@@ -157,7 +157,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
 
-    echo "# $PRIVATE_SUBNET $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
+    echo "# $PRIVATE_SUBNET $SERVER_HOST_FOUR:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
 [Interface]
 Address = $GATEWAY_ADDRESS/$PRIVATE_SUBNET_MASK
 ListenPort = $SERVER_PORT
@@ -177,7 +177,7 @@ MTU = 1420
 [Peer]
 PublicKey = $SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0, ::/0
-Endpoint = $SERVER_HOST:$SERVER_PORT
+Endpoint = $SERVER_HOST_FOUR:$SERVER_PORT
 PersistentKeepalive = 25" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
@@ -192,8 +192,8 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET
         firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
         firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET
-        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST
-        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST_FOUR
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST_FOUR
     else
         iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
         iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET -m policy --pol none --dir in -j ACCEPT
