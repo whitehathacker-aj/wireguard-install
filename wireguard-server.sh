@@ -114,7 +114,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "   9) DNS.WATCH"
         echo "   10) Yandex Basic"
         echo "   11) Unbound"
-        read -p "DNS [1-10]: " -e -i 1 DNS_CHOICE
+        read -p "DNS [1-10]: " -e -i 4 DNS_CHOICE
 
         case $DNS_CHOICE in
             1)
