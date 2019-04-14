@@ -124,6 +124,40 @@ if [ ! -f "$WG_CONFIG" ]; then
         
     fi
 
+    echo "What MTU do you want to use?"
+    echo "   1) 1500"
+    echo "   2) 1420"
+    until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
+        read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
+    done
+    case $MTU_CHOICE in
+        1)
+            MTU_CHOICE="1500"
+        ;;
+        2)
+            MTU_CHOICE="1420"
+        ;;
+    esac
+    
+    fi
+
+    echo "Are you behind a firewall or NAT?"
+    echo "   1) Yes"
+    echo "   2) No"
+    until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
+        read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
+    done
+    case $NAT_CHOICE in
+        1)
+            NAT_CHOICE="25"
+        ;;
+        2)
+            NAT_CHOICE="0"
+        ;;
+    esac
+
+    fi
+
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
         apt-get upgrade -y
@@ -177,12 +211,12 @@ AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS/$PRIVATE_SUBNET_MASK
 DNS = $CLIENT_DNS
-MTU = 1420
+MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = $SERVER_HOST:$SERVER_PORT
-PersistentKeepalive = 25" > $HOME/client-wg0.conf
+PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
@@ -237,12 +271,12 @@ AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS/$PRIVATE_SUBNET_MASK
 DNS = $CLIENT_DNS
-MTU = 1420
+MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
 AllowedIPs = 0.0.0.0/0, ::/0 
 Endpoint = $SERVER_ENDPOINT
-PersistentKeepalive = 25" > $HOME/$CLIENT_NAME-wg0.conf
+PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" allowed-ips "$CLIENT_ADDRESS/32"
