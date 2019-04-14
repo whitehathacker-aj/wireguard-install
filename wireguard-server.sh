@@ -49,7 +49,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
     
     
-    if echo "Are you behind a firewall or NAT?"
+    echo "Are you behind a firewall or NAT?"
     echo "   1) Yes"
     echo "   2) No"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
@@ -62,7 +62,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         2)
             NAT_CHOICE="0"
         ;;
-    fi
 
     	echo "What port do you want WireGuard to listen to?"
 	echo "   1) Default: 51820"
