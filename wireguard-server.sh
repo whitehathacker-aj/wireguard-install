@@ -47,6 +47,22 @@ if [ ! -f "$WG_CONFIG" ]; then
             fi
         fi
     fi
+    
+    
+    if echo "Are you behind a firewall or NAT?"
+    echo "   1) Yes"
+    echo "   2) No"
+    until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
+        read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
+    done
+    case $NAT_CHOICE in
+        1)
+            NAT_CHOICE="25"
+        ;;
+        2)
+            NAT_CHOICE="0"
+        ;;
+    fi
 
     	echo "What port do you want WireGuard to listen to?"
 	echo "   1) Default: 51820"
@@ -139,23 +155,8 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
     
-
-    echo "Are you behind a firewall or NAT?"
-    echo "   1) Yes"
-    echo "   2) No"
-    until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
-    done
-    case $NAT_CHOICE in
-        1)
-            NAT_CHOICE="25"
-        ;;
-        2)
-            NAT_CHOICE="0"
-        ;;
-    esac
-
-
+    fi
+    
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
         apt-get upgrade -y
