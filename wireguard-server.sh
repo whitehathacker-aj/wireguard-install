@@ -86,12 +86,11 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
  
- 
     echo "What MTU do you want to use?"
     echo "   1) 1500"
     echo "   2) 1420"
     until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "MTU Choice [1-2]: " -e -i 1 MTU_CHOICE
+        read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
     done
     case $MTU_CHOICE in
         1)
@@ -101,7 +100,6 @@ if [ ! -f "$WG_CONFIG" ]; then
             MTU_CHOICE="1420"
         ;;
     esac
-
 
     if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
