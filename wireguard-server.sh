@@ -139,7 +139,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
     
-    fi
 
     echo "Are you behind a firewall or NAT?"
     echo "   1) Yes"
@@ -156,7 +155,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
-    fi
 
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
