@@ -30,9 +30,7 @@ if [ "$( systemd-detect-virt )" == "openvz" ]; then
     exit
 fi
 
-function installUnbound () {
-    if [[ ! -e /etc/unbound/unbound.conf ]]; then
- 
+function installUnbound () { 
     if [ "$DISTRO" == "Ubuntu" ]; then
             apt-get install unbound unbound-host -y
             wget /var/lib/unbound/root.hints https://www.internic.net/domain/named.cache
@@ -55,9 +53,9 @@ function installUnbound () {
   #Authorized IPs to access the DNS Server
   access-control: 0.0.0.0/0                 refuse
   access-control: 127.0.0.1                 allow
-  access-control: 10.0.0.0/24               allow
+  access-control: 10.8.0.1/24               allow
   #not allowed to be returned for public internet  names
-  private-address: 10.0.0.0/24
+  private-address: 10.8.0.1/24
   # Hide DNS Server info
   hide-identity: yes
   hide-version: yes
@@ -76,12 +74,11 @@ function installUnbound () {
   prefetch: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
         chown -R unbound:unbound /var/lib/unbound
-        iptables -A INPUT -s 10.0.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+        iptables -A INPUT -s 10.8.0.1/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
  
     fi
                     systemctl enable unbound
                     service unbound restart
-}
 
 if [ ! -f "$WG_CONFIG" ]; then
     ### Install server and add default client
