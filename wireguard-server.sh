@@ -33,7 +33,7 @@ fi
 function installUnbound () {
     if [[ ! -e /etc/unbound/unbound.conf ]]; then
  
-        if [[ "$OS" =~ (debian|ubuntu) ]]; then
+    if [ "$DISTRO" == "Ubuntu" ]; then
             apt-get install unbound unbound-host -y
             wget /var/lib/unbound/root.hints https://www.internic.net/domain/named.cache
             cp /usr/share/dns/root.key /var/lib/unbound/
