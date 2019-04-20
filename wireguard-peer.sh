@@ -2,7 +2,7 @@
 #
 # https://github.com/LiveChief/wireguard-install
 # Secure WireGuard Client installer for Debian, Ubuntu, CentOS
-#
+# https://www.digitalocean.com/community/tutorials/how-to-create-a-point-to-point-vpn-with-wireguard-on-ubuntu-16-04
 
 if [[ "$EUID" -ne 0 ]]; then
     echo "Sorry, you need to run this as root"
