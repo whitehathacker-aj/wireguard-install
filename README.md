@@ -20,7 +20,7 @@ systemctl enable wg-quick@wg0.service
 systemctl start wg-quick@wg0.service
 ```
 
-# Show Wireguard status
+### Show Wireguard status
 ```
 wg show
 ```
