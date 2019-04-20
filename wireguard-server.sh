@@ -164,6 +164,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
         apt-get install wireguard qrencode iptables-persistent -y
+	apt-get install unattended-upgrades apt-listchanges -y
         
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -174,6 +175,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get autoremove -y
         apt-get install build-essential haveged -y
         apt-get install wireguard qrencode iptables-persistent -y
+	apt-get install unattended-upgrades apt-listchanges -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
