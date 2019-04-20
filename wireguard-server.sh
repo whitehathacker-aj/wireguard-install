@@ -75,7 +75,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     echo "   1) Yes"
     echo "   2) No"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
+        read -rp "Nat Choice [1-2]: " -e -i 2 NAT_CHOICE
     done
     case $NAT_CHOICE in
         1)
