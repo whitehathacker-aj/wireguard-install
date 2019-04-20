@@ -165,7 +165,8 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get update
         apt-get install wireguard qrencode iptables-persistent -y
 	apt-get install unattended-upgrades apt-listchanges -y
-        
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Ubuntu"
+
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
@@ -176,6 +177,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get install build-essential haveged -y
         apt-get install wireguard qrencode iptables-persistent -y
 	apt-get install unattended-upgrades apt-listchanges -y
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Debian"
 
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
