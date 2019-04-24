@@ -195,7 +195,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
 
-    echo "# $PRIVATE_SUBNET $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
+    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
 [Interface]
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
@@ -256,6 +256,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
 else
     ### Server is installed, add a new client
+    ### This Needs More Work.
     CLIENT_NAME="$1"
     if [ "$CLIENT_NAME" == "" ]; then
         echo "Tell me a name for the client config file. Use one word only, no special characters."
