@@ -26,6 +26,10 @@ systemctl start wg-quick@wg0.service
 ```
 systemctl stop wg-quick@wg0.service
 ```
+### Restart Wireguard Service
+```
+systemctl restart wg-quick@wg0.service
+```
 ### Show Wireguard status
 ```
 wg show
