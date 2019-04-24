@@ -33,9 +33,12 @@ fi
 if [ ! -f "$WG_CONFIG" ]; then
     ### Install server and add default client
     INTERACTIVE=${INTERACTIVE:-yes}
-    PRIVATE_SUBNET=${PRIVATE_SUBNET:-"10.8.0.0/24"}
-    PRIVATE_SUBNET_MASK=$( echo $PRIVATE_SUBNET | cut -d "/" -f 2 )
-    GATEWAY_ADDRESS="${PRIVATE_SUBNET::-4}1"
+    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+    PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::1/64"}
+    PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
     if [ "$SERVER_HOST" == "" ]; then
         SERVER_HOST="$(wget -O - -q https://checkip.amazonaws.com)"
@@ -193,7 +196,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 
     echo "# $PRIVATE_SUBNET $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
 [Interface]
-Address = $GATEWAY_ADDRESS/$PRIVATE_SUBNET_MASK
+Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false" > $WG_CONFIG
@@ -201,11 +204,11 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
-AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/64" >> $WG_CONFIG
 
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
-Address = $CLIENT_ADDRESS/$PRIVATE_SUBNET_MASK
+Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
@@ -220,21 +223,29 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
 
-    if [ "$DISTRO" == "CentOS" ]; then
-        systemctl start firewalld
+    if [ "$DISTRO" == "CentOS" ]; then	
+        systemctl start firewalld	
         firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
         firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET
-        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST
-        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET ! -d $PRIVATE_SUBNET -j SNAT --to $SERVER_HOST
-    else
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET -m policy --pol none --dir in -j ACCEPT
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET -m policy --pol none --dir out -j MASQUERADE
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
-    fi
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST	
+    else	
+        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
+        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
+        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT	
+        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT	
+        iptables-save > /etc/iptables/rules.v4	
+    fi	
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
@@ -261,7 +272,7 @@ else
     echo "# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
-AllowedIPs = $CLIENT_ADDRESS/32" >> $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/64" >> $WG_CONFIG
 
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
@@ -275,6 +286,6 @@ Endpoint = $SERVER_ENDPOINT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
-    ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" allowed-ips "$CLIENT_ADDRESS/32"
+    ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" allowed-ips "$CLIENT_ADDRESS_V4/32 , $CLIENT_ADDRESS_V6/64"
     echo "Client added, new configuration file --> $HOME/$CLIENT_NAME-wg0.conf"
 fi
