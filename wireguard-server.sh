@@ -195,7 +195,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
 
-    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS
+    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE
 [Interface]
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
@@ -271,6 +271,8 @@ else
     SERVER_ENDPOINT=$( head -n1 $WG_CONFIG | awk '{print $4}')
     SERVER_PUBKEY=$( head -n1 $WG_CONFIG | awk '{print $5}')
     CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
+    MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
+    NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
     LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
