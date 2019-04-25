@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # https://github.com/LiveChief/wireguard-install
-# Secure WireGuard server installer for Debian, Ubuntu, CentOS
+# Secure WireGuard server installer for Debian, Ubuntu
 #
 
 WG_CONFIG="/etc/wireguard/wg0.conf"
@@ -16,9 +16,7 @@ if [[ ! -e /dev/net/tun ]]; then
     exit
 fi
 
-if [ -e /etc/centos-release ]; then
-    DISTRO="CentOS"
-elif [ -e /etc/debian_version ]; then
+if [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
 else
     echo "Your distribution is not supported (yet)"
@@ -276,12 +274,6 @@ if [ ! -f "$WG_CONFIG" ]; then
 	sed -i "s|search|#search|" /etc/resolv.conf
 	echo "nameserver 127.0.0.1" >> /etc/resolv.conf
 	chattr +i /etc/resolv.conf
-	
-    elif [ "$DISTRO" == "CentOS" ]; then
-        curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-        yum update -y
-        yum install epel-release -y
-        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
@@ -323,19 +315,18 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
 
-    if [ "$DISTRO" == "CentOS" ]; then	
-        systemctl start firewalld	
-        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
-        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
-        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
-        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST	
-    else	
+    if [ "$DISTRO" == "Debian" ]; then	
+        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
+        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
+        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+	iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+        iptables-save > /etc/iptables/rules.v4
+    else
         iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
         ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
         iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
