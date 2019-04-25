@@ -204,7 +204,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   forward-zone:
   name: "."
   forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
-  chown -R unbound:unbound /var/lib/unbound
+  	chown -R unbound:unbound /var/lib/unbound
 	systemctl enable unbound
 	service unbound restart
 	chattr -i /etc/resolv.conf
@@ -265,7 +265,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   forward-zone:
   name: "."
   forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
-  chown -R unbound:unbound /var/lib/unbound
+	chown -R unbound:unbound /var/lib/unbound
 	systemctl enable unbound
 	service unbound restart
 	chattr -i /etc/resolv.conf
