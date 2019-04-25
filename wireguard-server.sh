@@ -256,7 +256,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
 else
     ### Server is installed, add a new client
-    ### This Needs More Work.
     CLIENT_NAME="$1"
     if [ "$CLIENT_NAME" == "" ]; then
         echo "Tell me a name for the client config file. Use one word only, no special characters."
