@@ -165,7 +165,57 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get install wireguard qrencode iptables-persistent -y
 	apt-get install unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Ubuntu"
-
+	apt-get install unbound unbound-host -y
+	wget -O /var/lib/unbound/root.hints  https://www.internic.net/domain/named.cache
+  echo "" > /etc/unbound/unbound.conf
+  echo "server:
+  num-threads: 4	
+  do-ip6: yes
+  #Enable logs	
+  verbosity: 1	
+  #list of Root DNS Server	
+  root-hints: "/var/lib/unbound/root.hints"	
+  #Use the root servers key for DNSSEC	
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"	
+  #Respond to DNS requests on all interfaces	
+  interface: 0.0.0.0	
+  max-udp-size: 3072	
+  #Authorized IPs to access the DNS Server	
+  access-control: 0.0.0.0/0                 refuse	
+  access-control: 127.0.0.1                 allow	
+  access-control: 10.8.0.0/24               allow	
+  #not allowed to be returned for public internet  names	
+  private-address: 10.8.0.0/24	
+  # Hide DNS Server info	
+  hide-identity: yes	
+  hide-version: yes	
+  #Limit DNS Fraud and use DNSSEC	
+  harden-glue: yes	
+  harden-dnssec-stripped: yes	
+  harden-referral-path: yes	
+  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning	
+  unwanted-reply-threshold: 10000000	
+  #Have the validator print validation failures to the log.	
+  val-log-level: 1	
+  #Minimum lifetime of cache entries in seconds	
+  cache-min-ttl: 1800	
+  #Maximum lifetime of cached entries	
+  cache-max-ttl: 14400	
+  prefetch: yes	
+  prefetch-key: yes
+  forward-zone:
+  name: "."
+  forward-addr: $CLIENT_DNS
+  forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
+  chown -R unbound:unbound /var/lib/unbound
+	systemctl enable unbound
+	service unbound restart
+	chattr -i /etc/resolv.conf
+	sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+	sed -i "s|search|#search|" /etc/resolv.conf
+	echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+	chattr +i /etc/resolv.conf
+	
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
@@ -177,7 +227,57 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get install wireguard qrencode iptables-persistent -y
 	apt-get install unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Debian"
-
+	apt-get install unbound unbound-host -y
+	wget -O /var/lib/unbound/root.hints  https://www.internic.net/domain/named.cache
+  echo "" > /etc/unbound/unbound.conf
+  echo "server:
+  num-threads: 4	
+  do-ip6: yes
+  #Enable logs	
+  verbosity: 1	
+  #list of Root DNS Server	
+  root-hints: "/var/lib/unbound/root.hints"	
+  #Use the root servers key for DNSSEC	
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"	
+  #Respond to DNS requests on all interfaces	
+  interface: 0.0.0.0	
+  max-udp-size: 3072	
+  #Authorized IPs to access the DNS Server	
+  access-control: 0.0.0.0/0                 refuse	
+  access-control: 127.0.0.1                 allow	
+  access-control: 10.8.0.0/24               allow	
+  #not allowed to be returned for public internet  names	
+  private-address: 10.8.0.0/24	
+  # Hide DNS Server info	
+  hide-identity: yes	
+  hide-version: yes	
+  #Limit DNS Fraud and use DNSSEC	
+  harden-glue: yes	
+  harden-dnssec-stripped: yes	
+  harden-referral-path: yes	
+  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning	
+  unwanted-reply-threshold: 10000000	
+  #Have the validator print validation failures to the log.	
+  val-log-level: 1	
+  #Minimum lifetime of cache entries in seconds	
+  cache-min-ttl: 1800	
+  #Maximum lifetime of cached entries	
+  cache-max-ttl: 14400	
+  prefetch: yes	
+  prefetch-key: yes
+  forward-zone:
+  name: "."
+  forward-addr: $CLIENT_DNS
+  forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
+  chown -R unbound:unbound /var/lib/unbound
+	systemctl enable unbound
+	service unbound restart
+	chattr -i /etc/resolv.conf
+	sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+	sed -i "s|search|#search|" /etc/resolv.conf
+	echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+	chattr +i /etc/resolv.conf
+	
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum update -y
@@ -210,7 +310,7 @@ AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
-DNS = $CLIENT_DNS
+DNS = $10.8.0.1
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
@@ -243,8 +343,10 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
         iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
         ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT	
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT	
+        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+	iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+	ip6tables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
     fi	
 
@@ -284,7 +386,7 @@ AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
-DNS = $CLIENT_DNS
+DNS = $10.8.0.1
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
