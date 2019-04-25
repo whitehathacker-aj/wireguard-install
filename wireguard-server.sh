@@ -120,34 +120,34 @@ if [ ! -f "$WG_CONFIG" ]; then
 
         case $DNS_CHOICE in
             1)
-            CLIENT_DNS="1.1.1.1,1.0.0.1"
+            CLIENT_DNS="1.1.1.1"
             ;;
             2)
-            CLIENT_DNS="8.8.8.8,8.8.4.4"
+            CLIENT_DNS="8.8.8.8"
             ;;
             3)
-            CLIENT_DNS="208.67.222.222,208.67.220.220"
+            CLIENT_DNS="208.67.222.222"
             ;;
             4)
-            CLIENT_DNS="176.103.130.130,176.103.130.131"
+            CLIENT_DNS="176.103.130.130"
             ;;
             5)
-            CLIENT_DNS="176.103.130.132,176.103.130.134"
+            CLIENT_DNS="176.103.130.132"
             ;;
             6)
-            CLIENT_DNS="9.9.9.9,149.112.112.112"
+            CLIENT_DNS="9.9.9.9"
             ;;
             7)
-            CLIENT_DNS="9.9.9.10,149.112.112.10"
+            CLIENT_DNS="9.9.9.10"
             ;;
             8)
-            CLIENT_DNS="80.67.169.40,80.67.169.12"
+            CLIENT_DNS="80.67.169.40"
             ;;
             9)
-            CLIENT_DNS="84.200.69.80,84.200.70.40"
+            CLIENT_DNS="84.200.69.80"
             ;;
             10)
-            CLIENT_DNS="77.88.8.8,77.88.8.1"
+            CLIENT_DNS="77.88.8.8"
             ;;
         esac
         
@@ -205,7 +205,6 @@ if [ ! -f "$WG_CONFIG" ]; then
   prefetch-key: yes
   forward-zone:
   name: "."
-  forward-addr: $CLIENT_DNS
   forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
   chown -R unbound:unbound /var/lib/unbound
 	systemctl enable unbound
@@ -346,7 +345,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
 	iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-	ip6tables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
     fi	
 
