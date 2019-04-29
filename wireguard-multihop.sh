@@ -146,16 +146,15 @@ SaveConfig = false" > $WG_CONFIG
         iptables-save > /etc/iptables/rules.v4	
     fi	
 
-    systemctl enable wg-quick@wg0.service
-    systemctl start wg-quick@wg0.service
-
-    # TODO: unattended updates, apt install dnsmasq ntp
-    echo "Client config --> $HOME/client-wg0.conf"
-    echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
-fi
-
     echo "# peer
 [Peer]
 PublicKey = $PUBLIC_KEY_FIRST_SERVER
 Endpoint = $END_POINT_FIRST_SERVER
 AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
+
+
+    systemctl enable wg-quick@wg0.service
+    systemctl start wg-quick@wg0.service
+
+    echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
+fi
