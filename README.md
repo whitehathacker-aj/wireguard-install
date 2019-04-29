@@ -12,10 +12,10 @@ wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wiregu
 bash wireguard-client.sh
 ```
 
-### Wireguard Client
+### Wireguard Multi-hop
 ```
-wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wireguard-peer.sh
-bash wireguard-peer.sh
+wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wireguard-multihop.sh
+bash wireguard-multihop.sh
 ```
 
 Copy $HOME/$CLIENT_NAME-wg0.conf to /etc/wireguard/wg0.conf 
