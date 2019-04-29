@@ -71,8 +71,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 	
 	esac
 
-    	echo "Whats your public key of the first server?"
-	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
+    	echo "Whats your IP of the first server?"
+	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
 	
 	esac
 
@@ -157,4 +157,5 @@ fi
     echo "# peer
 [Peer]
 PublicKey = $PUBLIC_KEY_FIRST_SERVER
+Endpoint = $END_POINT_FIRST_SERVER
 AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
