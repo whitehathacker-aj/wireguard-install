@@ -68,7 +68,6 @@ if [ ! -f "$WG_CONFIG" ]; then
 	
     	echo "Whats your public key of the first server?"
 	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
-    esac
 
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
