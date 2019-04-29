@@ -52,9 +52,8 @@ if [ ! -f "$WG_CONFIG" ]; then
     	echo "What port do you want WireGuard to listen to?"
 	echo "   1) Default: 51820"
 	echo "   2) Custom"
-	echo "   3) Random [2000-65535]"
-	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
-		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
+	until [[ "$PORT_CHOICE" =~ ^[1-2]$ ]]; do
+		read -rp "Port choice [1-2]: " -e -i 1 PORT_CHOICE
 	done
 	case $PORT_CHOICE in
 		1)
@@ -65,61 +64,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 				read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
 			done
 		;;
-		3)
-			# Generate random number within private ports range
-			SERVER_PORT=$(shuf -i2000-65535 -n1)
-			echo "Random Port: $SERVER_PORT"
-		;;
 	esac
-
-    if [ "$CLIENT_DNS" == "" ]; then
-        echo "Which DNS do you want to use with the VPN?"
-        echo "   1) Cloudflare"
-        echo "   2) Google"
-        echo "   3) OpenDNS"
-        echo "   4) AdGuard"
-        echo "   5) AdGuard Family Protection"
-        echo "   6) Quad9"
-        echo "   7) Quad9 Uncensored"
-        echo "   8) FDN"
-        echo "   9) DNS.WATCH"
-        echo "   10) Yandex Basic"
-        read -p "DNS [1-10]: " -e -i 4 DNS_CHOICE
-
-        case $DNS_CHOICE in
-            1)
-            CLIENT_DNS="1.1.1.1"
-            ;;
-            2)
-            CLIENT_DNS="8.8.8.8"
-            ;;
-            3)
-            CLIENT_DNS="208.67.222.222"
-            ;;
-            4)
-            CLIENT_DNS="176.103.130.130"
-            ;;
-            5)
-            CLIENT_DNS="176.103.130.132"
-            ;;
-            6)
-            CLIENT_DNS="9.9.9.9"
-            ;;
-            7)
-            CLIENT_DNS="9.9.9.10"
-            ;;
-            8)
-            CLIENT_DNS="80.67.169.40"
-            ;;
-            9)
-            CLIENT_DNS="84.200.69.80"
-            ;;
-            10)
-            CLIENT_DNS="77.88.8.8"
-            ;;
-        esac
-        
-    fi
 
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
