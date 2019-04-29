@@ -49,7 +49,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         fi
     fi
 
-    	echo "What port do you want WireGuard to listen to?"
+    	echo "What port is the other wireguard sevrer running on?"
 	echo "   1) Default: 51820"
 	echo "   2) Custom"
 	until [[ "$PORT_CHOICE" =~ ^[1-2]$ ]]; do
@@ -64,6 +64,16 @@ if [ ! -f "$WG_CONFIG" ]; then
 				read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
 			done
 		;;
+	esac
+	
+    	echo "Whats your public key of the first server?"
+	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
+	
+	esac
+
+    	echo "Whats your public key of the first server?"
+	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
+	
 	esac
 
     if [ "$DISTRO" == "Ubuntu" ]; then
@@ -143,3 +153,8 @@ SaveConfig = false" > $WG_CONFIG
     echo "Client config --> $HOME/client-wg0.conf"
     echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
 fi
+
+    echo "# peer
+[Peer]
+PublicKey = $PUBLIC_KEY_FIRST_SERVER
+AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
