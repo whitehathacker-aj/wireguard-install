@@ -12,6 +12,12 @@ wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wiregu
 bash wireguard-client.sh
 ```
 
+### Wireguard Client
+```
+wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wireguard-peer.sh
+bash wireguard-peer.sh
+```
+
 Copy $HOME/$CLIENT_NAME-wg0.conf to /etc/wireguard/wg0.conf 
 
 ### Setup Wireguard service on client
