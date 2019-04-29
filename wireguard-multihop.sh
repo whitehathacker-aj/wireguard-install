@@ -72,6 +72,9 @@ if [ ! -f "$WG_CONFIG" ]; then
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
 	
+    	echo "Whats the port of the first server?"
+	read -p 'Port On First Server: ' PORT_FIRST_SERVER
+	
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
         apt-get upgrade -y
@@ -145,7 +148,7 @@ SaveConfig = false" > $WG_CONFIG
     echo "# peer
 [Peer]
 PublicKey = $PUBLIC_KEY_FIRST_SERVER
-Endpoint = $END_POINT_FIRST_SERVER
+Endpoint = $END_POINT_FIRST_SERVER:$PORT_FIRST_SERVER
 AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
 
 
