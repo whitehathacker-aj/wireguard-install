@@ -49,7 +49,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         fi
     fi
 
-    	echo "What port is the other wireguard sevrer running on?"
+    	echo "What port do you want this wireguard sevrer running on?"
 	echo "   1) Default: 51820"
 	echo "   2) Custom"
 	until [[ "$PORT_CHOICE" =~ ^[1-2]$ ]]; do
@@ -72,8 +72,22 @@ if [ ! -f "$WG_CONFIG" ]; then
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
 	
-    	echo "Whats the port of the first server?"
-	read -p 'Port On First Server: ' PORT_FIRST_SERVER
+    	echo "What port do you want this wireguard sevrer running on?"
+	echo "   1) Default: 51820"
+	echo "   2) Custom"
+	until [[ "$PORT_CHOICE" =~ ^[1-2]$ ]]; do
+		read -rp "Port choice [1-2]: " -e -i 1 PORT_CHOICE
+	done
+	case $PORT_CHOICE in
+		1)
+			PEER_FIRST_SERVER="51820"
+		;;
+		2)
+			until [[ "$PEER_FIRST_SERVER" =~ ^[0-9]+$ ]] && [ "$PEER_FIRST_SERVER" -ge 1 ] && [ "$PEER_FIRST_SERVER" -le 65535 ]; do
+				read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
+			done
+		;;
+	esac
 	
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
