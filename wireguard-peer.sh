@@ -71,36 +71,6 @@ if [ ! -f "$WG_CONFIG" ]; then
 			echo "Random Port: $SERVER_PORT"
 		;;
 	esac
-	
-    echo "Are you behind a firewall or NAT?"
-    echo "   1) Yes"
-    echo "   2) No"
-    until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "Nat Choice [1-2]: " -e -i 2 NAT_CHOICE
-    done
-    case $NAT_CHOICE in
-        1)
-            NAT_CHOICE="25"
-        ;;
-        2)
-            NAT_CHOICE="0"
-        ;;
-    esac
- 
-    echo "What MTU do you want to use?"
-    echo "   1) 1500"
-    echo "   2) 1420"
-    until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
-    done
-    case $MTU_CHOICE in
-        1)
-            MTU_CHOICE="1500"
-        ;;
-        2)
-            MTU_CHOICE="1420"
-        ;;
-    esac
 
     if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
