@@ -68,14 +68,12 @@ if [ ! -f "$WG_CONFIG" ]; then
 	
     	echo "Whats your public key of the first server?"
 	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
-	
-	esac
+	fi
 
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
+	fi
 	
-	esac
-
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
         apt-get upgrade -y
