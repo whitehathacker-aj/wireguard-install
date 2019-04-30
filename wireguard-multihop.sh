@@ -161,7 +161,7 @@ SaveConfig = false" > $WG_CONFIG
 
     echo "# peer
 [Peer]
-PublicKey = $PUBLIC_KEY_FIRST_PORT
+PublicKey = $PUBLIC_KEY_FIRST_SERVER
 Endpoint = $END_POINT_FIRST_SERVER:$PEER_FIRST_PORT
 AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
 
