@@ -232,6 +232,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   prefetch-key: yes
   forward-zone:
   name: "."
+  forward-tls-upstream: yes
   forward-addr: $CLIENT_DNS_FIRST_V4
   forward-addr: $CLIENT_DNS_SECOND_V4
   forward-addr: $CLIENT_DNS_FIRST_V6
