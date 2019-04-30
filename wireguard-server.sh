@@ -129,10 +129,10 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2001:4860:4860::8844@853"
             ;;
             3)
-            CLIENT_DNS_FIRST_V4="208.67.222.222"
-            CLIENT_DNS_SECOND_V4="208.67.220.220"
-            CLIENT_DNS_FIRST_V6="2620:119:35::35"
-            CLIENT_DNS_SECOND_V6="2620:119:53::53"
+            CLIENT_DNS_FIRST_V4="208.67.222.222@853"
+            CLIENT_DNS_SECOND_V4="208.67.220.220@853"
+            CLIENT_DNS_FIRST_V6="2620:119:35::35@853"
+            CLIENT_DNS_SECOND_V6="2620:119:53::53@853"
             ;;
             4)
             CLIENT_DNS_FIRST_V4="176.103.130.130@853"
@@ -141,10 +141,10 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2a00:5a60::ad2:0ff@853"
             ;;
             5)
-            CLIENT_DNS_FIRST_V4="176.103.130.132"
-            CLIENT_DNS_SECOND_V4="176.103.130.134"
-            CLIENT_DNS_FIRST_V6="2a00:5a60::bad1:0ff"
-            CLIENT_DNS_SECOND_V6="2a00:5a60::bad2:0ff"
+            CLIENT_DNS_FIRST_V4="176.103.130.132@853"
+            CLIENT_DNS_SECOND_V4="176.103.130.134@853"
+            CLIENT_DNS_FIRST_V6="2a00:5a60::bad1:0ff@853"
+            CLIENT_DNS_SECOND_V6="2a00:5a60::bad2:0ff@853"
             ;;
             6)
             CLIENT_DNS_FIRST_V4="9.9.9.9@853"
@@ -153,28 +153,28 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2620:fe::9@853"
             ;;
             7)
-            CLIENT_DNS_FIRST_V4="80.67.169.40"
-            CLIENT_DNS_SECOND_V4="80.67.169.12"
-            CLIENT_DNS_FIRST_V6="2001:910:800::40"
-            CLIENT_DNS_SECOND_V6="2001:910:800::12"
+            CLIENT_DNS_FIRST_V4="80.67.169.40@853"
+            CLIENT_DNS_SECOND_V4="80.67.169.12@853"
+            CLIENT_DNS_FIRST_V6="2001:910:800::40@853"
+            CLIENT_DNS_SECOND_V6="2001:910:800::12@853"
             ;;
             8)
-            CLIENT_DNS_FIRST_V4="84.200.69.80"
-            CLIENT_DNS_SECOND_V4="84.200.70.40"
-            CLIENT_DNS_FIRST_V6="2001:1608:10:25::1c04:b12f"
-            CLIENT_DNS_SECOND_V6="2001:1608:10:25::9249:d69b"
+            CLIENT_DNS_FIRST_V4="84.200.69.80@853"
+            CLIENT_DNS_SECOND_V4="84.200.70.40@853"
+            CLIENT_DNS_FIRST_V6="2001:1608:10:25::1c04:b12f@853"
+            CLIENT_DNS_SECOND_V6="2001:1608:10:25::9249:d69b@853"
             ;;
             9)
-            CLIENT_DNS_FIRST_V4="77.88.8.8"
-            CLIENT_DNS_SECOND_V4="77.88.8.1"
-            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff"
-            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff"
+            CLIENT_DNS_FIRST_V4="77.88.8.8@853"
+            CLIENT_DNS_SECOND_V4="77.88.8.1@853"
+            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff@853"
+            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff@853"
             ;;
             10)
-            CLIENT_DNS_FIRST_V4="77.88.8.8"
-            CLIENT_DNS_SECOND_V4="77.88.8.1"
-            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff"
-            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff"
+            CLIENT_DNS_FIRST_V4="77.88.8.8@853"
+            CLIENT_DNS_SECOND_V4="77.88.8.1@853"
+            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff@853"
+            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff@853"
             ;;
         esac
         
