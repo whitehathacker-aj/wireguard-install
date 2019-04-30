@@ -109,24 +109,24 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "   4) AdGuard"
         echo "   5) AdGuard Family Protection"
         echo "   6) Quad9"
-        echo "   7) Quad9 Uncensored"
-        echo "   8) FDN"
-        echo "   9) DNS.WATCH"
-        echo "   10) Yandex Basic"
+        echo "   7) FDN"
+        echo "   8) DNS.WATCH"
+        echo "   9) Yandex Basic"
+        echo "   10) Clean Browsing"
         read -p "DNS [1-10]: " -e -i 4 DNS_CHOICE
 
         case $DNS_CHOICE in
             1)
-            CLIENT_DNS_FIRST_V4="1.1.1.1"
-            CLIENT_DNS_SECOND_V4="1.0.0.1"
-            CLIENT_DNS_FIRST_V6="2606:4700:4700::1111"
-            CLIENT_DNS_SECOND_V6="2606:4700:4700::1001"
+            CLIENT_DNS_FIRST_V4="1.1.1.1@853"
+            CLIENT_DNS_SECOND_V4="1.0.0.1@853"
+            CLIENT_DNS_FIRST_V6="2606:4700:4700::1111@853"
+            CLIENT_DNS_SECOND_V6="2606:4700:4700::1001@853"
             ;;
             2)
-            CLIENT_DNS_FIRST_V4="8.8.8.8"
-            CLIENT_DNS_SECOND_V4="8.8.4.4"
-            CLIENT_DNS_FIRST_V6="2001:4860:4860::8888"
-            CLIENT_DNS_SECOND_V6="2001:4860:4860::8844"
+            CLIENT_DNS_FIRST_V4="8.8.8.8@853"
+            CLIENT_DNS_SECOND_V4="8.8.4.4@853"
+            CLIENT_DNS_FIRST_V6="2001:4860:4860::8888@853"
+            CLIENT_DNS_SECOND_V6="2001:4860:4860::8844@853"
             ;;
             3)
             CLIENT_DNS_FIRST_V4="208.67.222.222"
@@ -135,10 +135,10 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2620:119:53::53"
             ;;
             4)
-            CLIENT_DNS_FIRST_V4="176.103.130.130"
-            CLIENT_DNS_SECOND_V4="176.103.130.131"
-            CLIENT_DNS_FIRST_V6="2a00:5a60::ad1:0ff"
-            CLIENT_DNS_SECOND_V6="2a00:5a60::ad2:0ff"
+            CLIENT_DNS_FIRST_V4="176.103.130.130@853"
+            CLIENT_DNS_SECOND_V4="176.103.130.131@853"
+            CLIENT_DNS_FIRST_V6="2a00:5a60::ad1:0ff@853"
+            CLIENT_DNS_SECOND_V6="2a00:5a60::ad2:0ff@853"
             ;;
             5)
             CLIENT_DNS_FIRST_V4="176.103.130.132"
@@ -147,28 +147,28 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2a00:5a60::bad2:0ff"
             ;;
             6)
-            CLIENT_DNS_FIRST_V4="9.9.9.9"
-            CLIENT_DNS_SECOND_V4="149.112.112.112"
-            CLIENT_DNS_FIRST_V6="2620:fe::fe"
-            CLIENT_DNS_SECOND_V6="2620:fe::9"
+            CLIENT_DNS_FIRST_V4="9.9.9.9@853"
+            CLIENT_DNS_SECOND_V4="149.112.112.112@853"
+            CLIENT_DNS_FIRST_V6="2620:fe::fe@853"
+            CLIENT_DNS_SECOND_V6="2620:fe::9@853"
             ;;
             7)
-            CLIENT_DNS_FIRST_V4="9.9.9.10"
-            CLIENT_DNS_SECOND_V4="149.112.112.10"
-            CLIENT_DNS_FIRST_V6="2620:fe::10"
-            CLIENT_DNS_SECOND_V6="2620:fe::fe:10"
-	    ;;
-            8)
             CLIENT_DNS_FIRST_V4="80.67.169.40"
             CLIENT_DNS_SECOND_V4="80.67.169.12"
             CLIENT_DNS_FIRST_V6="2001:910:800::40"
             CLIENT_DNS_SECOND_V6="2001:910:800::12"
             ;;
-            9)
+            8)
             CLIENT_DNS_FIRST_V4="84.200.69.80"
             CLIENT_DNS_SECOND_V4="84.200.70.40"
             CLIENT_DNS_FIRST_V6="2001:1608:10:25::1c04:b12f"
             CLIENT_DNS_SECOND_V6="2001:1608:10:25::9249:d69b"
+            ;;
+            9)
+            CLIENT_DNS_FIRST_V4="77.88.8.8"
+            CLIENT_DNS_SECOND_V4="77.88.8.1"
+            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff"
+            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff"
             ;;
             10)
             CLIENT_DNS_FIRST_V4="77.88.8.8"
