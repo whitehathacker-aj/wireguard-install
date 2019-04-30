@@ -41,7 +41,7 @@ fi
         apt-get update
         apt-get upgrade -y
         apt-get dist-upgrade -y
-        apt-get autoremove clean -y
+        apt-get autoremove -y
         apt-get install build-essential haveged -y
         apt-get install wireguard resolvconf -y
 
