@@ -72,7 +72,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
 	
-    	echo "What port do you want this wireguard sevrer running on?"
+    	echo "What port is your other wireguard server running on?"
 	echo "   1) Default: 51820"
 	echo "   2) Custom"
 	until [[ "$PEER_PORT_CHOICE" =~ ^[1-2]$ ]]; do
