@@ -102,7 +102,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
-    if [ "$CLIENT_DNS" == "" ]; then
+    if [ "$CLIENT_DNS_FIRST_V4" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) Cloudflare"
         echo "   2) Google"
@@ -118,34 +118,64 @@ if [ ! -f "$WG_CONFIG" ]; then
 
         case $DNS_CHOICE in
             1)
-            CLIENT_DNS="1.1.1.1"
+            CLIENT_DNS_FIRST_V4="1.1.1.1"
+            CLIENT_DNS_SECOND_V4="1.0.0.1"
+            CLIENT_DNS_FIRST_V6="2606:4700:4700::1111"
+            CLIENT_DNS_SECOND_V6="2606:4700:4700::1001"
             ;;
             2)
-            CLIENT_DNS="8.8.8.8"
+            CLIENT_DNS_FIRST_V4="8.8.8.8"
+            CLIENT_DNS_SECOND_V4="8.8.4.4"
+            CLIENT_DNS_FIRST_V6="2001:4860:4860::8888"
+            CLIENT_DNS_SECOND_V6="2001:4860:4860::8844"
             ;;
             3)
-            CLIENT_DNS="208.67.222.222"
+            CLIENT_DNS_FIRST_V4="208.67.222.222"
+            CLIENT_DNS_SECOND_V4="208.67.220.220"
+            CLIENT_DNS_FIRST_V6="2620:119:35::35"
+            CLIENT_DNS_SECOND_V6="2620:119:53::53"
             ;;
             4)
-            CLIENT_DNS="176.103.130.130"
+            CLIENT_DNS_FIRST_V4="176.103.130.130"
+            CLIENT_DNS_SECOND_V4="176.103.130.131"
+            CLIENT_DNS_FIRST_V6="2a00:5a60::ad1:0ff"
+            CLIENT_DNS_SECOND_V6="2a00:5a60::ad2:0ff"
             ;;
             5)
-            CLIENT_DNS="176.103.130.132"
+            CLIENT_DNS_FIRST_V4="176.103.130.132"
+            CLIENT_DNS_SECOND_V4="176.103.130.134"
+            CLIENT_DNS_FIRST_V6="2a00:5a60::bad1:0ff"
+            CLIENT_DNS_SECOND_V6="2a00:5a60::bad2:0ff"
             ;;
             6)
-            CLIENT_DNS="9.9.9.9"
+            CLIENT_DNS_FIRST_V4="9.9.9.9"
+            CLIENT_DNS_SECOND_V4="149.112.112.112"
+            CLIENT_DNS_FIRST_V6="2620:fe::fe"
+            CLIENT_DNS_SECOND_V6="2620:fe::9"
             ;;
             7)
-            CLIENT_DNS="9.9.9.10"
-            ;;
+            CLIENT_DNS_FIRST_V4="9.9.9.10"
+            CLIENT_DNS_SECOND_V4="149.112.112.10"
+            CLIENT_DNS_FIRST_V6="2620:fe::10"
+            CLIENT_DNS_SECOND_V6="2620:fe::fe:10"
+	    ;;
             8)
-            CLIENT_DNS="80.67.169.40"
+            CLIENT_DNS_FIRST_V4="80.67.169.40"
+            CLIENT_DNS_SECOND_V4="80.67.169.12"
+            CLIENT_DNS_FIRST_V6="2001:910:800::40"
+            CLIENT_DNS_SECOND_V6="2001:910:800::12"
             ;;
             9)
-            CLIENT_DNS="84.200.69.80"
+            CLIENT_DNS_FIRST_V4="84.200.69.80"
+            CLIENT_DNS_SECOND_V4="84.200.70.40"
+            CLIENT_DNS_FIRST_V6="2001:1608:10:25::1c04:b12f"
+            CLIENT_DNS_SECOND_V6="2001:1608:10:25::9249:d69b"
             ;;
             10)
-            CLIENT_DNS="77.88.8.8"
+            CLIENT_DNS_FIRST_V4="77.88.8.8"
+            CLIENT_DNS_SECOND_V4="77.88.8.1"
+            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff"
+            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff"
             ;;
         esac
         
@@ -203,7 +233,10 @@ if [ ! -f "$WG_CONFIG" ]; then
   prefetch-key: yes
   forward-zone:
   name: "."
-  forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
+  forward-addr: $CLIENT_DNS_FIRST_V4
+  forward-addr: $CLIENT_DNS_SECOND_V4
+  forward-addr: $CLIENT_DNS_FIRST_V6
+  forward-addr: $CLIENT_DNS_SECOND_V6" > /etc/unbound/unbound.conf
   	chown -R unbound:unbound /var/lib/unbound
 	systemctl enable unbound
 	service unbound restart
@@ -264,8 +297,11 @@ if [ ! -f "$WG_CONFIG" ]; then
   prefetch-key: yes
   forward-zone:
   name: "."
-  forward-addr: $CLIENT_DNS" > /etc/unbound/unbound.conf
-	chown -R unbound:unbound /var/lib/unbound
+  forward-addr: $CLIENT_DNS_FIRST_V4
+  forward-addr: $CLIENT_DNS_SECOND_V4
+  forward-addr: $CLIENT_DNS_FIRST_V6
+  forward-addr: $CLIENT_DNS_SECOND_V6" > /etc/unbound/unbound.conf
+  	chown -R unbound:unbound /var/lib/unbound
 	systemctl enable unbound
 	service unbound restart
 	chattr -i /etc/resolv.conf
