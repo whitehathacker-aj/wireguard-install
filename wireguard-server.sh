@@ -171,10 +171,10 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff@853"
             ;;
             10)
-            CLIENT_DNS_FIRST_V4="77.88.8.8@853"
-            CLIENT_DNS_SECOND_V4="77.88.8.1@853"
-            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff@853"
-            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff@853"
+            CLIENT_DNS_FIRST_V4="185.228.168.9@853"
+            CLIENT_DNS_SECOND_V4="185.228.169.9@853"
+            CLIENT_DNS_FIRST_V6="2a0d:2a00:1::2@853"
+            CLIENT_DNS_SECOND_V6="2a0d:2a00:2::2@853"
             ;;
         esac
         
