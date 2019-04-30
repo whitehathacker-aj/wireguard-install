@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # https://github.com/LiveChief/wireguard-install
-# Secure WireGuard server installer for Debian, Ubuntu
 #
 
 WG_CONFIG="/etc/wireguard/wg0.conf"
@@ -297,6 +296,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   prefetch-key: yes
   forward-zone:
   name: "."
+  forward-tls-upstream: yes
   forward-addr: $CLIENT_DNS_FIRST_V4
   forward-addr: $CLIENT_DNS_SECOND_V4
   forward-addr: $CLIENT_DNS_FIRST_V6
