@@ -160,7 +160,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
         apt-get install wireguard qrencode iptables-persistent -y
-	    apt-get install unattended-upgrades apt-listchanges -y
+        apt-get install unattended-upgrades apt-listchanges ntp -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Ubuntu"
 	
     elif [ "$DISTRO" == "Debian" ]; then
@@ -172,7 +172,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get autoremove -y
         apt-get install build-essential haveged -y
         apt-get install wireguard qrencode iptables-persistent -y
-	    apt-get install unattended-upgrades apt-listchanges -y
+        apt-get install unattended-upgrades apt-listchanges ntp -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Debian"
     fi
 
