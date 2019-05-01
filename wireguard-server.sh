@@ -101,7 +101,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
-    if [ "$CLIENT_DNS_FIRST_V4" == "" ]; then
+    if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) Cloudflare"
         echo "   2) Google"
@@ -117,64 +117,34 @@ if [ ! -f "$WG_CONFIG" ]; then
 
         case $DNS_CHOICE in
             1)
-            CLIENT_DNS_FIRST_V4="1.1.1.1@853"
-            CLIENT_DNS_SECOND_V4="1.0.0.1@853"
-            CLIENT_DNS_FIRST_V6="2606:4700:4700::1111@853"
-            CLIENT_DNS_SECOND_V6="2606:4700:4700::1001@853"
+            CLIENT_DNS="1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
             ;;
             2)
-            CLIENT_DNS_FIRST_V4="8.8.8.8@853"
-            CLIENT_DNS_SECOND_V4="8.8.4.4@853"
-            CLIENT_DNS_FIRST_V6="2001:4860:4860::8888@853"
-            CLIENT_DNS_SECOND_V6="2001:4860:4860::8844@853"
+            CLIENT_DNS="8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"
             ;;
             3)
-            CLIENT_DNS_FIRST_V4="208.67.222.222@853"
-            CLIENT_DNS_SECOND_V4="208.67.220.220@853"
-            CLIENT_DNS_FIRST_V6="2620:119:35::35@853"
-            CLIENT_DNS_SECOND_V6="2620:119:53::53@853"
+            CLIENT_DNS="208.67.222.222,208.67.220.220,2620:119:35::35,2620:119:53::53"
             ;;
             4)
-            CLIENT_DNS_FIRST_V4="176.103.130.130@853"
-            CLIENT_DNS_SECOND_V4="176.103.130.131@853"
-            CLIENT_DNS_FIRST_V6="2a00:5a60::ad1:0ff@853"
-            CLIENT_DNS_SECOND_V6="2a00:5a60::ad2:0ff@853"
+            CLIENT_DNS="176.103.130.130,176.103.130.131,2a00:5a60::ad1:0ff,2a00:5a60::ad2:0ff"
             ;;
             5)
-            CLIENT_DNS_FIRST_V4="176.103.130.132@853"
-            CLIENT_DNS_SECOND_V4="176.103.130.134@853"
-            CLIENT_DNS_FIRST_V6="2a00:5a60::bad1:0ff@853"
-            CLIENT_DNS_SECOND_V6="2a00:5a60::bad2:0ff@853"
+            CLIENT_DNS="176.103.130.132,176.103.130.134,2a00:5a60::bad1:0ff,2a00:5a60::bad2:0ff"
             ;;
             6)
-            CLIENT_DNS_FIRST_V4="9.9.9.9@853"
-            CLIENT_DNS_SECOND_V4="149.112.112.112@853"
-            CLIENT_DNS_FIRST_V6="2620:fe::fe@853"
-            CLIENT_DNS_SECOND_V6="2620:fe::9@853"
+            CLIENT_DNS="9.9.9.9,149.112.112.112,2620:fe::fe,2620:fe::9"
             ;;
             7)
-            CLIENT_DNS_FIRST_V4="80.67.169.40@853"
-            CLIENT_DNS_SECOND_V4="80.67.169.12@853"
-            CLIENT_DNS_FIRST_V6="2001:910:800::40@853"
-            CLIENT_DNS_SECOND_V6="2001:910:800::12@853"
+            CLIENT_DNS="80.67.169.40,80.67.169.12,2001:910:800::40,2001:910:800::12"
             ;;
             8)
-            CLIENT_DNS_FIRST_V4="84.200.69.80@853"
-            CLIENT_DNS_SECOND_V4="84.200.70.40@853"
-            CLIENT_DNS_FIRST_V6="2001:1608:10:25::1c04:b12f@853"
-            CLIENT_DNS_SECOND_V6="2001:1608:10:25::9249:d69b@853"
+            CLIENT_DNS="84.200.69.80,84.200.70.40,2001:1608:10:25::1c04:b12f,2001:1608:10:25::9249:d69b"
             ;;
             9)
-            CLIENT_DNS_FIRST_V4="77.88.8.8@853"
-            CLIENT_DNS_SECOND_V4="77.88.8.1@853"
-            CLIENT_DNS_FIRST_V6="2a02:6b8::feed:0ff@853"
-            CLIENT_DNS_SECOND_V6="2a02:6b8:0:1::feed:0ff@853"
+            CLIENT_DNS="77.88.8.8,77.88.8.1,2a02:6b8::feed:0ff,2a02:6b8:0:1::feed:0ff"
             ;;
             10)
-            CLIENT_DNS_FIRST_V4="185.228.168.9@853"
-            CLIENT_DNS_SECOND_V4="185.228.169.9@853"
-            CLIENT_DNS_FIRST_V6="2a0d:2a00:1::2@853"
-            CLIENT_DNS_SECOND_V6="2a0d:2a00:2::2@853"
+            CLIENT_DNS="185.228.168.9,185.228.169.9,2a0d:2a00:1::2,2a0d:2a00:2::2"
             ;;
         esac
         
@@ -190,61 +160,8 @@ if [ ! -f "$WG_CONFIG" ]; then
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
         apt-get install wireguard qrencode iptables-persistent -y
-	apt-get install unattended-upgrades apt-listchanges -y
+	    apt-get install unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Ubuntu"
-	apt-get install unbound unbound-host -y
-	wget -O /var/lib/unbound/root.hints  https://www.internic.net/domain/named.cache
-  echo "" > /etc/unbound/unbound.conf
-  echo "server:
-  num-threads: 4	
-  do-ip6: yes
-  #Enable logs	
-  verbosity: 1	
-  #list of Root DNS Server	
-  root-hints: "/var/lib/unbound/root.hints"	
-  #Use the root servers key for DNSSEC	
-  auto-trust-anchor-file: "/var/lib/unbound/root.key"	
-  #Respond to DNS requests on all interfaces	
-  interface: 0.0.0.0	
-  max-udp-size: 3072	
-  #Authorized IPs to access the DNS Server	
-  access-control: 0.0.0.0/0                 refuse	
-  access-control: 127.0.0.1                 allow	
-  access-control: 10.8.0.0/24               allow	
-  #not allowed to be returned for public internet  names	
-  private-address: 10.8.0.0/24	
-  # Hide DNS Server info	
-  hide-identity: yes	
-  hide-version: yes	
-  #Limit DNS Fraud and use DNSSEC	
-  harden-glue: yes	
-  harden-dnssec-stripped: yes	
-  harden-referral-path: yes	
-  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning	
-  unwanted-reply-threshold: 10000000	
-  #Have the validator print validation failures to the log.	
-  val-log-level: 1	
-  #Minimum lifetime of cache entries in seconds	
-  cache-min-ttl: 1800	
-  #Maximum lifetime of cached entries	
-  cache-max-ttl: 14400	
-  prefetch: yes	
-  prefetch-key: yes
-  forward-zone:
-  name: "."
-  forward-tls-upstream: yes
-  forward-addr: $CLIENT_DNS_FIRST_V4
-  forward-addr: $CLIENT_DNS_SECOND_V4
-  forward-addr: $CLIENT_DNS_FIRST_V6
-  forward-addr: $CLIENT_DNS_SECOND_V6" > /etc/unbound/unbound.conf
-  	chown -R unbound:unbound /var/lib/unbound
-	systemctl enable unbound
-	service unbound restart
-	chattr -i /etc/resolv.conf
-	sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-	sed -i "s|search|#search|" /etc/resolv.conf
-	echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-	chattr +i /etc/resolv.conf
 	
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -255,61 +172,8 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get autoremove -y
         apt-get install build-essential haveged -y
         apt-get install wireguard qrencode iptables-persistent -y
-	apt-get install unattended-upgrades apt-listchanges -y
+	    apt-get install unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Debian"
-	apt-get install unbound unbound-host -y
-	wget -O /var/lib/unbound/root.hints  https://www.internic.net/domain/named.cache
-  echo "" > /etc/unbound/unbound.conf
-  echo "server:
-  num-threads: 4	
-  do-ip6: yes
-  #Enable logs	
-  verbosity: 1	
-  #list of Root DNS Server	
-  root-hints: "/var/lib/unbound/root.hints"	
-  #Use the root servers key for DNSSEC	
-  auto-trust-anchor-file: "/var/lib/unbound/root.key"	
-  #Respond to DNS requests on all interfaces	
-  interface: 0.0.0.0	
-  max-udp-size: 3072	
-  #Authorized IPs to access the DNS Server	
-  access-control: 0.0.0.0/0                 refuse	
-  access-control: 127.0.0.1                 allow	
-  access-control: 10.8.0.0/24               allow	
-  #not allowed to be returned for public internet  names	
-  private-address: 10.8.0.0/24	
-  # Hide DNS Server info	
-  hide-identity: yes	
-  hide-version: yes	
-  #Limit DNS Fraud and use DNSSEC	
-  harden-glue: yes	
-  harden-dnssec-stripped: yes	
-  harden-referral-path: yes	
-  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning	
-  unwanted-reply-threshold: 10000000	
-  #Have the validator print validation failures to the log.	
-  val-log-level: 1	
-  #Minimum lifetime of cache entries in seconds	
-  cache-min-ttl: 1800	
-  #Maximum lifetime of cached entries	
-  cache-max-ttl: 14400	
-  prefetch: yes	
-  prefetch-key: yes
-  forward-zone:
-  name: "."
-  forward-tls-upstream: yes
-  forward-addr: $CLIENT_DNS_FIRST_V4
-  forward-addr: $CLIENT_DNS_SECOND_V4
-  forward-addr: $CLIENT_DNS_FIRST_V6
-  forward-addr: $CLIENT_DNS_SECOND_V6" > /etc/unbound/unbound.conf
-  	chown -R unbound:unbound /var/lib/unbound
-	systemctl enable unbound
-	service unbound restart
-	chattr -i /etc/resolv.conf
-	sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-	sed -i "s|search|#search|" /etc/resolv.conf
-	echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-	chattr +i /etc/resolv.conf
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
@@ -337,7 +201,7 @@ AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
-DNS = 10.8.0.1
+DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
@@ -410,7 +274,7 @@ AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
-DNS = 10.8.0.1
+DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
