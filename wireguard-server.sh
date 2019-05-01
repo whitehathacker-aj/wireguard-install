@@ -224,7 +224,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-	iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
         iptables-save > /etc/iptables/rules.v4
     else
         iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
@@ -235,7 +234,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-	iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
     fi	
 
