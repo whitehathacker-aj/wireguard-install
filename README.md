@@ -1,4 +1,4 @@
-# wireguard-install
+# Wireguard Install
 
 ### Wireguard Server
 ```
