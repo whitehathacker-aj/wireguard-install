@@ -190,6 +190,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 [Interface]
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
+PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false" > $WG_CONFIG
 
     echo "# client
