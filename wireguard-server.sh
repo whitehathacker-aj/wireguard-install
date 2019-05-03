@@ -182,6 +182,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
+    PRESHARED_KEY=$( wg genpsk )
 
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
@@ -196,6 +197,7 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
