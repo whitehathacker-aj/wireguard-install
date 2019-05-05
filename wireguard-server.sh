@@ -24,6 +24,11 @@ if [ "$( systemd-detect-virt )" == "openvz" ]; then
     exit
 fi
 
+if [ "$(systemd-detect-virt)" == "lxc" ]; then
+    echo "LXC is not supported."
+    exit
+fi
+
 if [ ! -f "$WG_CONFIG" ]; then
     ### Install server and add default client
     INTERACTIVE=${INTERACTIVE:-yes}
