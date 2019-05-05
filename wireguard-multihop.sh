@@ -11,11 +11,6 @@ if [[ "$EUID" -ne 0 ]]; then
     exit
 fi
 
-if [[ ! -e /dev/net/tun ]]; then
-    echo "The TUN device is not available. You need to enable TUN before running this script"
-    exit
-fi
-
 if [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
 else
