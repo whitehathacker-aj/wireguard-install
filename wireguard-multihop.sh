@@ -100,7 +100,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get update
         apt-get install wireguard qrencode iptables-persistent -y
         apt-get install unattended-upgrades apt-listchanges -y
-        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Ubuntu"
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
         
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -112,7 +112,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         apt-get install build-essential haveged -y
         apt-get install wireguard qrencode iptables-persistent -y
         apt-get install unattended-upgrades apt-listchanges -y
-        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/wireguard-install/master/unattended-upgrades/50unattended-upgrades.Debian"
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
