@@ -169,10 +169,10 @@ if [ ! -f "$WG_CONFIG" ]; then
 
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
-        apt-get install haveged ntpdate software-properties-common -y
+        apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
 	ntpdate pool.ntp.org
 	
@@ -180,7 +180,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
         apt-get update
-        apt-get install haveged ntpdate wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
 	ntpdate pool.ntp.org
 	
@@ -200,7 +200,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
 
-    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE
+    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE $CLIENT_ALLOWED_IP
 [Interface]
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
@@ -277,6 +277,7 @@ else
     CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
     MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
     NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
+    CLIENT_ALLOWED_IP=$( head -n1 $WG_CONFIG | awk '{print $9}')
     LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
