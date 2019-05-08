@@ -9,7 +9,6 @@ if [[ "$EUID" -ne 0 ]]; then
     exit
 fi
 
-
 if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
 elif [ -e /etc/debian_version ]; then
@@ -19,17 +18,8 @@ else
     exit
 fi
 
-if [ "$( systemd-detect-virt )" == "openvz" ]; then
-    echo "OpenVZ virtualization is not supported"
-    exit
-fi
-
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged -y
         apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
@@ -39,10 +29,6 @@ fi
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged -y
         apt-get install wireguard resolvconf -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
