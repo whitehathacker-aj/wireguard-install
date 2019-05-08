@@ -11,7 +11,9 @@ if [[ "$EUID" -ne 0 ]]; then
     exit
 fi
 
-if [ -e /etc/debian_version ]; then
+if [ -e /etc/centos-release ]; then
+    DISTRO="CentOS"
+elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
 else
     echo "Your distribution is not supported (yet)"
@@ -20,6 +22,11 @@ fi
 
 if [ "$( systemd-detect-virt )" == "openvz" ]; then
     echo "OpenVZ virtualization is not supported"
+    exit
+fi
+
+if [ "$(systemd-detect-virt)" == "lxc" ]; then
+    echo "LXC is not supported."
     exit
 fi
 
@@ -86,28 +93,25 @@ if [ ! -f "$WG_CONFIG" ]; then
 	
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged -y
-        apt-get install software-properties-common -y
+        apt-get install haveged ntpdate software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode iptables-persistent -y
-        apt-get install unattended-upgrades apt-listchanges -y
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
-        
+	ntpdate pool.ntp.org
+	
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged -y
-        apt-get install wireguard qrencode iptables-persistent -y
-        apt-get install unattended-upgrades apt-listchanges -y
+        apt-get install haveged ntpdate wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
+	ntpdate pool.ntp.org
+	
+    elif [ "$DISTRO" == "CentOS" ]; then
+        curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+        yum install epel-release -y
+        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
@@ -132,16 +136,18 @@ SaveConfig = false" > $WG_CONFIG
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
 
-    if [ "$DISTRO" == "Debian" ]; then	
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
+    if [ "$DISTRO" == "CentOS" ]; then
+        systemctl start firewalld
+        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
     else
         iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
         ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
