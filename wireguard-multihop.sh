@@ -132,7 +132,6 @@ PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false" > $WG_CONFIG
 
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-    echo "net.ipv4.conf.all.forwarding=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
 
