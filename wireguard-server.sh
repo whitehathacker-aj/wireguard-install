@@ -103,7 +103,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
-    echo "What do you want the Allowed IPs to be?"
+    echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything"
     echo "   2) Exclude Private IPs"
     until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
