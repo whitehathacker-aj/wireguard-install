@@ -103,6 +103,21 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
+    echo "What do you want the Allowed IPs to be?"
+    echo "   1) Everything"
+    echo "   2) Exclude Private IPs"
+    until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
+        read -rp "Client Allowed IP Choice [1-2]: " -e -i 1 CLIENT_ALLOWED_IP
+    done
+    case $CLIENT_ALLOWED_IP in
+        1)
+            CLIENT_ALLOWED_IP="0.0.0.0/0, ::/0"
+        ;;
+        2)
+            CLIENT_ALLOWED_IP="0.0.0.0/5, 8.0.0.0/7, 11.0.0.0/8, 12.0.0.0/6, 16.0.0.0/4, 32.0.0.0/3, 64.0.0.0/2, 128.0.0.0/3, 160.0.0.0/5, 168.0.0.0/6, 172.0.0.0/12, 172.32.0.0/11, 172.64.0.0/10, 172.128.0.0/9, 173.0.0.0/8, 174.0.0.0/7, 176.0.0.0/4, 192.0.0.0/9, 192.128.0.0/11, 192.160.0.0/13, 192.169.0.0/16, 192.170.0.0/15, 192.172.0.0/14, 192.176.0.0/12, 192.192.0.0/10, 193.0.0.0/8, 194.0.0.0/7, 196.0.0.0/6, 200.0.0.0/5, 208.0.0.0/4, ::/0, 176.103.130.130/32, 176.103.130.131/32"
+        ;;
+    esac
+    
     if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) Cloudflare"
@@ -204,7 +219,7 @@ DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
-AllowedIPs = 0.0.0.0/0, ::/0
+AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
@@ -278,7 +293,7 @@ DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
-AllowedIPs = 0.0.0.0/0, ::/0 
+AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_ENDPOINT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
