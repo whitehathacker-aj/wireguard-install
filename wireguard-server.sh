@@ -154,10 +154,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 
     if [ "$DISTRO" == "Ubuntu" ]; then
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged ntpdate -y
+        apt-get install haveged ntpdate -y
         apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
@@ -170,10 +167,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
         apt-get update
-        apt-get upgrade -y
-        apt-get dist-upgrade -y
-        apt-get autoremove -y
-        apt-get install build-essential haveged ntpdate -y
+        apt-get install haveged ntpdate -y
         apt-get install wireguard qrencode iptables-persistent -y
         apt-get install unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
