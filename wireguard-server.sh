@@ -256,9 +256,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
 
-    # TODO: unattended updates, apt install dnsmasq ntp
     echo "Client config --> $HOME/client-wg0.conf"
-    echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
 else
     ### Server is installed, add a new client
     CLIENT_NAME="$1"
