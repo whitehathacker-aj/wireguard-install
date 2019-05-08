@@ -124,7 +124,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "   2) Google"
         echo "   3) OpenDNS"
         echo "   4) AdGuard"
-        echo "   5) AdGuard Family Protection"
+        echo "   5) Verisign"
         echo "   6) Quad9"
         echo "   7) FDN"
         echo "   8) DNS.WATCH"
@@ -146,7 +146,7 @@ if [ ! -f "$WG_CONFIG" ]; then
             CLIENT_DNS="176.103.130.130,176.103.130.131,2a00:5a60::ad1:0ff,2a00:5a60::ad2:0ff"
             ;;
             5)
-            CLIENT_DNS="176.103.130.132,176.103.130.134,2a00:5a60::bad1:0ff,2a00:5a60::bad2:0ff"
+            CLIENT_DNS="64.6.64.6,64.6.65.6,2620:74:1b::1:1,2620:74:1c::2:2"
             ;;
             6)
             CLIENT_DNS="9.9.9.9,149.112.112.112,2620:fe::fe,2620:fe::9"
