@@ -25,7 +25,7 @@ if [ "$( systemd-detect-virt )" == "openvz" ]; then
 fi
 
 if [ "$(systemd-detect-virt)" == "lxc" ]; then
-    echo "LXC is not supported."
+    echo "LXC virtualization is not supported."
     exit
 fi
 
