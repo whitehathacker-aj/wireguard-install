@@ -135,7 +135,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     echo "Do you want to disable IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) Yes"
+    echo "   2) Yes (Disabled)"
     until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
         read -rp "Disable Host Choice [1-2]: " -e -i 1 DISABLE_HOST
     done
@@ -144,10 +144,10 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             DISABLE_HOST="sysctl -p"
         ;;
         2)
-            DISABLE_HOST="echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
-	    echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf
-	    echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
-	    sysctl -p"
+            DISABLE_HOST="(echo 'net.ipv6.conf.all.disable_ipv6 = 1
+	    net.ipv6.conf.default.disable_ipv6 = 1
+	    net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
+	    sysctl -p)"
         ;;
     esac
     
