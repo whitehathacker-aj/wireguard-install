@@ -118,7 +118,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
 
-    echo "What do you want to connect via to the server via IPV4 or IPV6?"
+    echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
     echo "   2) IPv6"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
