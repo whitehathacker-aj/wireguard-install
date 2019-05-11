@@ -133,12 +133,11 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
     
-    echo "Do you want to disable IPV4 or IPV6 on the server?"
+    echo "Do you want to disable IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) IPv4 (Not-Working)"
-    echo "   3) IPv6 (Not-Working)"
-    until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
-        read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
+    echo "   2) Yes (Not Working Currently)"
+    until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
+        read -rp "Disable Host Choice [1-2]: " -e -i 1 DISABLE_HOST
     done
     case $DISABLE_HOST in
         1)
@@ -147,9 +146,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         2)
             DISABLE_HOST=""
         ;;
-        3)
-            DISABLE_HOST=""
-	;;
     esac
     
     echo "What traffic do you want the client to forward to wireguard?"
