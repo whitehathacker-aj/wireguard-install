@@ -40,7 +40,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
     if [ "$SERVER_HOST_V4" == "" ]; then
-        SERVER_HOST_V4="$(wget -O - -q https://v4.ident.me)"
+        SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
@@ -51,7 +51,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
     
 if [ "$SERVER_HOST_V6" == "" ]; then
-        SERVER_HOST_V6="$(wget -O - -q https://v6.ident.me)"
+        SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
