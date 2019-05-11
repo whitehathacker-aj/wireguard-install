@@ -132,7 +132,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     echo "Do you want to diable IPV4 or IPV6 on the server?"
     echo "   1) No (Recommended)"
     echo "   2) IPv4 (Not-Working)"
-    echo "   3) IPv6"
+    echo "   3) IPv6 (Not-Working)"
     until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
         read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
     done
@@ -144,9 +144,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             DISABLE_HOST=""
         ;;
         3)
-            DISABLE_HOST="echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
-	    echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf
-	    echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf"
+            DISABLE_HOST=""
         ;;
     esac
     echo "What traffic do you want the client to forward to wireguard?"
@@ -273,6 +271,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
+  
 
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
@@ -300,7 +299,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
-    DISABLE_HOST
     
     echo "Client config --> $HOME/client-wg0.conf"
 else
