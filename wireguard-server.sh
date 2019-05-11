@@ -108,7 +108,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $MTU_CHOICE in
         1)
-            MTU_CHOICE=""
+            MTU_CHOICE="0"
         ;;
         1)
             MTU_CHOICE="1500"
