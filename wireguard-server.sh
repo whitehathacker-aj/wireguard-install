@@ -84,25 +84,25 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		;;
 	esac
 	
-    echo "Are you behind a firewall or NAT?"
-    echo "   1) Yes"
-    echo "   2) No (Recommended)"
+    echo "Is your client behind a firewall or NAT?"
+    echo "   1) No (Recommended)"
+    echo "   2) Yes "
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "Nat Choice [1-2]: " -e -i 2 NAT_CHOICE
+        read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="25"
+            NAT_CHOICE="0"
         ;;
         2)
-            NAT_CHOICE="0"
+            NAT_CHOICE="25"
         ;;
     esac
  
     echo "What MTU do you want to use?"
     echo "   1) Automatic (Recommended)"
-    echo "   1) 1500"
-    echo "   2) 1420"
+    echo "   1) 1420"
+    echo "   2) 1500"
     until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
         read -rp "MTU Choice [1-3]: " -e -i 1 MTU_CHOICE
     done
@@ -111,10 +111,10 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             MTU_CHOICE="0"
         ;;
         1)
-            MTU_CHOICE="1500"
+            MTU_CHOICE="1420"
         ;;
         3)
-            MTU_CHOICE="1420"
+            MTU_CHOICE="1500"
         ;;
     esac
 
@@ -154,6 +154,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	sysctl -p"
 	;;
     esac
+    
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
