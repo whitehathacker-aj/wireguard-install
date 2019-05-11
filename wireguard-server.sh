@@ -133,7 +133,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
     
-    echo "Do you want to diable IPV4 or IPV6 on the server?"
+    echo "Do you want to Disable IPV4 or IPV6 on the server?"
     echo "   1) No (Recommended)"
     echo "   2) IPv4 (Not-Working)"
     echo "   3) IPv6 (Not-Working)"
