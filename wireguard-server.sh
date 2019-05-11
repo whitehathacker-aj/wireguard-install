@@ -39,19 +39,30 @@ if [ ! -f "$WG_CONFIG" ]; then
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
-    if [ "$SERVER_HOST" == "" ]; then
-        SERVER_HOST="$(wget -O - -q https://checkip.amazonaws.com)"
+    if [ "$SERVER_HOST_V4" == "" ]; then
+        SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IP address is $SERVER_HOST. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
-                echo "Aborted. Use environment variable SERVER_HOST to set the correct public IP address"
+                echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address"
+                exit
+            fi
+        fi
+    fi
+    
+if [ "$SERVER_HOST_V6" == "" ]; then
+        SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
+        if [ "$INTERACTIVE" == "yes" ]; then
+            read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            if [ "$CONFIRM" == "n" ]; then
+                echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address"
                 exit
             fi
         fi
     fi
 
     	echo "What port do you want WireGuard to listen to?"
-	echo "   1) Default: 51820"
+	echo "   1) Default: 51820 (Recommended)"
 	echo "   2) Custom"
 	echo "   3) Random [2000-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
@@ -75,7 +86,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 	
     echo "Are you behind a firewall or NAT?"
     echo "   1) Yes"
-    echo "   2) No"
+    echo "   2) No (Recommended)"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "Nat Choice [1-2]: " -e -i 2 NAT_CHOICE
     done
@@ -90,7 +101,7 @@ if [ ! -f "$WG_CONFIG" ]; then
  
     echo "What MTU do you want to use?"
     echo "   1) 1500"
-    echo "   2) 1420"
+    echo "   2) 1420 (Recommended)"
     until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
     done
@@ -103,8 +114,41 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
+    echo "What do you want to connect via to the server via IPV4 or IPV6?"
+    echo "   1) IPv4 (Recommended)"
+    echo "   2) IPv6 (Not-Working)"
+    until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
+        read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
+    done
+    case $SERVER_HOST in
+        1)
+            SERVER_HOST="$SERVER_HOST_V4"
+        ;;
+        2)
+            SERVER_HOST="[$SERVER_HOST_V6]"
+        ;;
+    esac
+    
+    echo "Do you want to diable IPV4 or IPV6 on the server?"
+    echo "   1) No (Recommended)"
+    echo "   2) IPv4 (Not-Working)"
+    echo "   3) IPv6 (Not-Working)"
+    until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
+        read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
+    done
+    case $DISABLE_HOST in
+        1)
+            DISABLE_HOST=""
+        ;;
+        2)
+            DISABLE_HOST=""
+        ;;
+        3)
+            DISABLE_HOST=""
+        ;;
+    esac
     echo "What traffic do you want the client to forward to wireguard?"
-    echo "   1) Everything"
+    echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
     until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
         read -rp "Client Allowed IP Choice [1-2]: " -e -i 1 CLIENT_ALLOWED_IP
@@ -123,7 +167,7 @@ if [ ! -f "$WG_CONFIG" ]; then
         echo "   1) Cloudflare"
         echo "   2) Google"
         echo "   3) OpenDNS"
-        echo "   4) AdGuard"
+        echo "   4) AdGuard (Recommended)"
         echo "   5) Verisign"
         echo "   6) Quad9"
         echo "   7) FDN"
@@ -202,7 +246,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 
     echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE $CLIENT_ALLOWED_IP
 [Interface]
-Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false" > $WG_CONFIG
@@ -210,11 +254,11 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
-AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
-Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
@@ -227,6 +271,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
+  
 
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
@@ -250,11 +295,11 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
-    fi	
+    fi		
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
-
+    
     echo "Client config --> $HOME/client-wg0.conf"
 else
     ### Server is installed, add a new client
@@ -282,11 +327,11 @@ else
     echo "# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
-AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
-Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
