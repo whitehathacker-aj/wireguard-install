@@ -116,7 +116,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     echo "What do you want to connect via to the server via IPV4 or IPV6?"
     echo "   1) IPv4 (Recommended)"
-    echo "   2) IPv6 (SOON)"
+    echo "   2) IPv6 (Not-Working)"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
     done
@@ -167,7 +167,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         echo "   1) Cloudflare"
         echo "   2) Google"
         echo "   3) OpenDNS"
-        echo "   4) AdGuard"
+        echo "   4) AdGuard (Recommended)"
         echo "   5) Verisign"
         echo "   6) Quad9"
         echo "   7) FDN"
