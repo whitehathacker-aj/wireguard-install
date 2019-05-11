@@ -101,19 +101,15 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     echo "What MTU do you want to use?"
     echo "   1) Automatic (Recommended)"
-    echo "   1) 1420"
     echo "   2) 1500"
-    until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
-        read -rp "MTU Choice [1-3]: " -e -i 1 MTU_CHOICE
+    until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
+        read -rp "MTU Choice [1-2]: " -e -i 1 MTU_CHOICE
     done
     case $MTU_CHOICE in
         1)
-            MTU_CHOICE="0"
-        ;;
-        1)
             MTU_CHOICE="1420"
         ;;
-        3)
+        2)
             MTU_CHOICE="1500"
         ;;
     esac
