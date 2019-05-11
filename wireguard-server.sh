@@ -39,12 +39,23 @@ if [ ! -f "$WG_CONFIG" ]; then
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
-    if [ "$SERVER_HOST" == "" ]; then
-        SERVER_HOST="$(wget -O - -q https://checkip.amazonaws.com)"
+    if [ "$SERVER_HOST_V4" == "" ]; then
+        SERVER_HOST_V4="$(wget -O - -q https://v4.ident.me)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IP address is $SERVER_HOST. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
-                echo "Aborted. Use environment variable SERVER_HOST to set the correct public IP address"
+                echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address"
+                exit
+            fi
+        fi
+    fi
+    
+if [ "$SERVER_HOST_V6" == "" ]; then
+        SERVER_HOST_V6="$(wget -O - -q https://v6.ident.me)"
+        if [ "$INTERACTIVE" == "yes" ]; then
+            read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            if [ "$CONFIRM" == "n" ]; then
+                echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address"
                 exit
             fi
         fi
@@ -103,6 +114,43 @@ if [ ! -f "$WG_CONFIG" ]; then
         ;;
     esac
 
+    echo "What IPv do you want to connect via IPV4 or IPV6?"
+    echo "   1) IPv4 (Recommended)"
+    echo "   2) IPv6"
+    until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
+        read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
+    done
+    case $SERVER_HOST in
+        1)
+            SERVER_HOST="$SERVER_HOST_V4"
+        ;;
+        2)
+            SERVER_HOST="$SERVER_HOST_V6"
+        ;;
+    esac
+    
+    echo "What IPv do you want to diable IPV4 or IPV6 on the server?"
+    echo "   1) No (Recommended)"
+    echo "   2) IPv4"
+    echo "   2) IPv6"
+    until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
+        read -rp "IP Choice [1-3]: " -e -i 1 DISABLE_HOST
+    done
+    case $DISABLE_HOST in
+        1)
+            DISABLE_HOST=""
+        ;;
+        2)
+            DISABLE_HOST="net.ipv6.conf.all.disable_ipv6 = 1
+	net.ipv6.conf.default.disable_ipv6 = 1
+	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf"
+        ;;
+        3)
+            DISABLE_HOST="net.ipv6.conf.all.disable_ipv6 = 1
+	net.ipv6.conf.default.disable_ipv6 = 1
+	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf"
+        ;;
+    esac
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything"
     echo "   2) Exclude Private IPs"
@@ -202,7 +250,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 
     echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE $CLIENT_ALLOWED_IP
 [Interface]
-Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false" > $WG_CONFIG
@@ -210,11 +258,11 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
-AllowedIPs = $CLIENT_ADDRESS_V4/32, $CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
 PrivateKey = $CLIENT_PRIVKEY
-Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
@@ -250,11 +298,12 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
-    fi	
+    fi		
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
-
+    DISABLE_HOST
+    
     echo "Client config --> $HOME/client-wg0.conf"
 else
     ### Server is installed, add a new client
