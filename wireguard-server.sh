@@ -148,7 +148,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
     echo "What traffic do you want the client to forward to wireguard?"
-    echo "   1) Everything"
+    echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
     until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
         read -rp "Client Allowed IP Choice [1-2]: " -e -i 1 CLIENT_ALLOWED_IP
