@@ -116,7 +116,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     echo "What IPv do you want to connect via IPV4 or IPV6?"
     echo "   1) IPv4 (Recommended)"
-    echo "   2) IPv6"
+    echo "   2) IPv6 (SOON)"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
     done
@@ -131,8 +131,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     echo "What IPv do you want to diable IPV4 or IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) IPv4"
-    echo "   2) IPv6"
+    echo "   2) IPv4 (SOON)"
+    echo "   3) IPv6"
     until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-3]: " -e -i 1 DISABLE_HOST
     done
@@ -141,14 +141,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             DISABLE_HOST=""
         ;;
         2)
-            DISABLE_HOST="net.ipv6.conf.all.disable_ipv6 = 1
-	net.ipv6.conf.default.disable_ipv6 = 1
-	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf"
+            DISABLE_HOST=""
         ;;
         3)
             DISABLE_HOST="net.ipv6.conf.all.disable_ipv6 = 1
 	net.ipv6.conf.default.disable_ipv6 = 1
-	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf"
+	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
+	sysctl -w net.ipv6.conf.all.disable_ipv6=1
+	sysctl -w net.ipv6.conf.default.disable_ipv6=1"
         ;;
     esac
     echo "What traffic do you want the client to forward to wireguard?"
