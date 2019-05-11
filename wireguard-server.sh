@@ -62,7 +62,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     	echo "What port do you want WireGuard to listen to?"
-	echo "   1) Default: 51820"
+	echo "   1) Default: 51820 (Recommended)"
 	echo "   2) Custom"
 	echo "   3) Random [2000-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
@@ -86,7 +86,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	
     echo "Are you behind a firewall or NAT?"
     echo "   1) Yes"
-    echo "   2) No"
+    echo "   2) No (Recommended)"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "Nat Choice [1-2]: " -e -i 2 NAT_CHOICE
     done
@@ -101,7 +101,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
  
     echo "What MTU do you want to use?"
     echo "   1) 1500"
-    echo "   2) 1420"
+    echo "   2) 1420 (Recommended)"
     until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
     done
@@ -131,7 +131,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     echo "Do you want to diable IPV4 or IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) IPv4 (SOON)"
+    echo "   2) IPv4 (Not-Working)"
     echo "   3) IPv6"
     until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
         read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
