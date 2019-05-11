@@ -83,7 +83,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 			echo "Random Port: $SERVER_PORT"
 		;;
 	esac
-	
+
     echo "Is your client behind a firewall or NAT?"
     echo "   1) No (Recommended)"
     echo "   2) Yes "
@@ -98,7 +98,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             NAT_CHOICE="25"
         ;;
     esac
- 
+
     echo "What MTU do you want to use?"
     echo "   1) Automatic (Recommended)"
     echo "   1) 1420"
@@ -135,7 +135,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     echo "Do you want to disable IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) Yes (Not Working Currently)"
+    echo "   2) Yes (Disabled)"
     until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
         read -rp "Disable Host Choice [1-2]: " -e -i 1 DISABLE_HOST
     done
@@ -144,10 +144,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             DISABLE_HOST=""
         ;;
         2)
-            DISABLE_HOST=""
+            DISABLE_HOST="(echo 'net.ipv6.conf.all.disable_ipv6 = 1
+	net.ipv6.conf.default.disable_ipv6 = 1
+	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
+	sysctl -p)"
         ;;
     esac
-    
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
@@ -162,7 +164,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             CLIENT_ALLOWED_IP="0.0.0.0/5,8.0.0.0/7,11.0.0.0/8,12.0.0.0/6,16.0.0.0/4,32.0.0.0/3,64.0.0.0/2,128.0.0.0/3,160.0.0.0/5,168.0.0.0/6,172.0.0.0/12,172.32.0.0/11,172.64.0.0/10,172.128.0.0/9,173.0.0.0/8,174.0.0.0/7,176.0.0.0/4,192.0.0.0/9,192.128.0.0/11,192.160.0.0/13,192.169.0.0/16,192.170.0.0/15,192.172.0.0/14,192.176.0.0/12,192.192.0.0/10,193.0.0.0/8,194.0.0.0/7,196.0.0.0/6,200.0.0.0/5,208.0.0.0/4,::/0,176.103.130.130/32,176.103.130.131/32"
         ;;
     esac
-    
+
     if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) Cloudflare"
@@ -220,7 +222,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
 	ntpdate pool.ntp.org
-	
+	DISABLE_HOST
+
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
         printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
@@ -228,13 +231,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
 	ntpdate pool.ntp.org
-	
+	DISABLE_HOST
+
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
         yum install wireguard-dkms qrencode wireguard-tools firewalld -y
     fi
-    
+
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
@@ -272,7 +276,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
-    
+
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
         firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
@@ -286,16 +290,16 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
         firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
     else
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
         iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
         ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
+        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
+        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         iptables-save > /etc/iptables/rules.v4	
-    fi		
+    fi
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
