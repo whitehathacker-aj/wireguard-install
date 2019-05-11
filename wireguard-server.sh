@@ -103,8 +103,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     echo "   1) Automatic (Recommended)"
     echo "   1) 1500"
     echo "   2) 1420"
-    until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
-        read -rp "MTU Choice [1-2]: " -e -i 2 MTU_CHOICE
+    until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
+        read -rp "MTU Choice [1-3]: " -e -i 1 MTU_CHOICE
     done
     case $MTU_CHOICE in
         1)
@@ -113,14 +113,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         1)
             MTU_CHOICE="1500"
         ;;
-        2)
+        3)
             MTU_CHOICE="1420"
         ;;
     esac
 
     echo "What do you want to connect via to the server via IPV4 or IPV6?"
     echo "   1) IPv4 (Recommended)"
-    echo "   2) IPv6 (Not-Working)"
+    echo "   2) IPv6"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
     done
