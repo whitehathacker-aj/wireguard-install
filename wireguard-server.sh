@@ -92,7 +92,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="0"
+            NAT_CHOICE=""
         ;;
         2)
             NAT_CHOICE="25"
