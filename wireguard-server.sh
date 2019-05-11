@@ -275,7 +275,6 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     sysctl -p
-  
 
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
