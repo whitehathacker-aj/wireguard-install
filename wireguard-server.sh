@@ -92,7 +92,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE=""
+            NAT_CHOICE="0"
         ;;
         2)
             NAT_CHOICE="25"
@@ -108,7 +108,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $MTU_CHOICE in
         1)
-            MTU_CHOICE=""
+            MTU_CHOICE="0"
         ;;
         1)
             MTU_CHOICE="1420"
@@ -167,21 +167,21 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     if [ "$CLIENT_DNS" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
-        echo "   1) Cloudflare"
+        echo "   1) AdGuard (Recommended)"
         echo "   2) Google"
         echo "   3) OpenDNS"
-        echo "   4) AdGuard (Recommended)"
+        echo "   4) Cloudflare"
         echo "   5) Verisign"
         echo "   6) Quad9"
         echo "   7) FDN"
         echo "   8) DNS.WATCH"
         echo "   9) Yandex Basic"
         echo "   10) Clean Browsing"
-        read -p "DNS [1-10]: " -e -i 4 DNS_CHOICE
+        read -p "DNS [1-10]: " -e -i 1 DNS_CHOICE
 
         case $DNS_CHOICE in
             1)
-            CLIENT_DNS="1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
+	    CLIENT_DNS="176.103.130.130,176.103.130.131,2a00:5a60::ad1:0ff,2a00:5a60::ad2:0ff"
             ;;
             2)
             CLIENT_DNS="8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"
@@ -190,7 +190,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             CLIENT_DNS="208.67.222.222,208.67.220.220,2620:119:35::35,2620:119:53::53"
             ;;
             4)
-            CLIENT_DNS="176.103.130.130,176.103.130.131,2a00:5a60::ad1:0ff,2a00:5a60::ad2:0ff"
+            CLIENT_DNS="1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
             ;;
             5)
             CLIENT_DNS="64.6.64.6,64.6.65.6,2620:74:1b::1:1,2620:74:1c::2:2"
