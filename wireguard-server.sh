@@ -114,7 +114,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
 
-    echo "What IPv do you want to connect via IPV4 or IPV6?"
+    echo "What do you want to connect via to the server via IPV4 or IPV6?"
     echo "   1) IPv4 (Recommended)"
     echo "   2) IPv6 (SOON)"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
@@ -129,7 +129,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
     
-    echo "What IPv do you want to diable IPV4 or IPV6 on the server?"
+    echo "Do you want to diable IPV4 or IPV6 on the server?"
     echo "   1) No (Recommended)"
     echo "   2) IPv4 (SOON)"
     echo "   3) IPv6"
