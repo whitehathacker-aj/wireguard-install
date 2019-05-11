@@ -135,13 +135,13 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     echo "Do you want to disable IPV6 on the server?"
     echo "   1) No (Recommended)"
-    echo "   2) Yes (Disabled)"
+    echo "   2) Yes"
     until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
         read -rp "Disable Host Choice [1-2]: " -e -i 1 DISABLE_HOST
     done
     case $DISABLE_HOST in
         1)
-            DISABLE_HOST=""
+            DISABLE_HOST="(sysctl -p)"
         ;;
         2)
             DISABLE_HOST="(echo 'net.ipv6.conf.all.disable_ipv6 = 1
@@ -222,7 +222,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
 	ntpdate pool.ntp.org
-	DISABLE_HOST
 
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -231,7 +230,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
 	ntpdate pool.ntp.org
-	DISABLE_HOST
 
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
@@ -272,10 +270,10 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
-
+	
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-    sysctl -p
+    $DISABLE_HOST
 
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
