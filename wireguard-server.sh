@@ -141,15 +141,16 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $DISABLE_HOST in
         1)
-            DISABLE_HOST="(sysctl -p)"
+            DISABLE_HOST="sysctl -p"
         ;;
         2)
-            DISABLE_HOST="(echo 'net.ipv6.conf.all.disable_ipv6 = 1
-	net.ipv6.conf.default.disable_ipv6 = 1
-	net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
-	sysctl -p)"
+            DISABLE_HOST="echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf
+	    echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf
+	    echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf
+	    sysctl -p"
         ;;
     esac
+    
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
