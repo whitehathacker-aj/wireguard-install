@@ -133,8 +133,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     echo "   1) No (Recommended)"
     echo "   2) IPv4 (SOON)"
     echo "   3) IPv6"
-    until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
-        read -rp "IP Choice [1-3]: " -e -i 1 DISABLE_HOST
+    until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
+        read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
     done
     case $DISABLE_HOST in
         1)
