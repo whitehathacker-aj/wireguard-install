@@ -346,5 +346,6 @@ PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" persistent-keepalive "$NAT_CHOICE" preshared-key "$PRESHARED_KEY" allowed-ips "$CLIENT_ADDRESS_V4/32 , $CLIENT_ADDRESS_V6/128"
+    systemctl restart wg-quick@wg0.service
     echo "Client added, new configuration file --> $HOME/$CLIENT_NAME-wg0.conf"
 fi
