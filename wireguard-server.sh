@@ -310,8 +310,8 @@ else
         read -p "Client name: " -e CLIENT_NAME
     fi
     CLIENT_PRIVKEY=$( wg genkey )
-    PRESHARED_KEY=$( wg genpsk )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
+    PRESHARED_KEY=$( wg genpsk )
     PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
@@ -345,6 +345,6 @@ Endpoint = $SERVER_ENDPOINT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
-    ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" "$PRESHARED_KEY" allowed-ips "$CLIENT_ADDRESS_V4/32 , $CLIENT_ADDRESS_V6/128"
+    ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" preshared-key "$PRESHARED_KEY" allowed-ips "$CLIENT_ADDRESS_V4/32 , $CLIENT_ADDRESS_V6/128"
     echo "Client added, new configuration file --> $HOME/$CLIENT_NAME-wg0.conf"
 fi
