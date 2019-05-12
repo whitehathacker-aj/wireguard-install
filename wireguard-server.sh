@@ -85,17 +85,17 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	esac
 
     echo "Is your client behind a firewall or NAT?"
-    echo "   1) No (Recommended)"
-    echo "   2) Yes "
+    echo "   1) Yes (Recommended)"
+    echo "   2) No"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="0"
+            NAT_CHOICE="25"
         ;;
         2)
-            NAT_CHOICE="25"
+            NAT_CHOICE="0"
         ;;
     esac
 
