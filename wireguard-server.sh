@@ -239,6 +239,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
+    PRESHARED_KEY=$( wg genpsk )
 
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
@@ -253,6 +254,7 @@ SaveConfig = false" > $WG_CONFIG
     echo "# client
 [Peer]
 PublicKey = $CLIENT_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
@@ -262,6 +264,7 @@ DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
@@ -308,6 +311,7 @@ else
     fi
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
+    PRESHARED_KEY=$( wg genpsk )
     PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
@@ -325,6 +329,7 @@ else
     echo "# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
@@ -334,11 +339,12 @@ DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
 [Peer]
 PublicKey = $SERVER_PUBKEY
+PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_ENDPOINT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
-    ip address | grep -q wg0 && wg set wg0 peer "$CLIENT_PUBKEY" allowed-ips "$CLIENT_ADDRESS_V4/32 , $CLIENT_ADDRESS_V6/64"
+    systemctl restart wg-quick@wg0.service
     echo "Client added, new configuration file --> $HOME/$CLIENT_NAME-wg0.conf"
 fi
