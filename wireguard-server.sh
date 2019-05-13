@@ -354,5 +354,4 @@ qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     systemctl restart wg-quick@wg0.service
     echo "New client added, new configuration file for the client on  --> $HOME/$CLIENT_NAME-wg0.conf"
-    echo "Configuration file for the server on -->  /etc/wireguard/wg0.conf"
 fi
