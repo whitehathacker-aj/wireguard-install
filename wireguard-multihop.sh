@@ -74,6 +74,9 @@ if [ ! -f "$WG_CONFIG" ]; then
     	echo "Whats your IP of the first server?"
 	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
 	
+	echo "Whats your pre shared key for the first server?"
+	read -p 'Pre Shared On First Server: ' PRE_KEY_FIRST_SERVER
+	
     	echo "What port is your other wireguard server running on?"
 	echo "   1) Default: 51820"
 	echo "   2) Custom"
@@ -162,6 +165,7 @@ SaveConfig = false" > $WG_CONFIG
     echo "# peer
 [Peer]
 PublicKey = $PUBLIC_KEY_FIRST_SERVER
+PresharedKey = $PRE_KEY_FIRST_SERVER
 Endpoint = $END_POINT_FIRST_SERVER:$PEER_FIRST_PORT
 AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
 
