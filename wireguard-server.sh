@@ -206,7 +206,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             CLIENT_DNS="185.228.168.9,185.228.169.9,2a0d:2a00:1::2,2a0d:2a00:2::2"
             ;;
         esac
-        
+
     fi
 
     if [ "$DISTRO" == "Ubuntu" ]; then
@@ -294,12 +294,12 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4	
+        iptables-save > /etc/iptables/rules.v4
     fi
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
-    
+
     echo "Client config --> $HOME/client-wg0.conf"
 else
     ### Server is installed, add a new client
