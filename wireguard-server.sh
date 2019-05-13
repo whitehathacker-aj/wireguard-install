@@ -48,7 +48,7 @@ if [ ! -f "$WG_CONFIG" ]; then
             fi
         fi
     fi
-    
+
 if [ "$SERVER_HOST_V6" == "" ]; then
         SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
@@ -127,7 +127,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             SERVER_HOST="[$SERVER_HOST_V6]"
         ;;
     esac
-    
+
     echo "Do you want to disable IPV6 on the server?"
     echo "   1) No (Recommended)"
     echo "   2) Yes"
@@ -144,7 +144,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	    sysctl -p)"
         ;;
     esac
-    
+
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
@@ -268,7 +268,7 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
-	
+
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
     $DISABLE_HOST
@@ -288,8 +288,8 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
     else
         iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
         ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
+        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
         iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
         ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
         iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
@@ -347,5 +347,4 @@ qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
     systemctl restart wg-quick@wg0.service
     echo "New client added, new configuration file for the client on  --> $HOME/$CLIENT_NAME-wg0.conf"
     echo "Configuration file for the server on -->  /etc/wireguard/wg0.conf"
-"
 fi
