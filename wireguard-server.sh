@@ -61,7 +61,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     	echo "What port do you want WireGuard to listen to?"
-	echo "   1) Default: 51820 (Recommended)"
+	echo "   1) 51820 (Recommended)"
 	echo "   2) Custom"
 	echo "   3) Random [2000-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
