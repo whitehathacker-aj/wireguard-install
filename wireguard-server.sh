@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 # https://github.com/LiveChief/wireguard-install
 #
 
