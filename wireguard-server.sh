@@ -345,5 +345,7 @@ PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     systemctl restart wg-quick@wg0.service
-    echo "Client added, new configuration file --> $HOME/$CLIENT_NAME-wg0.conf"
+    echo "New client added, new configuration file for the client on  --> $HOME/$CLIENT_NAME-wg0.conf"
+    echo "Configuration file for the server on -->  /etc/wireguard/wg0.conf"
+"
 fi
