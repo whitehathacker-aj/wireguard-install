@@ -1,0 +1,177 @@
+#!/bin/bash
+#
+# https://github.com/LiveChief/wireguard-install
+# Secure WireGuard server installer for Debian, Ubuntu
+#
+
+WG_CONFIG="/etc/wireguard/wg0.conf"
+
+if [[ "$EUID" -ne 0 ]]; then
+    echo "Sorry, you need to run this as root"
+    exit
+fi
+
+if [ -e /etc/centos-release ]; then
+    DISTRO="CentOS"
+elif [ -e /etc/debian_version ]; then
+    DISTRO=$( lsb_release -is )
+else
+    echo "Your distribution is not supported (yet)"
+    exit
+fi
+
+if [ "$( systemd-detect-virt )" == "openvz" ]; then
+    echo "OpenVZ virtualization is not supported"
+    exit
+fi
+
+if [ "$(systemd-detect-virt)" == "lxc" ]; then
+    echo "LXC is not supported."
+    exit
+fi
+
+if [ ! -f "$WG_CONFIG" ]; then
+    ### Install server and add default client
+    INTERACTIVE=${INTERACTIVE:-yes}
+    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+    PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
+    PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
+
+    if [ "$SERVER_HOST" == "" ]; then
+        SERVER_HOST="$(wget -O - -q https://checkip.amazonaws.com)"
+        if [ "$INTERACTIVE" == "yes" ]; then
+            read -p "Servers public IP address is $SERVER_HOST. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            if [ "$CONFIRM" == "n" ]; then
+                echo "Aborted. Use environment variable SERVER_HOST to set the correct public IP address"
+                exit
+            fi
+        fi
+    fi
+
+    	echo "What port do you want this wireguard sevrer running on?"
+	echo "   1) Default: 51820"
+	echo "   2) Custom"
+	until [[ "$PORT_CHOICE" =~ ^[1-2]$ ]]; do
+		read -rp "Port choice [1-2]: " -e -i 1 PORT_CHOICE
+	done
+	case $PORT_CHOICE in
+		1)
+			SERVER_PORT="51820"
+		;;
+		2)
+			until [[ "$SERVER_PORT" =~ ^[0-9]+$ ]] && [ "$SERVER_PORT" -ge 1 ] && [ "$SERVER_PORT" -le 65535 ]; do
+				read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
+			done
+		;;
+	esac
+	
+    	echo "Whats your public key of the first server?"
+	read -p 'Public Key On First Server: ' PUBLIC_KEY_FIRST_SERVER
+
+    	echo "Whats your IP of the first server?"
+	read -p 'End Point On First Server: ' END_POINT_FIRST_SERVER
+	
+	echo "Whats your pre shared key for the first server?"
+	read -p 'Pre Shared On First Server: ' PRE_KEY_FIRST_SERVER
+	
+    	echo "What port is your other wireguard server running on?"
+	echo "   1) Default: 51820"
+	echo "   2) Custom"
+	until [[ "$PEER_PORT_CHOICE" =~ ^[1-2]$ ]]; do
+		read -rp "Peer Port choice [1-2]: " -e -i 1 PEER_PORT_CHOICE
+	done
+	case $PEER_PORT_CHOICE in
+		1)
+			PEER_FIRST_PORT="51820"
+		;;
+		2)
+			until [[ "$PEER_FIRST_PORT" =~ ^[0-9]+$ ]] && [ "$PEER_FIRST_PORT" -ge 1 ] && [ "$PEER_FIRST_PORT" -le 65535 ]; do
+				read -rp "Custom port [1-65535]: " -e -i 51820 PEER_FIRST_PORT
+			done
+		;;
+	esac
+	
+    if [ "$DISTRO" == "Ubuntu" ]; then
+        apt-get update
+        apt-get install software-properties-common -y
+        add-apt-repository ppa:wireguard/wireguard -y
+        apt-get update
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
+	ntpdate pool.ntp.org
+	
+    elif [ "$DISTRO" == "Debian" ]; then
+        echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+        printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
+        apt-get update
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
+        wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
+	ntpdate pool.ntp.org
+	
+    elif [ "$DISTRO" == "CentOS" ]; then
+        curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+        yum install epel-release -y
+        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
+    fi
+
+    SERVER_PRIVKEY=$( wg genkey )
+    SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
+    CLIENT_PRIVKEY=$( wg genkey )
+    CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
+    CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
+    CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
+
+    mkdir -p /etc/wireguard
+    touch $WG_CONFIG && chmod 600 $WG_CONFIG
+
+    echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY
+[Interface]
+Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4, $GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
+ListenPort = $SERVER_PORT
+PrivateKey = $SERVER_PRIVKEY
+SaveConfig = false" > $WG_CONFIG
+
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+    sysctl -p
+
+    if [ "$DISTRO" == "CentOS" ]; then
+        systemctl start firewalld
+        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+    else
+        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT	
+        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE	
+        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE	
+        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        iptables-save > /etc/iptables/rules.v4	
+    fi	
+
+    echo "# peer
+[Peer]
+PublicKey = $PUBLIC_KEY_FIRST_SERVER
+PresharedKey = $PRE_KEY_FIRST_SERVER
+Endpoint = $END_POINT_FIRST_SERVER:$PEER_FIRST_PORT
+AllowedIPs = 10.8.0.1/32, fd42:42:42::1/128" >> $WG_CONFIG
+
+
+    systemctl enable wg-quick@wg0.service
+    systemctl start wg-quick@wg0.service
+
+    echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
+fi
