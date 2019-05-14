@@ -13,6 +13,11 @@ if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
 elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
+elif [[ -e /etc/arch-release ]]; then
+	DISTRO="Arch"
+elif [[ -e /etc/fedora-release ]]; then
+	DISTRO="Fedora"
+OS=fedora
 else
     echo "Your distribution is not supported (yet)"
     exit
@@ -238,6 +243,13 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	apt-get clean -y
 	apt-get autoremove -y
 	
+    elif [ "$DISTRO" == "Arch" ]; then
+	sudo pacman -S wireguard-tools
+
+    elif [[ "$OS" = 'Fedora' ]]; then
+	dnf copr enable jdoss/wireguard
+	dnf install wireguard-dkms wireguard-tools
+    
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
