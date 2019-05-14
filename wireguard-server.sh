@@ -83,39 +83,39 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		;;
 	esac
 
-    echo "Is your client behind a firewall or NAT?"
-    echo "   1) Yes (Recommended)"
-    echo "   2) No"
+    echo "Do you want to turn on Persistent Keepalive?"
+    echo "   1) Automatic (Recommended)"
+    echo "   2) Custom"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="25"
-        ;;
-        2)
             NAT_CHOICE="0"
         ;;
+		2)
+			until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25]; do
+				read -rp "Custom NAT [1-25]: " -e -i 25 NAT_CHOICE 
+			done
+		;;
     esac
 
-    echo "What MTU do you want to use?"
-    echo "   1) 1280 (Recommended)"
-    echo "   2) 1420"
-    echo "   3) 1500"
-    until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
-        read -rp "MTU Choice [1-3]: " -e -i 1 MTU_CHOICE
-    done
-    case $MTU_CHOICE in
-        1)
-            MTU_CHOICE="1280"
-        ;;
-        2)
-            MTU_CHOICE="1420"
-        ;;
-        3)
-            MTU_CHOICE="1500"
-        ;;
-    esac
+	echo "What MTU do you want to use?"
+	echo "   1) Automatic (Recommended)"
+	echo "   2) Custom"
+	until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
+		read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
+	done
+	case $MTU_CHOICE in
+		1)
+			MTU_CHOICE="0"
+		;;
+		2)
+			until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
+				read -rp "Custom MTU [1-1500]: " -e -i 1500 MTU_CHOICE
+			done
+		;;
+	esac
 
     echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
