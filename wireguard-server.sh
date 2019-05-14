@@ -112,7 +112,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		;;
 		2)
 			until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
-				read -rp "Custom MTU [1-1500]: " -e -i 1500 MTU_CHOICE
+				read -rp "Custom MTU [0-1500]: " -e -i 1500 MTU_CHOICE
 			done
 		;;
 	esac
