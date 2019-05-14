@@ -91,7 +91,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="0"
+            NAT_CHOICE="25"
         ;;
 		2)
 			until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25]; do
@@ -108,7 +108,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	done
 	case $MTU_CHOICE in
 		1)
-			MTU_CHOICE="0"
+			MTU_CHOICE="1420"
 		;;
 		2)
 			until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
