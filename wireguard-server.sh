@@ -61,7 +61,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     	echo "What port do you want WireGuard to listen to?"
-	echo "   1) 51820 (Recommended)"
+	echo "   1) Automatic (Recommended)"
 	echo "   2) Custom"
 	echo "   3) Random [2000-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
@@ -118,7 +118,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	esac
 
     echo "What IPv do you want to use to connect to WireGuard server?"
-    echo "   1) IPv4 (Recommended)"
+    echo "   1) Automatic (Recommended)"
     echo "   2) IPv6"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
@@ -150,7 +150,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     esac
 
     echo "What traffic do you want the client to forward to wireguard?"
-    echo "   1) Everything (Recommended)"
+    echo "   1) Automatic (Recommended)"
     echo "   2) Exclude Private IPs"
     until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
         read -rp "Client Allowed IP Choice [1-2]: " -e -i 1 CLIENT_ALLOWED_IP
