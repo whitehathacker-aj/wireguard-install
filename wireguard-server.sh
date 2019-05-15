@@ -240,7 +240,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
-	pacman -S wireguard-tools
+	pacman -S pacman -S wireguard-dkms wireguard-tools linux-headers
 
     elif [[ "$DISTRO" = 'Fedora' ]]; then
 	dnf update -y
