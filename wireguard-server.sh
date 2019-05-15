@@ -1,6 +1,5 @@
 #!/bin/bash
 # WireGuard Road Warior Script For CentOs, Debian, Ubuntu, Arch, And Fedora
-# Not working for CentOs, Arch, Fedora
 # https://github.com/LiveChief/wireguard-install
 #
 
@@ -146,12 +145,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $DISABLE_HOST in
         1)
-            DISABLE_HOST="sysctl -p"
+            DISABLE_HOST="sysctl --system"
         ;;
         2)
             DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
 	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
-	    sysctl -p)"
+	    sysctl --system)"
         ;;
     esac
 
