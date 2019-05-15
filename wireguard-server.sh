@@ -1,5 +1,8 @@
 #!/bin/bash
 # https://github.com/LiveChief/wireguard-install
+# For CentOS, Debian, Ubuntu, Arch, Fedora
+#
+# Working For CentOS, Debian, Ubuntu
 #
 
 WG_CONFIG="/etc/wireguard/wg0.conf"
