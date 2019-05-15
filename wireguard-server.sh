@@ -1,4 +1,5 @@
 #!/bin/bash
+# WireGuard Road Warior Script For CentOs, Debian, Ubuntu, Arch, And Fedora
 # https://github.com/LiveChief/wireguard-install
 #
 
@@ -247,10 +248,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	pacman -S wireguard-tools
 
     elif [[ "$DISTRO" = 'Fedora' ]]; then
-	dnf copr enable jdoss/wireguard
-	dnf install wireguard-dkms wireguard-tools
-	yum install quearcode -y
-    
+	dnf update -y
+	dnf upgrade -y
+	dnf copr enable jdoss/wireguard -y
+	dnf install wireguard-dkms wireguard-tools qrencode firewalld ntpdate kernel-devel kernel-headers -y
+	ntpdate pool.ntp.org
+
     elif [ "$DISTRO" == "CentOS" ]; then
         wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
@@ -341,15 +344,17 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
         ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
         iptables-save > /etc/iptables/rules.v4
     elif [ "$DISTRO" == "Fedora" ]; then
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
+        systemctl start firewalld
+        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
     fi
 
     systemctl enable wg-quick@wg0.service
