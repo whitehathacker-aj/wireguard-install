@@ -230,6 +230,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	ntpdate pool.ntp.org
 	apt-get clean -y
 	apt-get autoremove -y
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+	$DISABLE_HOST
 	
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -242,6 +245,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	ntpdate pool.ntp.org
 	apt-get clean -y
 	apt-get autoremove -y
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+	$DISABLE_HOST
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
@@ -296,10 +302,6 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
-
-    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-    $DISABLE_HOST
 
     if [ "$DISTRO" == "CentOS" ]; then
         systemctl start firewalld
