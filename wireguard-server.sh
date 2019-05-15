@@ -229,7 +229,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	ntpdate pool.ntp.org
 
     elif [ "$DISTRO" == "CentOS" ]; then
-        curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+        wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
         yum install wireguard-dkms qrencode wireguard-tools ntpdate -y
     fi
