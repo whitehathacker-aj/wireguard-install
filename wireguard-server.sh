@@ -253,6 +253,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	yum install epel-release -y
 	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
 	ntpdate pool.ntp.org
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+	$DISABLE_HOST
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
