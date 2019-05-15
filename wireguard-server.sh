@@ -261,9 +261,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	ntpdate pool.ntp.org
 
     elif [ "$DISTRO" == "CentOS" ]; then
+	yum update -y
         wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
-        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
+        yum install wireguard-dkms qrencode wireguard-tools ntpdate firewalld linux-headers-$(uname -r) -y
+	yum clean all -y
+	ntpdate pool.ntp.org
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
