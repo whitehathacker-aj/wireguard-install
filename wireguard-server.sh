@@ -14,10 +14,9 @@ if [ -e /etc/centos-release ]; then
 elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
 elif [[ -e /etc/arch-release ]]; then
-	DISTRO="Arch"
+    DISTRO="Arch"
 elif [[ -e /etc/fedora-release ]]; then
-	DISTRO="Fedora"
-OS=fedora
+    DISTRO="Fedora"
 else
     echo "Your distribution is not supported (yet)"
     exit
