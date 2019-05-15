@@ -241,7 +241,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     elif [ "$DISTRO" == "CentOS" ]; then
         curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
-        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
+        yum install wireguard-dkms qrencode wireguard-tools -y
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
