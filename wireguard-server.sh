@@ -1,5 +1,4 @@
 #!/bin/bash
-# WireGuard Road Warior Script For CentOs, Debian, Ubuntu, Arch, And Fedora
 # https://github.com/LiveChief/wireguard-install
 #
 
@@ -14,16 +13,12 @@ if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
 elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
-elif [[ -e /etc/arch-release ]]; then
-    DISTRO="Arch"
-elif [[ -e /etc/fedora-release ]]; then
-    DISTRO="Fedora"
 else
     echo "Your distribution is not supported (yet)"
     exit
 fi
 
-if [ "$(systemd-detect-virt)" == "openvz" ]; then
+if [ "$( systemd-detect-virt )" == "openvz" ]; then
     echo "OpenVZ virtualization is not supported"
     exit
 fi
@@ -145,12 +140,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $DISABLE_HOST in
         1)
-            DISABLE_HOST="sysctl --system"
+            DISABLE_HOST="sysctl -p"
         ;;
         2)
             DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
 	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
-	    sysctl --system)"
+	    sysctl -p)"
         ;;
     esac
 
@@ -222,17 +217,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get update
 	apt-get upgrade -y
 	apt-get dist-upgrade -y
-	apt-get install software-properties-common -y
+	apt-get install build-essential haveged ntpdate linux-headers-$(uname -r) software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode unattended-upgrades apt-listchanges -y
+        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
 	ntpdate pool.ntp.org
 	apt-get clean -y
 	apt-get autoremove -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-	$DISABLE_HOST
 	
     elif [ "$DISTRO" == "Debian" ]; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -240,33 +232,16 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get update
 	apt-get upgrade -y
 	apt-get dist-upgrade -y
-	apt-get install build-essential haveged ntpdate linux-headers-$(uname -r) wireguard qrencode unattended-upgrades apt-listchanges -y
+	apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
 	ntpdate pool.ntp.org
 	apt-get clean -y
 	apt-get autoremove -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-	$DISABLE_HOST
 	
-    elif [ "$DISTRO" == "Arch" ]; then
-	pacman -Syy
-	pacman -S wireguard-tools
-
-    elif [[ "$DISTRO" = 'Fedora' ]]; then
-	dnf update -y
-	dnf upgrade -y
-	dnf copr enable jdoss/wireguard -y
-	dnf install wireguard-dkms wireguard-tools qrencode firewalld ntpdate kernel-devel kernel-headers -y
-	ntpdate pool.ntp.org
-
     elif [ "$DISTRO" == "CentOS" ]; then
-	yum update -y
-        wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+        curl -Lo /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
         yum install epel-release -y
-        yum install wireguard-dkms qrencode wireguard-tools ntpdate firewalld linux-headers-$(uname -r) -y
-	yum clean all -y
-	ntpdate pool.ntp.org
+        yum install wireguard-dkms qrencode wireguard-tools firewalld -y
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
@@ -285,8 +260,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 SaveConfig = false" > $WG_CONFIG
 
     echo "# client
@@ -307,6 +280,34 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
+
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+    $DISABLE_HOST
+
+    if [ "$DISTRO" == "CentOS" ]; then
+        systemctl start firewalld
+        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST
+        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST
+    else
+        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
+        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
+        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
+        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
+        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+        iptables-save > /etc/iptables/rules.v4
+    fi
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
