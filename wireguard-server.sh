@@ -1,5 +1,6 @@
 #!/bin/bash
 # WireGuard Road Warior Script For CentOs, Debian, Ubuntu, Arch, And Fedora
+# Not working for CentOs, Arch, Fedora
 # https://github.com/LiveChief/wireguard-install
 #
 
