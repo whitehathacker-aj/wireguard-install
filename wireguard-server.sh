@@ -95,9 +95,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="25"
+			NAT_CHOICE="25"
         ;;
-		2)
+	2)
 			until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25]; do
 				read -rp "Custom NAT [0-25]: " -e -i 25 NAT_CHOICE 
 			done
