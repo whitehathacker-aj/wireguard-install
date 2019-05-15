@@ -223,10 +223,10 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get update
 	apt-get upgrade -y
 	apt-get dist-upgrade -y
-	apt-get install build-essential haveged ntpdate linux-headers-$(uname -r) software-properties-common -y
+	apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges -y
+        apt-get install wireguard qrencode unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/ubuntu/50unattended-upgrades.Ubuntu"
 	ntpdate pool.ntp.org
 	apt-get clean -y
@@ -241,7 +241,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         apt-get update
 	apt-get upgrade -y
 	apt-get dist-upgrade -y
-	apt-get install wireguard qrencode iptables-persistent unattended-upgrades apt-listchanges haveged ntpdate linux-headers-$(uname -r) -y
+	apt-get install build-essential haveged ntpdate linux-headers-$(uname -r) wireguard qrencode unattended-upgrades apt-listchanges -y
         wget -q -O /etc/apt/apt.conf.d/50unattended-upgrades "https://raw.githubusercontent.com/LiveChief/unattended-upgrades/master/debian/50unattended-upgrades.Debian"
 	ntpdate pool.ntp.org
 	apt-get clean -y
@@ -286,6 +286,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 SaveConfig = false" > $WG_CONFIG
 
     echo "# client
@@ -306,62 +308,6 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
-
-    if [ "$DISTRO" == "CentOS" ]; then
-        systemctl start firewalld
-        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    elif [ "$DISTRO" == "Arch" ]; then
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
-    elif [ "$DISTRO" == "Ubuntu" ]; then
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
-    elif [ "$DISTRO" == "Debian" ]; then
-        iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-        iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-        ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-        iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-        ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-        iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-        iptables-save > /etc/iptables/rules.v4
-    elif [ "$DISTRO" == "Fedora" ]; then
-        systemctl start firewalld
-        firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-	firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-        firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-	firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-        firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-        firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-        firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-        firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    fi
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
