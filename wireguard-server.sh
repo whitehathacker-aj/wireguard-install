@@ -13,9 +13,9 @@ if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
 elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
-elif [[ -e /etc/arch-release ]]; then
+elif [ -e /etc/arch-release ]; then
     DISTRO="Arch"
-elif [[ -e /etc/fedora-release ]]; then
+elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
 else
     echo "Your distribution is not supported (yet)"
@@ -242,7 +242,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	pacman -Syy
 	pacman -S pacman -S wireguard-dkms wireguard-tools linux-headers
 
-    elif [[ "$DISTRO" = 'Fedora' ]]; then
+    elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
 	dnf copr enable jdoss/wireguard -y
 	dnf install wireguard-dkms wireguard-tools -y
