@@ -252,7 +252,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 	yum install epel-release -y
 	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
-    
+	ntpdate pool.ntp.org
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
