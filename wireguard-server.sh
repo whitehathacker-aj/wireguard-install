@@ -249,8 +249,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	dnf update -y
 	dnf upgrade -y
 	dnf copr enable jdoss/wireguard -y
-	dnf install wireguard-dkms wireguard-tools -y
-
+	dnf install ernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools -y
+	
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
