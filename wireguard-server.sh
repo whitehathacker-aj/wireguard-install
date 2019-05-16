@@ -1,8 +1,8 @@
 #!/bin/bash
 # https://github.com/LiveChief/wireguard-install
-# For CentOS, Debian, Ubuntu, Arch, Fedora
+# For CentOS, Debian, Ubuntu, Arch, Fedora, Redhat
 #
-# Working For CentOS, Debian, Ubuntu
+# Working For CentOS, Debian, Ubuntu, Redhat
 #
 
 WG_CONFIG="/etc/wireguard/wg0.conf"
@@ -20,6 +20,8 @@ elif [ -e /etc/arch-release ]; then
     DISTRO="Arch"
 elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
+elif [ -e /etc/redhat-release ]; then
+    OS="Redhat"
 else
     echo "Your distribution is not supported (yet)"
     exit
@@ -249,14 +251,22 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	dnf update -y
 	dnf upgrade -y
 	dnf copr enable jdoss/wireguard -y
-	dnf install ernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools -y
-	
+	dnf install wireguard-dkms wireguard-tools -y
+
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 	yum install epel-release -y
 	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
-	ntpdate pool.ntp.org
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+	$DISABLE_HOST
+	
+    elif [ "$DISTRO" == "Redhat" ]; then
+	yum update -y
+	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+	yum install epel-release -y
+	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
