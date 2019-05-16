@@ -25,8 +25,8 @@ else
     exit
 fi
 
-if [ "$( systemd-detect-virt )" == "openvz" ]; then
-    echo "OpenVZ virtualization is not supported"
+if [ "$(systemd-detect-virt)" == "openvz" ]; then
+    echo "OpenVZ virtualization is not supported."
     exit
 fi
 
