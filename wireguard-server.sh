@@ -228,7 +228,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
         apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) -y
-	ntpdate pool.ntp.org
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
@@ -238,7 +237,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update -y
         apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) -y
-	ntpdate pool.ntp.org
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
@@ -314,6 +312,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
+    ntpdate pool.ntp.org
 
     echo "Client config --> $HOME/client-wg0.conf"
 else
