@@ -240,7 +240,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
-	pacman -S wireguard-dkms wireguard-tools linux-headers haveged qrencode ntp -y
+	pacman -S wireguard-dkms wireguard-tools linux-headers haveged qrencode ntp openresolv -y
 
     elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
