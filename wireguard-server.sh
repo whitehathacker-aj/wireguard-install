@@ -248,7 +248,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
-	dnf upgrade -y
 	dnf copr enable jdoss/wireguard -y
 	dnf install qrencode ntpdate ernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools -y
 
