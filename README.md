@@ -14,11 +14,11 @@ bash wireguard-client.sh
 
 Copy $HOME/$CLIENT_NAME-wg0.conf to /etc/wireguard/wg0.conf 
 
-### Setup Wireguard service on client
+### Setup Wireguard Service
 ```
 systemctl enable wg-quick@wg0.service
 ```
-### Start Wireguard service on client.
+### Start Wireguard Service 
 ```
 systemctl start wg-quick@wg0.service
 ```
