@@ -12,10 +12,12 @@ if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
 elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
-elif [[ -e /etc/arch-release ]]; then
+elif [ -e /etc/arch-release ]; then
     DISTRO="Arch"
-elif [[ -e /etc/fedora-release ]]; then
+elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
+elif [ -e /etc/redhat-release ]; then
+    OS="Redhat"
 else
     echo "Your distribution is not supported (yet)"
     exit
@@ -26,27 +28,34 @@ fi
 	apt-get install software-properties-common -y
 	add-apt-repository ppa:wireguard/wireguard -y
 	apt-get update -y
-	apt-get install wireguard resolvconf -y
+	apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
 	
     elif [ "$DISTRO" == "Debian" ]; then
 	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update -y
-	apt-get install wireguard resolvconf -y
+        apt-get install wireguard linux-headers-$(uname -r) -y
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
-	pacman -S wireguard-tools
-
+	pacman -S linux-headers -y
+	pacman -S pacman -S wireguard-dkms wireguard-tools linux-headers -y
+	
     elif [[ "$DISTRO" = 'Fedora' ]]; then
 	dnf update -y
+	dnf upgrade -y
 	dnf copr enable jdoss/wireguard -y
-	dnf install wireguard-dkms wireguard-tools -y
+	dnf install kernel-devel-$(uname -r) wireguard-dkms wireguard-tools -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 	yum install epel-release -y
-	yum install wireguard-dkms wireguard-tools -y
+	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
     
+    elif [ "$DISTRO" == "Redhat" ]; then
+	yum update -y
+	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+	yum install epel-release -y
+	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
     fi
