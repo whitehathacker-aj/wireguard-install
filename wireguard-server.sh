@@ -240,8 +240,11 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
-	pacman -S wireguard-dkms wireguard-tools linux-headers haveged qrencode ntp openresolv -y
-
+	pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp openresolv
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+	$DISABLE_HOST
+	
     elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
 	dnf copr enable jdoss/wireguard -y
