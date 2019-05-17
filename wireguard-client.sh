@@ -25,16 +25,24 @@ fi
 
     if [ "$DISTRO" == "Ubuntu" ]; then
 	apt-get update
+	apt-get upgrade -y
+	apt-get dist-upgrade -y
 	apt-get install software-properties-common -y
 	add-apt-repository ppa:wireguard/wireguard -y
 	apt-get update -y
-	apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
+	apt-get install wireguard build-essential resolvconf linux-headers-$(uname -r) -y
+	apt-get clean -y
+	apt-get autoremove -y
 	
     elif [ "$DISTRO" == "Debian" ]; then
 	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
-	apt-get update -y
-	apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
+	apt-get update
+	apt-get upgrade -y
+	apt-get dist-upgrade -y
+	apt-get install wireguard build-essential resolvconf linux-headers-$(uname -r) -y
+	apt-get clean -y
+	apt-get autoremove -y
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
@@ -45,6 +53,7 @@ fi
 	dnf upgrade -y
 	dnf copr enable jdoss/wireguard -y
 	dnf install kernel-devel-$(uname -r) resolvconf wireguard-dkms wireguard-tools -y
+	dnf autoremove -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
