@@ -38,7 +38,6 @@ fi
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
-	pacman -S linux-headers -y
 	pacman -S resolvconf wireguard-dkms wireguard-tools linux-headers -y
 	
     elif [[ "$DISTRO" = 'Fedora' ]]; then
