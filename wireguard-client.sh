@@ -17,7 +17,7 @@ elif [ -e /etc/arch-release ]; then
 elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
 elif [ -e /etc/redhat-release ]; then
-    OS="Redhat"
+    DISTRO="Redhat"
 else
     echo "Your distribution is not supported (yet)"
     exit
