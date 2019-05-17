@@ -20,9 +20,6 @@ elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
 elif [ -e /etc/redhat-release ]; then
     DISTRO="Redhat"
-elif [ -e /etc/os-release ]; then
-    DISTRO="Raspbian"
-else
     echo "Your distribution is not supported (yet)"
     exit
 fi
@@ -269,14 +266,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 	
-    elif [ "$DISTRO" == "Raspbian" ]; then
-	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
-	apt-get update -y
-        apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
-	$DISABLE_HOST
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
