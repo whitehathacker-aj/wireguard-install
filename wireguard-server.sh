@@ -240,6 +240,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -Syy
+	pacman -Syu
 	pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp openresolv
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
