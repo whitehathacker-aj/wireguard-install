@@ -224,7 +224,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	apt-get install software-properties-common -y
         add-apt-repository ppa:wireguard/wireguard -y
         apt-get update
-        apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
+        apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged openresolv -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
@@ -233,7 +233,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update -y
-        apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
+        apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged openresolv -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
@@ -245,22 +245,22 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
 	dnf copr enable jdoss/wireguard -y
-	dnf install qrencode ntpdate ernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools haveged -y
+	dnf install qrencode ntpdate ernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools haveged openresolv -y
 
     elif [ "$DISTRO" == "CentOS" ]; then
-	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+	yum update -y
 	yum install epel-release -y
-	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged -y
+	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged openresolv -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 	
     elif [ "$DISTRO" == "Redhat" ]; then
-	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+	yum update -y
 	yum install epel-release -y
-	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged -y
+	yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged openresolv -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
