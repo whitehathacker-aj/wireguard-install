@@ -222,9 +222,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     if [ "$DISTRO" == "Ubuntu" ]; then
 	apt-get update
 	apt-get install software-properties-common -y
-        add-apt-repository ppa:wireguard/wireguard -y
+	add-apt-repository ppa:wireguard/wireguard -y
 	apt-get update
-        apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
+	apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
@@ -316,7 +316,7 @@ qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
     echo "Client config --> $HOME/client-wg0.conf"
     echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
-    
+
 else
     ### Server is installed, add a new client
     CLIENT_NAME="$1"
