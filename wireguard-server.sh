@@ -20,6 +20,7 @@ elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
 elif [ -e /etc/redhat-release ]; then
     DISTRO="Redhat"
+else
     echo "Your distribution is not supported (yet)"
     exit
 fi
@@ -158,7 +159,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
 	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
 	    sysctl --system)"
-        ;;    esac
+        ;;
+    esac
 
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Automatic (Recommended)"
