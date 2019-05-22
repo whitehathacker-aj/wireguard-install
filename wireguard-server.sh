@@ -133,27 +133,32 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         1)
             SERVER_HOST="$SERVER_HOST_V4"
         ;;
-        2)
+        3)
             SERVER_HOST="[$SERVER_HOST_V6]"
         ;;
     esac
 
-    echo "Do you want to disable IPV6 on the server?"
-    echo "   1) No (Recommended)"
-    echo "   2) Yes"
-    until [[ "$DISABLE_HOST" =~ ^[1-2]$ ]]; do
-        read -rp "Disable Host Choice [1-2]: " -e -i 1 DISABLE_HOST
+    echo "Do you want to disable IPv on the server?"
+    echo "   1) Automatic (Recommended)"
+    echo "   2) IPV4"
+    echo "   3) IPV6"
+    until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
+        read -rp "Disable Host Choice [1-3]: " -e -i 1 DISABLE_HOST
     done
     case $DISABLE_HOST in
         1)
             DISABLE_HOST="sysctl --system"
         ;;
         2)
+            DISABLE_HOST="$(sysctl -w net.ipv4.conf.all.disable_ipv4=1
+	    sysctl -w net.ipv4.conf.default.disable_ipv4=1
+	    sysctl --system)"
+        ;;
+        3)
             DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
 	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
 	    sysctl --system)"
-        ;;
-    esac
+        ;;    esac
 
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Automatic (Recommended)"
