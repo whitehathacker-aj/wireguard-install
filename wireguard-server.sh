@@ -237,9 +237,13 @@ chattr +i /etc/resolv.conf
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   
 CLIENT_DNS="10.8.0.1"
+
+else	
+    ##nothing
+    
 fi
     
-    if [ "$CLIENT_DNS" == "" ]; then
+    if [ "$INSTALL_UNBOUND" == "n" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
         echo "   2) Google"
