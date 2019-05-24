@@ -325,7 +325,7 @@ iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate
 CLIENT_DNS="10.8.0.1"
 
 else
-
+	echo "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
     fi
 
     SERVER_PRIVKEY=$( wg genkey )
