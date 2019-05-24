@@ -281,8 +281,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-
-        if [ "$DISTRO" == "Debian" ]; then
     apt-get install unbound unbound-host e2fsprogs -y
     wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
     echo "" > /etc/unbound/unbound.conf
