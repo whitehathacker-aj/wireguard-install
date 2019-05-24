@@ -183,8 +183,7 @@ if [[ $INSTALL_UNBOUND = 'y' ]]; then
     ## Install Unbound Commands.
     apt-get install unbound unbound-host e2fsprogs -y
     wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-    
-  echo "" > /etc/unbound/unbound.conf
+    echo "" > /etc/unbound/unbound.conf
   echo "server:
   num-threads: 4
   do-ip4: yes
@@ -224,7 +223,6 @@ if [[ $INSTALL_UNBOUND = 'y' ]]; then
   prefetch: yes
   qname-minimisation: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
-  
 chown -R unbound:unbound /var/lib/unbound
 systemctl enable unbound
 service unbound restart
@@ -233,9 +231,7 @@ sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
 sed -i "s|search|#search|" /etc/resolv.conf
 echo "nameserver 127.0.0.1" >> /etc/resolv.conf
 chattr +i /etc/resolv.conf
-  
-  iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-  
+iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 CLIENT_DNS="10.8.0.1"
 
 else	
