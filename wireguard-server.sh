@@ -239,7 +239,7 @@ chattr +i /etc/resolv.conf
 CLIENT_DNS="10.8.0.1"
 
 else	
-    apt-get update 
+    
 fi
     
     if [ "$INSTALL_UNBOUND" == "n" ]; then
