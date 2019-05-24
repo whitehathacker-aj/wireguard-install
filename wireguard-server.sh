@@ -324,7 +324,7 @@ chattr +i /etc/resolv.conf
 iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 CLIENT_DNS="10.8.0.1"
 
-fi
+    fi
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
