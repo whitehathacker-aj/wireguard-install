@@ -176,9 +176,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             CLIENT_ALLOWED_IP="0.0.0.0/1,128.0.0.0/1,::/1,8000::/1"
         ;;
     esac
-    
+
     read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
-    
+
     if [ "$INSTALL_UNBOUND" == "n" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
@@ -279,10 +279,10 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	$DISABLE_HOST
 
     fi
-    
+
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    
-        if [ "$DISTRO" == "Debian|Ubuntu" ]; then
+
+        if [ "$DISTRO" == "Debian" ]; then
     apt-get install unbound unbound-host e2fsprogs -y
     wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
     echo "" > /etc/unbound/unbound.conf
