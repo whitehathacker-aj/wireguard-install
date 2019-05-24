@@ -179,65 +179,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
     
-if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    ## Install Unbound Commands.
-    apt-get install unbound unbound-host e2fsprogs -y
-    wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-    echo "" > /etc/unbound/unbound.conf
-  echo "server:
-  num-threads: 4
-  do-ip4: yes
-  do-ip6: yes
-  do-udp: yes
-  #Enable logs
-  verbosity: 1
-  #list of Root DNS Server
-  root-hints: "/etc/unbound/root.hints"
-  #Use the root servers key for DNSSEC
-  auto-trust-anchor-file: "/var/lib/unbound/root.key"
-  #Respond to DNS requests on all interfaces
-  interface: 0.0.0.0
-  interface: ::0
-  max-udp-size: 3072
-  #Authorized IPs to access the DNS Server
-  access-control: 0.0.0.0/0                 refuse
-  access-control: 127.0.0.1                 allow
-  access-control: 10.8.0.0/24               allow
-  #not allowed to be returned for public internet  names
-  private-address: 10.8.0.0/24
-  # Hide DNS Server info
-  hide-identity: yes
-  hide-version: yes
-  #Limit DNS Fraud and use DNSSEC
-  harden-glue: yes
-  harden-dnssec-stripped: yes
-  harden-referral-path: yes
-  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning
-  unwanted-reply-threshold: 10000000
-  #Have the validator print validation failures to the log.
-  val-log-level: 1
-  #Minimum lifetime of cache entries in seconds
-  cache-min-ttl: 1800
-  #Maximum lifetime of cached entries
-  cache-max-ttl: 14400
-  prefetch: yes
-  qname-minimisation: yes
-  prefetch-key: yes" > /etc/unbound/unbound.conf
-chown -R unbound:unbound /var/lib/unbound
-systemctl enable unbound
-service unbound restart
-chattr -i /etc/resolv.conf
-sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-sed -i "s|search|#search|" /etc/resolv.conf
-echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-chattr +i /etc/resolv.conf
-iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-CLIENT_DNS="10.8.0.1"
-
-else
-        echo "IDK"
-fi
-    
     if [ "$INSTALL_UNBOUND" == "n" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
@@ -338,6 +279,65 @@ fi
 	$DISABLE_HOST
 
     fi
+    
+    if [[ $INSTALL_UNBOUND = 'y' ]]; then
+    ## Install Unbound Commands.
+    apt-get install unbound unbound-host e2fsprogs -y
+    wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+    echo "" > /etc/unbound/unbound.conf
+  echo "server:
+  num-threads: 4
+  do-ip4: yes
+  do-ip6: yes
+  do-udp: yes
+  #Enable logs
+  verbosity: 1
+  #list of Root DNS Server
+  root-hints: "/etc/unbound/root.hints"
+  #Use the root servers key for DNSSEC
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"
+  #Respond to DNS requests on all interfaces
+  interface: 0.0.0.0
+  interface: ::0
+  max-udp-size: 3072
+  #Authorized IPs to access the DNS Server
+  access-control: 0.0.0.0/0                 refuse
+  access-control: 127.0.0.1                 allow
+  access-control: 10.8.0.0/24               allow
+  #not allowed to be returned for public internet  names
+  private-address: 10.8.0.0/24
+  # Hide DNS Server info
+  hide-identity: yes
+  hide-version: yes
+  #Limit DNS Fraud and use DNSSEC
+  harden-glue: yes
+  harden-dnssec-stripped: yes
+  harden-referral-path: yes
+  #Add an unwanted reply threshold to clean the cache and avoid when possible a DNS Poisoning
+  unwanted-reply-threshold: 10000000
+  #Have the validator print validation failures to the log.
+  val-log-level: 1
+  #Minimum lifetime of cache entries in seconds
+  cache-min-ttl: 1800
+  #Maximum lifetime of cached entries
+  cache-max-ttl: 14400
+  prefetch: yes
+  qname-minimisation: yes
+  prefetch-key: yes" > /etc/unbound/unbound.conf
+chown -R unbound:unbound /var/lib/unbound
+systemctl enable unbound
+service unbound restart
+chattr -i /etc/resolv.conf
+sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+sed -i "s|search|#search|" /etc/resolv.conf
+echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+chattr +i /etc/resolv.conf
+iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+CLIENT_DNS="10.8.0.1"
+
+else
+        echo "IDK"
+fi
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
