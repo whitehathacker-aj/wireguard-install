@@ -46,7 +46,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
     if [ "$SERVER_HOST_V4" == "" ]; then
-        SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
+        SERVER_HOST_V4="$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)"
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
@@ -57,7 +57,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
 
 if [ "$SERVER_HOST_V6" == "" ]; then
-        SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
+        SERVER_HOST_V6="$(/sbin/ip -6 addr | grep inet6 | awk -F '[ \t]+|/' '{print $3}' | grep -v ^::1 | grep -v ^fe80)"
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "y" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
