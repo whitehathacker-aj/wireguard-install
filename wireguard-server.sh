@@ -313,6 +313,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
   do-ip4: yes
   do-ip6: yes
   do-udp: yes
+  do-tcp: no
   verbosity: 1
   root-hints: "/etc/unbound/root.hints"
   auto-trust-anchor-file: "/var/lib/unbound/root.key"
