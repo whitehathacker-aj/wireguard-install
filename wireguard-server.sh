@@ -178,10 +178,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
 
     if [ "$INSTALL_UNBOUND" == "n" ]; then
-    read -rp "Do You Want To Install Pi-hole (y/n) " -e -i y INSTALL_PIHOLE
-    fi
-
-    if [ "$INSTALL_PIHOLE" == "n" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
         echo "   2) Google"
@@ -324,12 +320,6 @@ chattr +i /etc/resolv.conf
 iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 CLIENT_DNS="10.8.0.1"	
 fi
-
-    if [[ $INSTALL_PIHOLE = 'y' ]]; then
-    curl -sSL https://install.pi-hole.net | bash
-    iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-    CLIENT_DNS="10.8.0.1"
-    fi
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
