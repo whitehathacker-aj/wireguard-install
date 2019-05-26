@@ -44,21 +44,47 @@ if [ ! -f "$WG_CONFIG" ]; then
     PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
-
+    
+	if type ping > /dev/null 2>&1; then
+		PING="ping -c3 google.com > /dev/null 2>&1"
+	else
+		PING6="ping -4 -c3 google.com > /dev/null 2>&1"
+	fi
+	if eval "$PING"; then
+		echo "Your host appears to have IPv4 connectivity."
+		IPV4_SUGGESTION="y"
+	else
+		echo "Your host does not appear to have IPv4 connectivity."
+		IPV4_SUGGESTION="n"
+	fi
+	
     if [ "$SERVER_HOST_V4" == "" ]; then
-        SERVER_HOST_V4="$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)"
+        SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address"
             fi
         fi
     fi
-
+    
+	if type ping6 > /dev/null 2>&1; then
+		PING6="ping6 -c3 ipv6.google.com > /dev/null 2>&1"
+	else
+		PING6="ping -6 -c3 ipv6.google.com > /dev/null 2>&1"
+	fi
+	if eval "$PING6"; then
+		echo "Your host appears to have IPv6 connectivity."
+		IPV6_SUGGESTION="y"
+	else
+		echo "Your host does not appear to have IPv6 connectivity."
+		IPV6_SUGGESTION="n"
+	fi
+	
 if [ "$SERVER_HOST_V6" == "" ]; then
-        SERVER_HOST_V6="$(/sbin/ip -6 addr | grep inet6 | awk -F '[ \t]+|/' '{print $3}' | grep -v ^::1 | grep -v ^fe80)"
+        SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "y" CONFIRM
+            read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address"
             fi
