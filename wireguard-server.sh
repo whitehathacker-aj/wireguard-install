@@ -201,9 +201,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
 
-    read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
-
-    if [ "$INSTALL_UNBOUND" == "n" ]; then
+    if [ "$DNS_CHOICE" == "" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
         echo "   2) Google"
@@ -303,50 +301,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	$DISABLE_HOST
 
     fi
-
-    if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    apt-get install unbound unbound-host e2fsprogs -y
-    wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-    echo "" > /etc/unbound/unbound.conf
-  echo "server:
-  num-threads: 4
-  do-ip4: yes
-  do-ip6: yes
-  do-udp: yes
-  do-tcp: no
-  verbosity: 1
-  root-hints: "/etc/unbound/root.hints"
-  auto-trust-anchor-file: "/var/lib/unbound/root.key"
-  interface: 0.0.0.0
-  interface: ::0
-  max-udp-size: 3072
-  access-control: 0.0.0.0/0                 refuse
-  access-control: 127.0.0.1                 allow
-  access-control: 10.8.0.0/24               allow
-  private-address: 10.8.0.0/24
-  hide-identity: yes
-  hide-version: yes
-  harden-glue: yes
-  harden-dnssec-stripped: yes
-  harden-referral-path: yes
-  unwanted-reply-threshold: 10000000
-  val-log-level: 1
-  cache-min-ttl: 1800
-  cache-max-ttl: 14400
-  prefetch: yes
-  qname-minimisation: yes
-  prefetch-key: yes" > /etc/unbound/unbound.conf
-chown -R unbound:unbound /var/lib/unbound
-systemctl enable unbound
-service unbound restart
-chattr -i /etc/resolv.conf
-sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-sed -i "s|search|#search|" /etc/resolv.conf
-echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-chattr +i /etc/resolv.conf
-iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-CLIENT_DNS="10.8.0.1"	
-fi
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
