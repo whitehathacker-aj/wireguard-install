@@ -201,7 +201,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         ;;
     esac
 
-    if [ "$DNS_CHOICE" == "" ]; then
+    read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
+
+    if [ "$INSTALL_UNBOUND" == "n" ]; then
         echo "Which DNS do you want to use with the VPN?"
         echo "   1) AdGuard (Recommended)"
         echo "   2) Google"
@@ -301,6 +303,119 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	$DISABLE_HOST
 
     fi
+
+    if [[ $INSTALL_UNBOUND = 'y' ]]; then
+    
+    if [[ ! "$DISTRO" = "debian|ubuntu" ]]; then
+  # Install Unbound
+  apt-get update
+  apt-get install unbound unbound-host -y
+
+  # Configuration
+  echo "server:
+  num-threads: 4
+  do-ip4: yes
+  do-ip6: yes
+  do-udp: yes
+  do-tcp: no
+  verbosity: 1
+  root-hints: "/etc/unbound/root.hints"
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"
+  interface: 0.0.0.0
+  interface: ::0
+  max-udp-size: 3072
+  access-control: 0.0.0.0/0                 refuse
+  access-control: 127.0.0.1                 allow
+  access-control: 10.8.0.0/24               allow
+  private-address: 10.8.0.0/24
+  hide-identity: yes
+  hide-version: yes
+  harden-glue: yes
+  harden-dnssec-stripped: yes
+  harden-referral-path: yes
+  unwanted-reply-threshold: 10000000
+  val-log-level: 1
+  cache-min-ttl: 1800
+  cache-max-ttl: 14400
+  prefetch: yes
+  qname-minimisation: yes
+  prefetch-key: yes" > /etc/unbound/unbound.conf
+
+  # Needed for the chattr command
+  apt-get install -y e2fsprogs
+fi
+
+if [[ "$DISTRO" = "centos" ]]; then
+  # Install Unbound
+  yum install -y unbound unbound-host
+
+  # Configuration
+  sed -i 's|# interface: 0.0.0.0$|interface: 127.0.0.1|' /etc/unbound/unbound.conf
+  sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+  sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+  sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+fi
+
+if [[ "$DISTRO" = "fedora" ]]; then
+  # Install Unbound
+  dnf install -y unbound unbound-host
+
+  # Configuration
+  sed -i 's|# interface: 0.0.0.0$|interface: 127.0.0.1|' /etc/unbound/unbound.conf
+  sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+  sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+  sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+fi
+
+if [[ "$DISTRO" = "arch" ]]; then
+  pacman -Syu unbound unbound-host
+
+  # Get root servers list
+  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+
+  # Configuration
+  mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
+  echo 'server:
+  use-syslog: yes
+  do-daemonize: no
+  username: "unbound"
+  directory: "/etc/unbound"
+  trust-anchor-file: trusted-key.key
+  root-hints: root.hints
+  interface: 127.0.0.1
+  access-control: 127.0.0.1 allow
+  port: 53
+  num-threads: 2
+  use-caps-for-id: yes
+  harden-glue: yes
+  hide-identity: yes
+  hide-version: yes
+  qname-minimisation: yes
+  prefetch: yes' > /etc/unbound/unbound.conf
+fi
+
+if [[ ! "$DISTRO" =~ (fedora|centos) ]];then
+  # DNS Rebinding fix
+  echo "private-address: 10.0.0.0/8
+private-address: 172.16.0.0/12
+private-address: 192.168.0.0/16
+private-address: 169.254.0.0/16
+private-address: fd00::/8
+private-address: fe80::/10
+private-address: 127.0.0.0/8
+private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
+fi
+
+  iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+  
+  CLIENT_DNS="10.8.0.1"
+  
+if pgrep systemd-journal; then
+  systemctl enable unbound
+  systemctl restart unbound
+else
+  service unbound restart
+fi
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
