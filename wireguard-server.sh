@@ -325,7 +325,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
   interface: ::0
   max-udp-size: 3072
   access-control: 0.0.0.0/0                 refuse
-  access-control: 127.0.0.1                 allow
   access-control: 10.8.0.0/24               allow
   private-address: 10.8.0.0/24
   hide-identity: yes
@@ -350,7 +349,7 @@ if [[ "$DISTRO" = "centos" ]]; then
   yum install -y unbound unbound-host
 
   # Configuration
-  sed -i 's|# interface: 0.0.0.0$|interface: 127.0.0.1|' /etc/unbound/unbound.conf
+  sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
@@ -361,7 +360,7 @@ if [[ "$DISTRO" = "fedora" ]]; then
   dnf install -y unbound unbound-host
 
   # Configuration
-  sed -i 's|# interface: 0.0.0.0$|interface: 127.0.0.1|' /etc/unbound/unbound.conf
+  sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
@@ -382,8 +381,8 @@ if [[ "$DISTRO" = "arch" ]]; then
   directory: "/etc/unbound"
   trust-anchor-file: trusted-key.key
   root-hints: root.hints
-  interface: 127.0.0.1
-  access-control: 127.0.0.1 allow
+  interface: 10.8.0.1
+  access-control: 10.8.0.1 allow
   port: 53
   num-threads: 2
   use-caps-for-id: yes
@@ -396,7 +395,7 @@ fi
 
 if [[ ! "$DISTRO" =~ (fedora|centos) ]];then
   # DNS Rebinding fix
-  echo "private-address: 10.0.0.0/8
+  echo "private-address: 10.8.0.0/8
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
