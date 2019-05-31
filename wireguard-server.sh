@@ -312,7 +312,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    if [[ "$DISTRO" == "(Ubuntu|Debian)" ]]; then
+    elif [[ "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
@@ -400,7 +400,6 @@ fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
-fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
@@ -502,8 +501,7 @@ PersistentKeepalive = $NAT_CHOICE" > $HOME/$NEW_CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
-    	systemctl enable wg-quick@wg0
-    	systemctl start wg-quick@wg0
+    	systemctl restart wg-quick@wg0
     else
 	service wg-quick@wg0 restart
 fi
