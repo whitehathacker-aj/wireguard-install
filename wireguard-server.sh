@@ -366,7 +366,7 @@ if [[ "$DISTRO" = "fedora" ]]; then
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
 fi
 
-if [[ "$DISTRO" = "arch" ]]; then
+if [[ "$DISTRO" = "Arch" ]]; then
   pacman -Syu unbound unbound-host
 
 wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
