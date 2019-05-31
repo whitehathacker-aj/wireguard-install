@@ -140,9 +140,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 			MTU_CHOICE="1280"
 		;;
 		2)
-			until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
-				read -rp "Custom MTU [0-1500]: " -e -i 1500 MTU_CHOICE
-			done
+		until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
+			read -rp "Custom MTU [0-1500]: " -e -i 1500 MTU_CHOICE
+		done
 		;;
 	esac
 
@@ -187,9 +187,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
     echo "   2) Exclude Private IPs"
-    echo ".  3) Custom"
-    until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-3]$ ]]; do
-        read -rp "Client Allowed IP Choice [1-3]: " -e -i 1 CLIENT_ALLOWED_IP
+    until [[ "$CLIENT_ALLOWED_IP" =~ ^[1-2]$ ]]; do
+        read -rp "Client Allowed IP Choice [1-2]: " -e -i 1 CLIENT_ALLOWED_IP
     done
     case $CLIENT_ALLOWED_IP in
         1)
@@ -198,8 +197,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         2)
             CLIENT_ALLOWED_IP="0.0.0.0/1,128.0.0.0/1,::/1,8000::/1"
         ;;
-        3)
-            CLIENT_ALLOWED_IP=""
     esac
 
     read -rp "Do You Want To Install Unbound (y/n) " -e -i y INSTALL_UNBOUND
