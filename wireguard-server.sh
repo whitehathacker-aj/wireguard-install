@@ -59,7 +59,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     if [ "$SERVER_HOST_V4" == "" ]; then
         SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
+            read -p "System public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address."
 		exit
@@ -81,7 +81,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 if [ "$SERVER_HOST_V6" == "" ]; then
         SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
-            read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
+            read -p "System public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address."
 		exit
