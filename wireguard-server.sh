@@ -156,7 +156,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         1)
             SERVER_HOST="$SERVER_HOST_V4"
         ;;
-        3)
+        2)
             SERVER_HOST="[$SERVER_HOST_V6]"
         ;;
     esac
