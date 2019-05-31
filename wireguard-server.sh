@@ -479,11 +479,6 @@ qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 	service wg-quick@wg0 restart
 fi
     ntpdate pool.ntp.org
-    chattr -i /etc/resolv.conf
-    sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-    sed -i "s|search|#search|" /etc/resolv.conf
-    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-    chattr +i /etc/resolv.conf
 
     echo "Client config --> $HOME/$CLIENT_NAME-wg0.conf"
     echo "Now reboot the server and enjoy your fresh VPN installation."
