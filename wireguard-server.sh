@@ -338,7 +338,7 @@ then
   prefetch-key: yes" > /etc/unbound/unbound.conf
 fi
 
-    if [ "$DISTRO" == "Debian" ]; then
+if [ "$DISTRO" == "Debian" ]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
@@ -407,8 +407,12 @@ if [[ "$DISTRO" = "Arch" ]]; then
   prefetch: yes' > /etc/unbound/unbound.conf
 fi
 
+if [[ "$DISTRO" = "Fedora" ]]; then
+#Soon
+fi
+
 if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
-  echo "private-address: 10.8.0.0/24
+echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
