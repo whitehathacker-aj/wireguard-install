@@ -312,7 +312,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     if [ "$INSTALL_UNBOUND" = "y" ]
 then
-    elif [[ ! "$DISTRO" == "(Ubuntu|Debian)" ]]; then
+    if [[ ! "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
@@ -391,7 +391,8 @@ fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
-
+  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+  
 if pgrep systemd-journal; then
   systemctl enable unbound
   systemctl restart unbound
@@ -399,8 +400,6 @@ else
   service unbound restart
 fi
 
- 
- 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
