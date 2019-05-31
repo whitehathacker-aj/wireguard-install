@@ -315,7 +315,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     if [[ "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
-  # Configuration
   echo "server:
   num-threads: 4
   verbosity: 1
@@ -407,7 +406,6 @@ if pgrep systemd-journal; then
   systemctl restart unbound
 else
   service unbound restart
-fi
 fi
 
     SERVER_PRIVKEY=$( wg genkey )
