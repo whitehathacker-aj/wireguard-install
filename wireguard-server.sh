@@ -340,6 +340,8 @@ then
   prefetch-key: yes" > /etc/unbound/unbound.conf
 fi
 
+  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+
 if [[ "$DISTRO" = "CentOS" ]]; then
   yum install unbound unbound-host -y
 
@@ -363,8 +365,6 @@ fi
 
 if [[ "$DISTRO" = "Arch" ]]; then
   pacman -Syu unbound unbound-host
-
-wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
 
   mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
   echo 'server:
