@@ -373,6 +373,15 @@ if [[ "$DISTRO" = "CentOS" ]]; then
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+  
+echo "private-address: 10.8.0.0/24
+private-address: 172.16.0.0/12
+private-address: 192.168.0.0/16
+private-address: 169.254.0.0/16
+private-address: fd00::/8
+private-address: fe80::/10
+private-address: 127.0.0.0/8
+private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
 
 if [[ "$DISTRO" = "Fedora" ]]; then
@@ -382,6 +391,15 @@ if [[ "$DISTRO" = "Fedora" ]]; then
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+  
+echo "private-address: 10.8.0.0/24
+private-address: 172.16.0.0/12
+private-address: 192.168.0.0/16
+private-address: 169.254.0.0/16
+private-address: fd00::/8
+private-address: fe80::/10
+private-address: 127.0.0.0/8
+private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
 
 if [[ "$DISTRO" = "Arch" ]]; then
@@ -405,17 +423,6 @@ if [[ "$DISTRO" = "Arch" ]]; then
   hide-version: yes
   qname-minimisation: yes
   prefetch: yes' > /etc/unbound/unbound.conf
-fi
-
-if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
-echo "private-address: 10.8.0.0/24
-private-address: 172.16.0.0/12
-private-address: 192.168.0.0/16
-private-address: 169.254.0.0/16
-private-address: fd00::/8
-private-address: fe80::/10
-private-address: 127.0.0.0/8
-private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
 
   wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
@@ -527,6 +534,5 @@ qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
     else
 	service wg-quick@wg0 restart
 fi
-
     echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
 fi
