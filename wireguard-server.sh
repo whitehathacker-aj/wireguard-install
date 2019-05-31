@@ -44,7 +44,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
-    
+
 	if type ping > /dev/null 2>&1; then
 		PING="ping -c3 google.com > /dev/null 2>&1"
 	else
@@ -55,7 +55,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 	else
 		IPV4_SUGGESTION="n"
 	fi
-	
+
     if [ "$SERVER_HOST_V4" == "" ]; then
         SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
@@ -66,7 +66,7 @@ if [ ! -f "$WG_CONFIG" ]; then
             fi
         fi
     fi
-    
+
 	if type ping6 > /dev/null 2>&1; then
 		PING6="ping6 -c3 ipv6.google.com > /dev/null 2>&1"
 	else
@@ -77,7 +77,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 	else
 		IPV6_SUGGESTION="n"
 	fi
-	
+
 if [ "$SERVER_HOST_V6" == "" ]; then
         SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
         if [ "$INTERACTIVE" == "yes" ]; then
@@ -291,7 +291,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
-	
+
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
