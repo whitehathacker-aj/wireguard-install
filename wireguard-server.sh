@@ -370,7 +370,7 @@ if [[ "$DISTRO" = "CentOS" ]]; then
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-  
+
 echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
@@ -388,7 +388,7 @@ if [[ "$DISTRO" = "Fedora" ]]; then
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-  
+
 echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
