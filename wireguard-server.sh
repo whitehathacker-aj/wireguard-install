@@ -307,7 +307,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
-
     fi
     
     if [ "$INSTALL_UNBOUND" = "y" ]
@@ -338,16 +337,18 @@ then
   prefetch: yes
   qname-minimisation: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
+  fi
 
-elif [[ "$DISTRO" = "CentOS" ]]; then
+if [[ "$DISTRO" = "CentOS" ]]; then
   yum install unbound unbound-host -y
 
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-
-elif [[ "$DISTRO" = "Fedora" ]]; then
+  fi
+  
+if [[ "$DISTRO" = "Fedora" ]]; then
   dnf install unbound unbound-host -y
 
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
@@ -355,7 +356,7 @@ elif [[ "$DISTRO" = "Fedora" ]]; then
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
 
-elif [[ "$DISTRO" = "Arch" ]]; then
+if [[ "$DISTRO" = "Arch" ]]; then
   pacman -Syu unbound unbound-host
 
   mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
@@ -376,8 +377,9 @@ elif [[ "$DISTRO" = "Arch" ]]; then
   hide-version: yes
   qname-minimisation: yes
   prefetch: yes' > /etc/unbound/unbound.conf
+  fi
 
-elif [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
+if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
 echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
@@ -386,7 +388,6 @@ private-address: fd00::/8
 private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
-
 fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
@@ -399,6 +400,11 @@ if pgrep systemd-journal; then
 else
   service unbound restart
 fi
+    chattr -i /etc/resolv.conf
+    sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+    sed -i "s|search|#search|" /etc/resolv.conf
+    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+    chattr +i /etc/resolv.conf
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
