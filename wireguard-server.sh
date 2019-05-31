@@ -391,7 +391,7 @@ wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
   prefetch: yes' > /etc/unbound/unbound.conf
 fi
 
-if [[ ! "$DISTRO" =~ (fedora|centos) ]];then
+if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
   # DNS Rebinding fix
   echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
@@ -453,10 +453,10 @@ PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
-    	systemctl enable wg0
-	systemctl restart wg0
+    	systemctl enable wg-quick@wg0
+    	systemctl start wg-quick@wg0
     else
-	service wg0 restart
+	service wg-quick@wg0 restart
 fi
     ntpdate pool.ntp.org
 
@@ -506,10 +506,10 @@ PersistentKeepalive = $NAT_CHOICE" > $HOME/$NEW_CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
-    	systemctl enable wg0
-	systemctl restart wg0
+    	systemctl enable wg-quick@wg0
+    	systemctl start wg-quick@wg0
     else
-	service wg0 restart
+	service wg-quick@wg0 restart
 fi
 
     echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
