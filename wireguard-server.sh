@@ -308,7 +308,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     if [ "$INSTALL_UNBOUND" = "y" ]
 then
     if [ "$DISTRO" == "Ubuntu" ]; then
-  apt-get install unbound unbound-host -y
+  apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
   num-threads: 4
@@ -336,7 +336,7 @@ then
 fi
 
 if [ "$DISTRO" == "Debian" ]; then
-  apt-get install unbound unbound-host -y
+  apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
   num-threads: 4
@@ -425,6 +425,11 @@ fi
   wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
+  chattr -i /etc/resolv.conf
+  sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+  sed -i "s|search|#search|" /etc/resolv.conf
+  echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+  chattr +i /etc/resolv.conf
 fi
 
 if pgrep systemd-journal; then
