@@ -311,8 +311,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     fi
 
-    if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    # Need To Make This Work
+     function INSTALL_UNBOUND {
     if [[ "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
@@ -408,7 +407,8 @@ if pgrep systemd-journal; then
 else
   service unbound restart
 fi
-
+ }
+ 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
