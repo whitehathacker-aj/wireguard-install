@@ -250,7 +250,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             CLIENT_DNS="185.228.168.9,185.228.169.9,2a0d:2a00:1::2,2a0d:2a00:2::2"
             ;;
         esac
-
     fi
 
         CLIENT_NAME="$1"
@@ -310,8 +309,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	$DISABLE_HOST
 
     fi
-
-     function INSTALL_UNBOUND {
+    
+    if [ "$INSTALL_UNBOUND" = "y" ]
+then
     if [[ "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
@@ -397,9 +397,9 @@ private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
-
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
+fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
@@ -407,7 +407,7 @@ if pgrep systemd-journal; then
 else
   service unbound restart
 fi
- }
+ 
  
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
