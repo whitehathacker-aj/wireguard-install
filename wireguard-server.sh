@@ -421,15 +421,9 @@ private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
-
   wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
-  chattr -i /etc/resolv.conf
-  sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-  sed -i "s|search|#search|" /etc/resolv.conf
-  echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-  chattr +i /etc/resolv.conf
 fi
 
 if pgrep systemd-journal; then
@@ -485,6 +479,11 @@ qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 	service wg-quick@wg0 restart
 fi
     ntpdate pool.ntp.org
+    chattr -i /etc/resolv.conf
+    sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+    sed -i "s|search|#search|" /etc/resolv.conf
+    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+    chattr +i /etc/resolv.conf
 
     echo "Client config --> $HOME/$CLIENT_NAME-wg0.conf"
     echo "Now reboot the server and enjoy your fresh VPN installation."
