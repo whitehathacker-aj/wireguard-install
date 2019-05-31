@@ -316,7 +316,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    elif [[ ! "$DISTRO" = "Debian|Ubuntu" ]]; then
+    [[ ! "$DISTRO" = "Debian|Ubuntu" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   # Configuration
