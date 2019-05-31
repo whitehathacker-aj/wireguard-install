@@ -312,7 +312,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     
     if [ "$INSTALL_UNBOUND" = "y" ]
 then
-    if [[ ! "$DISTRO" == "(Ubuntu|Debian)" ]]; then
+    elif [[ ! "$DISTRO" == "(Ubuntu|Debian)" ]]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   echo "server:
@@ -338,32 +338,24 @@ then
   prefetch: yes
   qname-minimisation: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
-fi
 
-  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-
-if [[ "$DISTRO" = "CentOS" ]]; then
+elif [[ "$DISTRO" = "CentOS" ]]; then
   yum install unbound unbound-host -y
 
-  # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-fi
 
-if [[ "$DISTRO" = "Fedora" ]]; then
-  # Install Unbound
+elif [[ "$DISTRO" = "Fedora" ]]; then
   dnf install unbound unbound-host -y
 
-  # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
   sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-fi
 
-if [[ "$DISTRO" = "Arch" ]]; then
+elif [[ "$DISTRO" = "Arch" ]]; then
   pacman -Syu unbound unbound-host
 
   mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
@@ -384,11 +376,9 @@ if [[ "$DISTRO" = "Arch" ]]; then
   hide-version: yes
   qname-minimisation: yes
   prefetch: yes' > /etc/unbound/unbound.conf
-fi
 
-if [[ !! "$DISTRO" =~ (Fedora|CentOS) ]];then
-  # DNS Rebinding fix
-  echo "private-address: 10.8.0.0/24
+elif [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
+echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
@@ -396,10 +386,11 @@ private-address: fd00::/8
 private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
+
 fi
+
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
-fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
@@ -407,6 +398,7 @@ if pgrep systemd-journal; then
 else
   service unbound restart
 fi
+
  
  
     SERVER_PRIVKEY=$( wg genkey )
