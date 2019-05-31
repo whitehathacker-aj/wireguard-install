@@ -299,7 +299,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
-
     elif [ "$DISTRO" == "Redhat" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
@@ -307,9 +306,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
-
     fi
-    
+
     if [ "$INSTALL_UNBOUND" = "y" ]
 then
     if [[ ! "$DISTRO" == "(Ubuntu|Debian)" ]]; then
@@ -343,7 +341,6 @@ fi
 if [[ "$DISTRO" = "CentOS" ]]; then
   yum install unbound unbound-host -y
 
-  # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
@@ -351,10 +348,8 @@ if [[ "$DISTRO" = "CentOS" ]]; then
 fi
 
 if [[ "$DISTRO" = "Fedora" ]]; then
-  # Install Unbound
   dnf install unbound unbound-host -y
 
-  # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
   sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
   sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
@@ -385,7 +380,6 @@ if [[ "$DISTRO" = "Arch" ]]; then
 fi
 
 if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
-  # DNS Rebinding fix
   echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
@@ -395,9 +389,11 @@ private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
+
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
   wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
@@ -503,5 +499,6 @@ qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
     else
 	service wg-quick@wg0 restart
 fi
+
     echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
 fi
