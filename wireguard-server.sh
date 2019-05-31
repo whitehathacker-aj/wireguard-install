@@ -395,10 +395,9 @@ private-address: fe80::/10
 private-address: 127.0.0.0/8
 private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
-
-  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
+  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
 
 if pgrep systemd-journal; then
   systemctl enable unbound
@@ -504,6 +503,5 @@ qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
     else
 	service wg-quick@wg0 restart
 fi
-
     echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
 fi
