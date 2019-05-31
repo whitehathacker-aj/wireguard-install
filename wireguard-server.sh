@@ -63,7 +63,8 @@ if [ ! -f "$WG_CONFIG" ]; then
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
-                echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address"
+                echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address."
+		exit
             fi
         fi
     fi
@@ -86,13 +87,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         if [ "$INTERACTIVE" == "yes" ]; then
             read -p "Servers public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
-                echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address"
+                echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address."
+		exit
             fi
         fi
     fi
 
     	echo "What port do you want WireGuard to listen to?"
-	echo "   1) Automatic (Recommended)"
+	echo "   1) 51820 (Recommended)"
 	echo "   2) Custom"
 	echo "   3) Random [2000-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
@@ -115,7 +117,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	esac
 
     echo "Do you want to turn on Persistent Keepalive?"
-    echo "   1) Automatic (Recommended)"
+    echo "   1) 25 (Recommended)"
     echo "   2) Custom"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
         read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
@@ -132,7 +134,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     esac
 
 	echo "What MTU do you want to use?"
-	echo "   1) Automatic (Recommended)"
+	echo "   1) 1280 (Recommended)"
 	echo "   2) Custom"
 	until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
 		read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
@@ -149,7 +151,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	esac
 
     echo "What IPv do you want to use to connect to WireGuard server?"
-    echo "   1) Automatic (Recommended)"
+    echo "   1) IPv4 (Recommended)"
     echo "   2) IPv6"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
         read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
@@ -164,7 +166,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     esac
 
     echo "Do you want to disable IPv on the server?"
-    echo "   1) Automatic (Recommended)"
+    echo "   1) No (Recommended)"
     echo "   2) IPV4"
     echo "   3) IPV6"
     until [[ "$DISABLE_HOST" =~ ^[1-3]$ ]]; do
@@ -251,6 +253,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         esac
 
     fi
+    
+        CLIENT_NAME="$1"
+    if [ "$CLIENT_NAME" == "" ]; then
+        echo "Tell me a name for the client config file. Use one word only, no special characters."
+        read -p "Client Name: " -e CLIENT_NAME
+    fi
 
     if [ "$DISTRO" == "Ubuntu" ]; then
 	apt-get update
@@ -305,19 +313,12 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    
-    if [[ ! "$DISTRO" = "debian|ubuntu" ]]; then
-  # Install Unbound
-  apt-get update
-  apt-get install unbound unbound-host -y
+    elif [[ ! "$DISTRO" = "Debian|Ubuntu" ]]; then
+  apt-get install unbound unbound-host e2fsprogs -y
 
   # Configuration
   echo "server:
   num-threads: 4
-  do-ip4: yes
-  do-ip6: yes
-  do-udp: yes
-  do-tcp: no
   verbosity: 1
   root-hints: "/etc/unbound/root.hints"
   auto-trust-anchor-file: "/var/lib/unbound/root.key"
@@ -339,13 +340,9 @@ if [ "$SERVER_HOST_V6" == "" ]; then
   prefetch: yes
   qname-minimisation: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
-
-  # Needed for the chattr command
-  apt-get install -y e2fsprogs
 fi
 
 if [[ "$DISTRO" = "centos" ]]; then
-  # Install Unbound
   yum install -y unbound unbound-host
 
   # Configuration
@@ -369,10 +366,8 @@ fi
 if [[ "$DISTRO" = "arch" ]]; then
   pacman -Syu unbound unbound-host
 
-  # Get root servers list
-  wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
 
-  # Configuration
   mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
   echo 'server:
   use-syslog: yes
@@ -381,8 +376,8 @@ if [[ "$DISTRO" = "arch" ]]; then
   directory: "/etc/unbound"
   trust-anchor-file: trusted-key.key
   root-hints: root.hints
-  interface: 10.8.0.1
-  access-control: 10.8.0.1 allow
+  interface: 10.8.0.0
+  access-control: 10.8.0.0 allow
   port: 53
   num-threads: 2
   use-caps-for-id: yes
@@ -395,7 +390,7 @@ fi
 
 if [[ ! "$DISTRO" =~ (fedora|centos) ]];then
   # DNS Rebinding fix
-  echo "private-address: 10.8.0.0/8
+  echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
 private-address: 192.168.0.0/16
 private-address: 169.254.0.0/16
@@ -406,7 +401,6 @@ private-address: ::ffff:0:0/96" >> /etc/unbound/unbound.conf
 fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-  
   CLIENT_DNS="10.8.0.1"
   
 if pgrep systemd-journal; then
@@ -436,7 +430,7 @@ PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 SaveConfig = false" > $WG_CONFIG
 
-    echo "# client
+    echo "# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
@@ -455,19 +449,22 @@ Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
 
-    systemctl enable wg-quick@wg0.service
-    systemctl start wg-quick@wg0.service
+    if pgrep systemd-journal; then
+    	systemctl enable wg0
+	systemctl restart wg0
+    else
+	service wg0 restart
+fi
     ntpdate pool.ntp.org
 
-    echo "Client config --> $HOME/client-wg0.conf"
-    echo "Now reboot the server and enjoy your fresh VPN installation! :^)"
+    echo "Client config --> $HOME/$CLIENT_NAME-wg0.conf"
+    echo "Now reboot the server and enjoy your fresh VPN installation."
 
 else
-    ### Server is installed, add a new client
-    CLIENT_NAME="$1"
-    if [ "$CLIENT_NAME" == "" ]; then
-        echo "Tell me a name for the client config file. Use one word only, no special characters."
-        read -p "Client name: " -e CLIENT_NAME
+    NEW_CLIENT_NAME="$1"
+    if [ "$NEW_CLIENT_NAME" == "" ]; then
+        echo "Tell me a new name for the client config file. Use one word only, no special characters."
+        read -p "New Client name: " -e NEW_CLIENT_NAME
     fi
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
@@ -486,7 +483,7 @@ else
     LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
-    echo "# $CLIENT_NAME
+    echo "# $NEW_CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
@@ -502,9 +499,15 @@ PublicKey = $SERVER_PUBKEY
 PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_ENDPOINT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
-qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
+PersistentKeepalive = $NAT_CHOICE" > $HOME/$NEW_CLIENT_NAME-wg0.conf
+qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
 
-    systemctl restart wg-quick@wg0.service
-    echo "New client added, new configuration file for the client on  --> $HOME/$CLIENT_NAME-wg0.conf"
+    if pgrep systemd-journal; then
+    	systemctl enable wg0
+	systemctl restart wg0
+    else
+	service wg0 restart
+fi
+
+    echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
 fi
