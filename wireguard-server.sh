@@ -400,6 +400,7 @@ fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
+fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
