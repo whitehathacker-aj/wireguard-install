@@ -252,7 +252,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
         esac
 
     fi
-    
+
         CLIENT_NAME="$1"
     if [ "$CLIENT_NAME" == "" ]; then
         echo "Tell me a name for the client config file. Use one word only, no special characters."
@@ -312,8 +312,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    
-    if [ "$DISTRO" == "(Ubuntu|Debian)" ]; then
+    if  [ "$DISTRO" == "(Ubuntu|Debian)" ]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   # Configuration
@@ -402,12 +401,13 @@ fi
 
   iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
   CLIENT_DNS="10.8.0.1"
-  
+
 if pgrep systemd-journal; then
   systemctl enable unbound
   systemctl restart unbound
 else
   service unbound restart
+fi
 fi
 
     SERVER_PRIVKEY=$( wg genkey )
