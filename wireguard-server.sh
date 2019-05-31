@@ -316,7 +316,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     fi
 
     if [[ $INSTALL_UNBOUND = 'y' ]]; then
-    elif [[ "$DISTRO" =~ (Debian|Ubuntu) ]]; then
+    echo "hi"
+    elif [ "$DISTRO" == "(Ubuntu|Debian)" ]; then
   apt-get install unbound unbound-host e2fsprogs -y
 
   # Configuration
@@ -345,8 +346,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
   prefetch-key: yes" > /etc/unbound/unbound.conf
 fi
 
-if [[ "$DISTRO" = "centos" ]]; then
-  yum install -y unbound unbound-host
+if [[ "$DISTRO" = "CentOS" ]]; then
+  yum install unbound unbound-host -y
 
   # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
@@ -355,9 +356,9 @@ if [[ "$DISTRO" = "centos" ]]; then
   sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
 fi
 
-if [[ "$DISTRO" = "fedora" ]]; then
+if [[ "$DISTRO" = "Fedora" ]]; then
   # Install Unbound
-  dnf install -y unbound unbound-host
+  dnf install unbound unbound-host -y
 
   # Configuration
   sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
