@@ -406,11 +406,6 @@ if pgrep systemd-journal; then
 else
   service unbound restart
 fi
-  chattr -i /etc/resolv.conf
-  sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-  sed -i "s|search|#search|" /etc/resolv.conf
-  echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-  chattr +i /etc/resolv.conf
 
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo $SERVER_PRIVKEY | wg pubkey )
