@@ -51,10 +51,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 		PING6="ping -4 -c3 google.com > /dev/null 2>&1"
 	fi
 	if eval "$PING"; then
-		echo "Your host appears to have IPv4 connectivity."
 		IPV4_SUGGESTION="y"
 	else
-		echo "Your host does not appear to have IPv4 connectivity."
 		IPV4_SUGGESTION="n"
 	fi
 	
@@ -75,10 +73,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 		PING6="ping -6 -c3 ipv6.google.com > /dev/null 2>&1"
 	fi
 	if eval "$PING6"; then
-		echo "Your host appears to have IPv6 connectivity."
 		IPV6_SUGGESTION="y"
 	else
-		echo "Your host does not appear to have IPv6 connectivity."
 		IPV6_SUGGESTION="n"
 	fi
 	
