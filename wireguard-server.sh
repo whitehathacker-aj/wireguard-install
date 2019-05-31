@@ -446,8 +446,8 @@ PublicKey = $SERVER_PUBKEY
 PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/client-wg0.conf
-qrencode -t ansiutf8 -l L < $HOME/client-wg0.conf
+PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
+qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
     	systemctl enable wg0
