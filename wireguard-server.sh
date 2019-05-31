@@ -386,7 +386,7 @@ if [[ "$DISTRO" = "Arch" ]]; then
   prefetch: yes' > /etc/unbound/unbound.conf
 fi
 
-if [[ ! "$DISTRO" =~ (Fedora|CentOS) ]];then
+if [[ !! "$DISTRO" =~ (Fedora|CentOS) ]];then
   # DNS Rebinding fix
   echo "private-address: 10.8.0.0/24
 private-address: 172.16.0.0/12
