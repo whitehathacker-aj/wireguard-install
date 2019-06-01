@@ -92,7 +92,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     	echo "What port do you want WireGuard to listen to?"
 	echo "   1) 51820 (Recommended)"
 	echo "   2) Custom"
-	echo "   3) Random [2000-65535]"
+	echo "   3) Random [1-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
 		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
 	done
@@ -106,8 +106,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 			done
 		;;
 		3)
-			# Generate random number within private ports range
-			SERVER_PORT=$(shuf -i2000-65535 -n1)
+			SERVER_PORT=$(shuf -i1-65535 -n1)
 			echo "Random Port: $SERVER_PORT"
 		;;
 	esac
@@ -130,14 +129,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     esac
 
 	echo "What MTU do you want to use?"
-	echo "   1) 1280 (Recommended)"
+	echo "   1) 1420 (Recommended)"
 	echo "   2) Custom"
 	until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
 		read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
 	done
 	case $MTU_CHOICE in
 		1)
-			MTU_CHOICE="1280"
+			MTU_CHOICE="1420"
 		;;
 		2)
 		until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
@@ -446,6 +445,7 @@ fi
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
     PRESHARED_KEY=$( wg genpsk )
+    LISTEN_PORT=$(shuf -i1-65535 -n1)
 
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
@@ -463,19 +463,21 @@ SaveConfig = false" > $WG_CONFIG
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
+ListenPort = $LISTEN_PORT
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
-PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
+ListenPort = $LISTEN_PORT
 MTU = $MTU_CHOICE
+PrivateKey = $CLIENT_PRIVKEY
 [Peer]
-PublicKey = $SERVER_PUBKEY
-PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
+PersistentKeepalive = $NAT_CHOICE
+PresharedKey = $PRESHARED_KEY
+PublicKey = $SERVER_PUBKEY" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
@@ -498,6 +500,7 @@ else
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     PRESHARED_KEY=$( wg genpsk )
+    LISTEN_PORT=$(shuf -i1-65535 -n1)
     PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
@@ -516,19 +519,21 @@ else
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
+ListenPort = $LISTEN_PORT
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "[Interface]
-PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
+ListenPort = $LISTEN_PORT
 MTU = $MTU_CHOICE
+PrivateKey = $CLIENT_PRIVKEY
 [Peer]
-PublicKey = $SERVER_PUBKEY
-PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
-Endpoint = $SERVER_ENDPOINT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/$NEW_CLIENT_NAME-wg0.conf
+Endpoint = $SERVER_HOST:$SERVER_PORT
+PersistentKeepalive = $NAT_CHOICE
+PresharedKey = $PRESHARED_KEY
+PublicKey = $SERVER_PUBKEY" > $HOME/$NEW_CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
