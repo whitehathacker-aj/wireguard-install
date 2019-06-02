@@ -62,7 +62,6 @@ if [ ! -f "$WG_CONFIG" ]; then
             read -p "System public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address."
-		exit
             fi
         fi
     fi
@@ -84,7 +83,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             read -p "System public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address."
-		exit
             fi
         fi
     fi
@@ -92,7 +90,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     	echo "What port do you want WireGuard to listen to?"
 	echo "   1) 51820 (Recommended)"
 	echo "   2) Custom"
-	echo "   3) Random [2000-65535]"
+	echo "   3) Random [1-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
 		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
 	done
@@ -106,8 +104,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 			done
 		;;
 		3)
-			# Generate random number within private ports range
-			SERVER_PORT=$(shuf -i2000-65535 -n1)
+			SERVER_PORT=$(shuf -i1-65535 -n1)
 			echo "Random Port: $SERVER_PORT"
 		;;
 	esac
@@ -130,14 +127,14 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     esac
 
 	echo "What MTU do you want to use?"
-	echo "   1) 1280 (Recommended)"
+	echo "   1) 1420 (Recommended)"
 	echo "   2) Custom"
 	until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
 		read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
 	done
 	case $MTU_CHOICE in
 		1)
-			MTU_CHOICE="1280"
+			MTU_CHOICE="1420"
 		;;
 		2)
 		until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
@@ -465,17 +462,18 @@ PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
-    echo "[Interface]
-PrivateKey = $CLIENT_PRIVKEY
+    echo "# $CLIENT_NAME
+[Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
+PrivateKey = $CLIENT_PRIVKEY
 [Peer]
-PublicKey = $SERVER_PUBKEY
-PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/$CLIENT_NAME-wg0.conf
+PersistentKeepalive = $NAT_CHOICE
+PresharedKey = $PRESHARED_KEY
+PublicKey = $SERVER_PUBKEY" > $HOME/$CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
@@ -518,17 +516,18 @@ PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
-    echo "[Interface]
-PrivateKey = $CLIENT_PRIVKEY
+echo "# $NEW_CLIENT_NAME
+[Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
 MTU = $MTU_CHOICE
+PrivateKey = $CLIENT_PRIVKEY
 [Peer]
-PublicKey = $SERVER_PUBKEY
-PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ALLOWED_IP
-Endpoint = $SERVER_ENDPOINT
-PersistentKeepalive = $NAT_CHOICE" > $HOME/$NEW_CLIENT_NAME-wg0.conf
+Endpoint = $SERVER_HOST:$SERVER_PORT
+PersistentKeepalive = $NAT_CHOICE
+PresharedKey = $PRESHARED_KEY
+PublicKey = $SERVER_PUBKEY" > $HOME/$NEW_CLIENT_NAME-wg0.conf
 qrencode -t ansiutf8 -l L < $HOME/$NEW_CLIENT_NAME-wg0.conf
 
     if pgrep systemd-journal; then
