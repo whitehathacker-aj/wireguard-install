@@ -62,7 +62,6 @@ if [ ! -f "$WG_CONFIG" ]; then
             read -p "System public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V4 to set the correct public IP address."
-		exit
             fi
         fi
     fi
@@ -84,7 +83,6 @@ if [ "$SERVER_HOST_V6" == "" ]; then
             read -p "System public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
             if [ "$CONFIRM" == "n" ]; then
                 echo "Aborted. Use environment variable SERVER_HOST_V6 to set the correct public IP address."
-		exit
             fi
         fi
     fi
@@ -445,7 +443,6 @@ fi
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
     PRESHARED_KEY=$( wg genpsk )
-    LISTEN_PORT=$(shuf -i1-65535 -n1)
 
     mkdir -p /etc/wireguard
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
@@ -463,14 +460,12 @@ SaveConfig = false" > $WG_CONFIG
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
-ListenPort = $LISTEN_PORT
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
     echo "# $CLIENT_NAME
 [Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
-ListenPort = $LISTEN_PORT
 MTU = $MTU_CHOICE
 PrivateKey = $CLIENT_PRIVKEY
 [Peer]
@@ -501,7 +496,6 @@ else
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     PRESHARED_KEY=$( wg genpsk )
-    LISTEN_PORT=$(shuf -i1-65535 -n1)
     PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
@@ -520,14 +514,12 @@ else
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
-ListenPort = $LISTEN_PORT
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" >> $WG_CONFIG
 
 echo "# $NEW_CLIENT_NAME
 [Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
-ListenPort = $LISTEN_PORT
 MTU = $MTU_CHOICE
 PrivateKey = $CLIENT_PRIVKEY
 [Peer]
