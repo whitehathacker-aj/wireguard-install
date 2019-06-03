@@ -21,7 +21,7 @@ elif [ -e /etc/fedora-release ]; then
 elif [ -e /etc/redhat-release ]; then
     DISTRO="Redhat"
 else
-    echo "Your distribution is not supported (yet)"
+    echo "Your distribution is not supported (yet)."
     exit
 fi
 
@@ -138,7 +138,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		;;
 		2)
 		until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
-			read -rp "Custom MTU [0-1500]: " -e -i 1500 MTU_CHOICE
+			read -rp "Custom MTU [1-65536]: " -e -i 1500 MTU_CHOICE
 		done
 		;;
 	esac
