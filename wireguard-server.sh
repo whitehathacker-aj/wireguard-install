@@ -501,7 +501,7 @@ else
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
-    SERVER_ENDPOINT=$( head -n1 $WG_CONFIG | awk '{print $4}')
+    SERVER_HOST=$( head -n1 $WG_CONFIG | awk '{print $4}')
     SERVER_PUBKEY=$( head -n1 $WG_CONFIG | awk '{print $5}')
     CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
     MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
