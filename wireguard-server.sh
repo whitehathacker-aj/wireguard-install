@@ -36,7 +36,6 @@ if [ "$(systemd-detect-virt)" == "lxc" ]; then
 fi
 
 if [ ! -f "$WG_CONFIG" ]; then
-    ### Install server and add default client
     INTERACTIVE=${INTERACTIVE:-yes}
     PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
