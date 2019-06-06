@@ -502,18 +502,18 @@ else
     PRESHARED_KEY=$( wg genpsk )
     PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
     PRIVATE_SUBNET_MASK_V4=$( echo $PRIVATE_SUBNET_V4 | cut -d "/" -f 2 )
+    CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
+    LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
     PRIVATE_SUBNET_MASK_V6=$( echo $PRIVATE_SUBNET_V6 | cut -d "/" -f 2 )
+    CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
+    LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
     SERVER_HOST=$( head -n1 $WG_CONFIG | awk '{print $4}')
     SERVER_PUBKEY=$( head -n1 $WG_CONFIG | awk '{print $5}')
     CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
     MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
     NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
     CLIENT_ALLOWED_IP=$( head -n1 $WG_CONFIG | awk '{print $9}')
-    LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
-    LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
-    CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
-    CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
     echo "# $NEW_CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
