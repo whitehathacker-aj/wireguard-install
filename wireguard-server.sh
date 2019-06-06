@@ -247,7 +247,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
         CLIENT_NAME="$1"
     if [ "$CLIENT_NAME" == "" ]; then
-        echo "Tell me a name for the client config file. Use one word only, no special characters."
+        echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
         read -p "Client Name: " -e CLIENT_NAME
     fi
 
@@ -494,7 +494,7 @@ fi
 else
     NEW_CLIENT_NAME="$1"
     if [ "$NEW_CLIENT_NAME" == "" ]; then
-        echo "Tell me a new name for the client config file. Use one word only, no special characters."
+        echo "Tell me a new name for the client config file. Use one word only, no special characters. (No Spaces)"
         read -p "New Client name: " -e NEW_CLIENT_NAME
     fi
     CLIENT_PRIVKEY=$( wg genkey )
