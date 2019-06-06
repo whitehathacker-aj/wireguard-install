@@ -431,13 +431,14 @@ fi
   sed -i "s|search|#search|" /etc/resolv.conf
   echo "nameserver 127.0.0.1" >> /etc/resolv.conf
   chattr +i /etc/resolv.conf
-fi
 
 if pgrep systemd-journal; then
   systemctl enable unbound
   systemctl restart unbound
 else
   service unbound restart
+fi
+
 fi
 
     SERVER_PRIVKEY=$( wg genkey )
