@@ -528,7 +528,7 @@ MTU = $MTU_CHOICE
 PrivateKey = $CLIENT_PRIVKEY
 [Peer]
 AllowedIPs = $CLIENT_ALLOWED_IP
-Endpoint = $SERVER_HOST:$SERVER_PORT
+Endpoint = $SERVER_HOST$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" > $HOME/$NEW_CLIENT_NAME-wg0.conf
