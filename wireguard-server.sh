@@ -3,8 +3,6 @@
 # https://github.com/LiveChief/wireguard-install
 #
 
-WG_CONFIG="/etc/wireguard/wg0.conf"
-
 if [[ "$EUID" -ne 0 ]]; then
     echo "Sorry, you need to run this as root"
     exit
@@ -26,14 +24,16 @@ else
 fi
 
 if [ "$(systemd-detect-virt)" == "openvz" ]; then
-    echo "OpenVZ virtualization is not supported."
+    echo "OpenVZ virtualization is not supported (yet)."
     exit
 fi
 
 if [ "$(systemd-detect-virt)" == "lxc" ]; then
-    echo "LXC virtualization is not supported."
+    echo "LXC virtualization is not supported (yet)."
     exit
 fi
+
+WG_CONFIG="/etc/wireguard/wg0.conf"
 
 if [ ! -f "$WG_CONFIG" ]; then
     INTERACTIVE=${INTERACTIVE:-yes}
