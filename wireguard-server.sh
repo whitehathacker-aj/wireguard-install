@@ -330,7 +330,7 @@ then
   prefetch: yes
   qname-minimisation: yes
   prefetch-key: yes" > /etc/unbound/unbound.conf
-  
+
   systemctl stop systemd-resolved
   systemctl disable systemd-resolved
 fi
