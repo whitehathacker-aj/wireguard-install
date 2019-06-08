@@ -276,7 +276,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update
-        apt-get install wireguard qrencode ntpdate haveged raspberrypi-kernel-headers -y
+	apt-get install wireguard qrencode ntpdate haveged raspberrypi-kernel-headers dirmngr -y
+        apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 8B48AD6246925553
 	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
