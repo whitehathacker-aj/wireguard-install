@@ -273,7 +273,7 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 
     elif [ "$DISTRO" == "Raspbian" ]; then
 	apt-get update
-	apt-get install raspberrypi-kernel-headers
+	apt-get install raspberrypi-kernel-headers -y
 	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 	apt-get install dirmngr -y
 	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8B48AD6246925553
