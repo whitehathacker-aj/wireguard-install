@@ -374,6 +374,34 @@ if [ "$DISTRO" == "Debian" ]; then
   prefetch-key: yes" > /etc/unbound/unbound.conf
 fi
 
+if [ "$DISTRO" == "Raspbian" ]; then
+  apt-get install unbound unbound-host e2fsprogs -y
+
+  echo "server:
+  num-threads: 4
+  verbosity: 1
+  root-hints: "/etc/unbound/root.hints"
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"
+  interface: 0.0.0.0
+  interface: ::0
+  max-udp-size: 3072
+  access-control: 0.0.0.0/0                 refuse
+  access-control: 10.8.0.0/24               allow
+  private-address: 10.8.0.0/24
+  hide-identity: yes
+  hide-version: yes
+  harden-glue: yes
+  harden-dnssec-stripped: yes
+  harden-referral-path: yes
+  unwanted-reply-threshold: 10000000
+  val-log-level: 1
+  cache-min-ttl: 1800
+  cache-max-ttl: 14400
+  prefetch: yes
+  qname-minimisation: yes
+  prefetch-key: yes" > /etc/unbound/unbound.conf
+fi
+
 if [[ "$DISTRO" = "CentOS" ]]; then
   yum install unbound unbound-host -y
 
