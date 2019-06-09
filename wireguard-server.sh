@@ -94,18 +94,18 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
 	done
 	case $PORT_CHOICE in
-        1)
-            SERVER_PORT="51820"
-        ;;
-        2)
-            until [[ "$SERVER_PORT" =~ ^[0-9]+$ ]] && [ "$SERVER_PORT" -ge 1 ] && [ "$SERVER_PORT" -le 65535 ]; do
-            read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
-            done
-        ;;
-        3)
-            SERVER_PORT=$(shuf -i1-65535 -n1)
-            echo "Random Port: $SERVER_PORT"
-        ;;
+		1)
+			SERVER_PORT="51820"
+		;;
+		2)
+			until [[ "$SERVER_PORT" =~ ^[0-9]+$ ]] && [ "$SERVER_PORT" -ge 1 ] && [ "$SERVER_PORT" -le 65535 ]; do
+				read -rp "Custom port [1-65535]: " -e -i 51820 SERVER_PORT
+			done
+		;;
+		3)
+			SERVER_PORT=$(shuf -i1-65535 -n1)
+			echo "Random Port: $SERVER_PORT"
+		;;
 	esac
 
     echo "Do you want to turn on Persistent Keepalive?"
@@ -116,13 +116,13 @@ if [ "$SERVER_HOST_V6" == "" ]; then
     done
     case $NAT_CHOICE in
         1)
-            NAT_CHOICE="25"
+			NAT_CHOICE="25"
         ;;
 	2)
-            until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25]; do
-            read -rp "Custom NAT [0-25]: " -e -i 25 NAT_CHOICE
-            done
-        ;;
+			until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25]; do
+				read -rp "Custom NAT [0-25]: " -e -i 25 NAT_CHOICE 
+			done
+		;;
     esac
 
 	echo "What MTU do you want to use?"
@@ -132,15 +132,15 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 		read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
 	done
 	case $MTU_CHOICE in
-	1)
-            MTU_CHOICE="1420"
-	;;
-	2)
-            until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
-            read -rp "Custom MTU [1-65536]: " -e -i 1500 MTU_CHOICE
-            done
-	;;
-    esac
+		1)
+			MTU_CHOICE="1420"
+		;;
+		2)
+		until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
+			read -rp "Custom MTU [1-65536]: " -e -i 1500 MTU_CHOICE
+		done
+		;;
+	esac
 
     echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
@@ -257,8 +257,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	add-apt-repository ppa:wireguard/wireguard -y
 	apt-get update
 	apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" == "Debian" ]; then
@@ -267,8 +267,8 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update
         apt-get install wireguard qrencode ntpdate linux-headers-$(uname -r) haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" == "Raspbian" ]; then
@@ -279,38 +279,38 @@ if [ "$SERVER_HOST_V6" == "" ]; then
 	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
 	apt-get update
         apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" == "Arch" ]; then
 	pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" = 'Fedora' ]; then
 	dnf update -y
 	dnf copr enable jdoss/wireguard -y
 	dnf install qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) wireguard-dkms wireguard-tools haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" == "CentOS" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 	yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
 
     elif [ "$DISTRO" == "Redhat" ]; then
 	yum update -y
 	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
 	yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-$(uname -r) kernel-devel-$(uname -r) haveged -y
-	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+	echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+	echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
 	$DISABLE_HOST
     fi
 
@@ -532,95 +532,11 @@ fi
     echo "Now reboot the server and enjoy your fresh VPN installation."
 
 else
-        echo "Looks like Wireguard is already installed."
-        echo "What do you want to do?"
-        echo "   1) Add a new wireguard user"
-        echo "   2) Remove User"
-        echo "   3) Remove Wireguard"
-        echo "   4) Exit"
-    until [[ "$WIREGUARD_OPTIONS" =~ ^[1-4]$ ]]; do
-        read -p "Select an Option [1-4]" WIREGUARD_OPTIONS
-    done
-        case $WIREGUARD_OPTIONS in
-            1)
-            echo "Tell me a new name for the client config file. Use one word only, no special characters. (No Spaces)"
-            read -p "New Client name:" -e NEW_CLIENT_NAME
-	    ;;
-            2)
-            echo "This is under development."
-            ;;
-            3)
-            read -rp "Do you really want to remove Wireguard? (y/n)" -e -i n REMOVE_WIREGUARD
-            ;;
-            4)
-            exit
-            ;;
-	esac
-
-    if [ "$REMOVE_WIREGUARD" = "y" ]
-then
-    if [ "$DISTRO" == "CentOS" ]; then
-    wg-quick down wg0
-    yum remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Debian" ]; then
-    wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Ubuntu" ]; then
-    wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Raspbian" ]; then
-    wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Arch" ]; then
-    wg-quick down wg0
-    pacman remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Fedora" ]; then
-    wg-quick down wg0
-    dnf remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    if [ "$DISTRO" == "Redhat" ]; then
-    wg-quick down wg0
-    yum remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
-    rm -rf /etc/wireguard
-    rm -rf /etc/unbound
-    rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-fi
-    echo "Wireguard successfully uninstalled"
-    else
-    echo "Removal aborted!"
-    exit
-fi
-
+    NEW_CLIENT_NAME="$1"
+    if [ "$NEW_CLIENT_NAME" == "" ]; then
+        echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
+        read -p "New Client name: " -e NEW_CLIENT_NAME
+    fi
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
     PRESHARED_KEY=$( wg genpsk )
