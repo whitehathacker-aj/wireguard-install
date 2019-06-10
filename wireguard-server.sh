@@ -92,7 +92,7 @@ dist-check
     GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
     PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
     PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
-    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-6}1"
+    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
     ## Detect IP Version
     detect-ip
 
@@ -741,13 +741,13 @@ else
   ## TODO: Implement this variable wherever it is intended to go.
   LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
   CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
-  CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-6}$((LASTIP6+1))"
-  echo "# $NEW_CLIENT_NAME
+  CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
+  echo "# $NEW_CLIENT_NAME start
   [Peer]
-  PublicKey = $CLIENT_PUBKEY start
+  PublicKey = $CLIENT_PUBKEY 
   PresharedKey = $PRESHARED_KEY
   AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128
-  $CLIENT_PUBKEY end" >> $WG_CONFIG
+  # $NEW_CLIENT_NAME end" >> $WG_CONFIG
   echo "## $NEW_CLIENT_NAME
   [Interface]
   Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
