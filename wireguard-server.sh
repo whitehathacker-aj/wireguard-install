@@ -175,7 +175,7 @@ dist-check
       ;;
       2)
       until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
-        read -rp "Custom MTU [1-65536]: " -e -i 1500 MTU_CHOICE
+        read -rp "Custom MTU [1-1500]: " -e -i 1500 MTU_CHOICE
       done
       ;;
     esac
@@ -535,7 +535,7 @@ dist-check
       wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
       iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       CLIENT_DNS="10.8.0.1"
-
+      ## Setting correct nameservers for system.
       chattr -i /etc/resolv.conf
       sed -i "/nameserver/#nameserver/" /etc/resolv.conf
       sed -i "/search/#search/" /etc/resolv.conf
