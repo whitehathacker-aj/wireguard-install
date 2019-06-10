@@ -373,14 +373,16 @@ dist-check
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
@@ -789,16 +791,23 @@ else
       # echo "This is under development."
       ## TODO: Finish testing and get this feature shipped.
       cat $WG_CONFIG|grep start| awk '{ print $2 }'
-      read -rp "type in clientid : " $REMOVECLIENT
+      read -rp "type in clientid : " -e REMOVECLIENT
       read -rp "Are you sure you want to remove $REMOVECLIENT ? (y/n): " -n 1 -r
       if [[ $REPLY =~ ^[Yy]$ ]]
       then
          echo
-         sed -i "/\#\# $REMOVECLIENT start/,/AllowedIPs =.*\n/d" wg.confg
+         sed -i "/\#\# $REMOVECLIENT start/,/AllowedIPs =.*\n/d" $WG_CONFIG
       else
          echo
          echo "exiting"
+    if pgrep systemd-journal; then
+      systemctl restart wg-quick@wg0
+    else
+      service wg-quick@wg0 restart
+    fi
       fi
+      echo Client named $REMOVECLIENT has been removed.
+    exit
     ;;
     3)
     ## Uninstall Wireguard
@@ -847,6 +856,7 @@ PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" > "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
 qrencode -t ansiutf8 -l L < "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
+echo "Client config --> "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf"
 
   if pgrep systemd-journal; then
     systemctl restart wg-quick@wg0
