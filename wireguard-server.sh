@@ -334,7 +334,7 @@ dist-check
     apt-get install software-properties-common -y
     add-apt-repository ppa:wireguard/wireguard -y
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged iptables-persistent -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
@@ -343,7 +343,7 @@ dist-check
     echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged iptables-persistent -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
@@ -354,37 +354,122 @@ dist-check
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
+    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged iptables-persistent -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   elif [ "$DISTRO" == "Arch" ]; then
-    pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp
+    pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp firewalld
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   elif [ "$DISTRO" = 'Fedora' ]; then
     dnf update -y
     dnf copr enable jdoss/wireguard -y
-    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
+    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged firewalld -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install epel-release wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     $DISABLE_HOST
   fi
+  
+  ## Firewall Rules
+  if [ "$DISTRO" == "CentOS" ]; then
+    systemctl enable firewalld
+    systemctl start firewalld
+    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+  elif [ "$DISTRO" == "Debian" ]; then
+    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
+    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
+    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    iptables-save > /etc/iptables/rules.v4
+  elif [ "$DISTRO" == "Ubuntu" ]; then
+    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
+    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
+    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    iptables-save > /etc/iptables/rules.v4
+  elif [ "$DISTRO" == "Raspbian" ]; then
+    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT	
+    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT	
+    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
+    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
+    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
+    iptables-save > /etc/iptables/rules.v4
+  elif [ "$DISTRO" == "Arch" ]; then
+    systemctl enable firewalld
+    systemctl start firewalld
+    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+  elif [ "$DISTRO" == "Fedora" ]; then
+    systemctl enable firewalld
+    systemctl start firewalld
+    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+  elif [ "$DISTRO" == "Redhat" ]; then
+    systemctl enable firewalld
+    systemctl start firewalld
+    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
+    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
+    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
+    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
+fi
   function install-unbound() {
     ## TODO: This could be broken down and installed in small sections nested above.
     if [ "$INSTALL_UNBOUND" = "y" ]; then
@@ -418,6 +503,7 @@ dist-check
         ## Apply settings
         systemctl stop systemd-resolved
         systemctl disable systemd-resolved
+        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       fi
       if [ "$DISTRO" == "Debian" ]; then
         apt-get install unbound unbound-host e2fsprogs -y
@@ -446,6 +532,7 @@ dist-check
         prefetch: yes
         qname-minimisation: yes
         prefetch-key: yes' > /etc/unbound/unbound.conf
+        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
         apt-get install unbound unbound-host e2fsprogs -y
@@ -474,6 +561,7 @@ dist-check
         prefetch: yes
         qname-minimisation: yes
         prefetch-key: yes' > /etc/unbound/unbound.conf
+        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       fi
       if [[ "$DISTRO" = "CentOS" ]]; then
         yum install unbound unbound-host -y
@@ -491,6 +579,7 @@ dist-check
         private-address: fe80::/10
         private-address: 127.0.0.0/8
         private-address: ::ffff:0:0/96' >> /etc/unbound/unbound.conf
+        firewall-cmd --add-service=dns --permanent
       fi
       if [[ "$DISTRO" = "Fedora" ]]; then
         dnf install unbound unbound-host -y
@@ -508,6 +597,7 @@ dist-check
         private-address: fe80::/10
         private-address: 127.0.0.0/8
         private-address: ::ffff:0:0/96' >> /etc/unbound/unbound.conf
+        firewall-cmd --add-service=dns --permanent
       fi
       if [[ "$DISTRO" = "Arch" ]]; then
         pacman -Syu unbound unbound-host
@@ -530,10 +620,10 @@ dist-check
         hide-version: yes
         qname-minimisation: yes
         prefetch: yes' > /etc/unbound/unbound.conf
+        firewall-cmd --add-service=dns --permanent
       fi
       ## Set Unbound configuration
       wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-      iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       CLIENT_DNS="10.8.0.1"
       ## Setting correct nameservers for system.
       chattr -i /etc/resolv.conf
@@ -569,8 +659,6 @@ echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 SaveConfig = false
 # $CLIENT_NAME start
 [Peer]
