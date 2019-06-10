@@ -716,7 +716,7 @@ else
     ;;
     3)
     ## Uninstall Wireguard
-    read -rp "Do you really want to remove Wireguard? [y/n]" -e -i n REMOVE_WIREGUARD
+    read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
     uninstall-wireguard
     ;;
     4)
