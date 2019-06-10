@@ -853,5 +853,4 @@ qrencode -t ansiutf8 -l L < "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
   else
     service wg-quick@wg0 restart
   fi
-  echo "New client added, new configuration file for the client on  --> "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf"
 fi
