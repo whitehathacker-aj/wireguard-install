@@ -109,7 +109,7 @@ dist-check
   function set-port() {
     echo "What port do you want WireGuard to listen to?"
     echo "   1) 51820 (Recommended)"
-    echo "   2) Custom"
+    echo "   2) Custom (Advanced)"
     echo "   3) Random [1024-65535]"
     until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
@@ -140,7 +140,7 @@ dist-check
   function nat-keepalive() {
     echo "Do you want to set Persistent Keepalive or use the default?"
     echo "   1) 25 (Default)"
-    echo "   2) Custom"
+    echo "   2) Custom (Advanced)"
     until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
       read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
     done
@@ -610,7 +610,7 @@ qrencode -t ansiutf8 -l L < "$HOME"/"$CLIENT_NAME"-wg0.conf
   ntpdate pool.ntp.org
 
   ## Question 9
-  echo "Client config --> $HOME/$CLIENT_NAME-wg0.conf"
+  echo "Client config --> "$HOME"/"$CLIENT_NAME"-wg0.conf"
   echo "Now reboot the server and enjoy your fresh VPN installation."
 
 else
@@ -619,9 +619,7 @@ else
   echo "What do you want to do?"
   echo "   1) Add a new wireguard user"
   echo "   2) Remove User"
-  echo "   3) Uninstall Wireguard"
-  ## TODO: Potentially add uninstaller for Unbound
-  #echo "   4) Uninstall Unbound"
+  echo "   3) Uninstall"
   echo "   4) Exit"
   until [[ "$WIREGUARD_OPTIONS" =~ ^[1-4]$ ]]; do
     read -rp "Select an Option [1-4]: " -e -i 1 WIREGUARD_OPTIONS
@@ -704,7 +702,7 @@ else
       ## TODO: Finish testing and get this feature shipped.
       cat $WG_CONFIG|grep start| awk '{ print $2 }'
       read -rp "type in clientid : " $REMOVECLIENT
-      read -rp "Are you sure you want to remove $REMOVECLIENT ? y/n: " -n 1 -r
+      read -rp "Are you sure you want to remove $REMOVECLIENT ? (y/n): " -n 1 -r
       if [[ $REPLY =~ ^[Yy]$ ]]
       then
          echo
@@ -767,5 +765,5 @@ qrencode -t ansiutf8 -l L < "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
   else
     service wg-quick@wg0 restart
   fi
-  echo "New client added, new configuration file for the client on  --> $HOME/$NEW_CLIENT_NAME-wg0.conf"
+  echo "New client added, new configuration file for the client on  --> "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf"
 fi
