@@ -504,6 +504,7 @@ fi
         ## Apply settings
         systemctl stop systemd-resolved
         systemctl disable systemd-resolved
+	# Firewall Rule For Unbound
         iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       fi
       if [ "$DISTRO" == "Debian" ]; then
@@ -533,6 +534,7 @@ fi
         prefetch: yes
         qname-minimisation: yes
         prefetch-key: yes' > /etc/unbound/unbound.conf
+	# Firewall Rule For Unbound
         iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
@@ -583,6 +585,7 @@ fi
         sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
         sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
         sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+	# Firewall Rule For Unbound
         firewall-cmd --add-service=dns --permanent
       fi
       if [[ "$DISTRO" = "Arch" ]]; then
