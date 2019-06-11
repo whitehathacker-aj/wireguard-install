@@ -188,7 +188,7 @@ dist-check
   function ipvx-select() {
     echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
-    echo "   2) IPv6"
+    echo "   2) IPv6 (Advanced)"
     until [[ "$SERVER_HOST" =~ ^[1-2]$ ]]; do
       read -rp "IP Choice [1-2]: " -e -i 1 SERVER_HOST
     done
