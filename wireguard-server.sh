@@ -795,7 +795,7 @@ else
       if [[ $REPLY =~ ^[Yy]$ ]]
       then
          echo
-         sed -i "/\#\# $REMOVECLIENT start/,/\#\# $REMOVECLIENT end/d" $WG_CONFIG
+         sed -i "/\# $REMOVECLIENT start/,/\# $REMOVECLIENT end/d" $WG_CONFIG
       else
          echo
          echo "exiting"
