@@ -799,12 +799,14 @@ else
       else
          echo
          echo "exiting"
+      fi
+
     if pgrep systemd-journal; then
       systemctl restart wg-quick@wg0
     else
       service wg-quick@wg0 restart
     fi
-      fi
+
       echo Client named $REMOVECLIENT has been removed.
     exit
     ;;
