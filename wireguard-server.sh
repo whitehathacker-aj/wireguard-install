@@ -567,10 +567,11 @@ fi
       if [[ "$DISTRO" = "CentOS" ]]; then
         yum install unbound unbound-host -y
 
-        sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
-        sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+			sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
+			sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
+			sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+			sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+			sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
 
         echo 'private-address: 10.0.0.0/8
         private-address: 172.16.0.0/12
@@ -585,10 +586,11 @@ fi
       if [[ "$DISTRO" = "Fedora" ]]; then
         dnf install unbound unbound-host -y
         ## TODO: Make these files in {gitroot}/config/unbound-distro.conf then install it via curl/wget
-        sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.0|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
-        sed -i 's|# use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+			sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
+			sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
+			sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+			sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+			sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
 
         echo 'private-address: 10.0.0.0/8
         private-address: 172.16.0.0/12
