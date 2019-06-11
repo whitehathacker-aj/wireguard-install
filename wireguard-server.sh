@@ -796,17 +796,14 @@ else
       then
          echo
          sed -i "/\# $REMOVECLIENT start/,/\# $REMOVECLIENT end/d" $WG_CONFIG
-      else
-         echo
-         echo "exiting"
       fi
+      exit
     if pgrep systemd-journal; then
       systemctl restart wg-quick@wg0
     else
       service wg-quick@wg0 restart
     fi
       echo Client named $REMOVECLIENT has been removed.
-    exit
     ;;
     3)
     ## Uninstall Wireguard
