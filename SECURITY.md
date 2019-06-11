@@ -1,21 +1,39 @@
 # Security Policy
 
-## Supported Versions
+## OS Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+OS Versions that are supported.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+CentOS, Debian, Ubuntu, Arch, Fedora, Redhat, Raspbian
+
+#### Version Breakdown
+
+| OS             | Supported          |
+| -------------- | ------------------ |
+| Ubuntu LTS Only| :white_check_mark: |
+| Raspbian       | :white_check_mark: |
+| Debian 7-9     | :white_check_mark: |
+| Debian <6      | :x:                |
+| CentOS 7.x     | :white_check_mark: |
+| CentOS <6      | :x:                |
+| Fedora         | :white_check_mark: |
+| Redhat 7.x     | :white_check_mark: |
+| Redhat <6.x    | :x:                |
+| Arch May2019   | :white_check_mark: |
+| LXC            | :x:                |
+
+## WireGuard Versions
+
+| OS                   | Supported          |
+| -------------------- | ------------------ |
+| WireGuard Latest Only| :white_check_mark: |
+
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+The critical nature of [Responsible Disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure) when it comes to private communications in the public network space can not be underestimated.  Some peoples lives depend on their communications being kept private.  On a grander scale than the individual level, entire countries can depend on the security and integrity of people who maintain projects like these.  Please be swift in reporting and disclosing vulnerabilities.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+We will try to aim for a 90 day turnaround on responsibly disclosed vulnerabilities. 
+If we have not updated the repository in 90 days from the report it is important to report the vulnerability on the GitIssues so that others know that they can no longer trust this repository to effectively protect their security.
+
+We aim for the highest possible level of security without sacrafising on the works by default logic of how software releases should be shipped.  We assume that if the security could be broken between now and the time you've passed away that it's not sufficient for our designs.
