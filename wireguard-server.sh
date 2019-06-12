@@ -733,7 +733,7 @@ else
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
         wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
+        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs dirmngr -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
