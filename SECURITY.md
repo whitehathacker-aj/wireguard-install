@@ -4,7 +4,7 @@
 
 OS Versions that are supported.
 
-CentOS, Debian, Ubuntu, Arch, Fedora, Redhat, Raspbian
+CentOS, Debian, Ubuntu, Arch, Fedora, RedHat, Raspbian
 
 #### Version Breakdown
 
