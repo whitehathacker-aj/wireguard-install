@@ -714,6 +714,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Debian" ]; then
         wg-quick down wg0
@@ -722,6 +723,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Ubuntu" ]; then
         wg-quick down wg0
@@ -730,6 +732,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
         wg-quick down wg0
@@ -738,6 +741,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Arch" ]; then
         wg-quick down wg0
@@ -746,6 +750,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Fedora" ]; then
         wg-quick down wg0
@@ -754,6 +759,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       if [ "$DISTRO" == "Redhat" ]; then
         wg-quick down wg0
@@ -762,6 +768,7 @@ else
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
         rm /etc/sysctl.d/wireguard.conf
+        rm /etc/ntp.conf
       fi
       echo "Wireguard successfully uninstalled"
     elif [[ $REMOVE_WIREGUARD == n ]]; then
