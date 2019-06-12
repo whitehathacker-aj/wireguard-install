@@ -17,8 +17,8 @@ CentOS, Debian, Ubuntu, Arch, Fedora, RedHat, Raspbian
 | CentOS 7.x     | :white_check_mark: |
 | CentOS <6      | :x:                |
 | Fedora         | :white_check_mark: |
-| Redhat 7.x     | :white_check_mark: |
-| Redhat <6.x    | :x:                |
+| RedHat 7.x     | :white_check_mark: |
+| RedHat <6.x    | :x:                |
 | Arch May2019   | :white_check_mark: |
 | LXC            | :x:                |
 | OpenVZ         | :x:                |
