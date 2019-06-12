@@ -709,7 +709,7 @@ else
     then
       if [ "$DISTRO" == "CentOS" ]; then
         wg-quick down wg0
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -717,7 +717,7 @@ else
       fi
       if [ "$DISTRO" == "Debian" ]; then
         wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
+        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs iptables-persistent -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -725,7 +725,7 @@ else
       fi
       if [ "$DISTRO" == "Ubuntu" ]; then
         wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs -y
+        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs iptables-persistent -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -733,7 +733,7 @@ else
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
         wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs dirmngr -y
+        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host e2fsprogs dirmngr iptables-persistent -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -741,7 +741,7 @@ else
       fi
       if [ "$DISTRO" == "Arch" ]; then
         wg-quick down wg0
-        pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host -y
+        pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -749,7 +749,7 @@ else
       fi
       if [ "$DISTRO" == "Fedora" ]; then
         wg-quick down wg0
-        dnf remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        dnf remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
@@ -757,7 +757,7 @@ else
       fi
       if [ "$DISTRO" == "Redhat" ]; then
         wg-quick down wg0
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
         rm -rf /etc/wireguard
         rm -rf /etc/unbound
         rm -rf /etc/qrencode
