@@ -716,6 +716,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/firewalld/firewalld.conf
+	rm /etc/default/haveged
       fi
       if [ "$DISTRO" == "Debian" ]; then
         wg-quick down wg0
@@ -736,6 +737,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/iptables/rules.v4
+	rm /etc/default/haveged
       fi
       if [ "$DISTRO" == "Raspbian" ]; then
         wg-quick down wg0
@@ -746,6 +748,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/iptables/rules.v4
+	rm /etc/default/haveged
       fi
       if [ "$DISTRO" == "Arch" ]; then
         wg-quick down wg0
@@ -756,6 +759,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/firewalld/firewalld.conf
+	rm /etc/default/haveged
       fi
       if [ "$DISTRO" == "Fedora" ]; then
         wg-quick down wg0
@@ -766,6 +770,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/firewalld/firewalld.conf
+	rm /etc/default/haveged
       fi
       if [ "$DISTRO" == "Redhat" ]; then
         wg-quick down wg0
@@ -776,6 +781,7 @@ else
         rm /etc/sysctl.d/wireguard.conf
         rm /etc/ntp.conf
         rm /etc/firewalld/firewalld.conf
+	rm /etc/default/haveged
       fi
       echo "Wireguard successfully uninstalled"
     elif [[ $REMOVE_WIREGUARD == n ]]; then
