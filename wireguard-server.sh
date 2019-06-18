@@ -163,14 +163,14 @@ dist-check
   ## Question 3: Custom MTU or default settings
   function mtu-set() {
     echo "What MTU do you want to use?"
-    echo "   1) 1420 (Recommended)"
+    echo "   1) 1280 (Recommended)"
     echo "   2) Custom (Advanced)"
     until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
       read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
     done
     case $MTU_CHOICE in
       1)
-      MTU_CHOICE="1420"
+      MTU_CHOICE="1280"
       ;;
       2)
       until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
