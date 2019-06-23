@@ -648,6 +648,7 @@ fi
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
     PRESHARED_KEY=$( wg genpsk )
     mkdir -p /etc/wireguard
+    mkdir -p /etc/wireguard/clients
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
     ## Set Wireguard settings for this host and first peer.
 
@@ -675,8 +676,8 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
-PublicKey = $SERVER_PUBKEY" > "$HOME"/"$CLIENT_NAME"-wg0.conf
-qrencode -t ansiutf8 -l L < "$HOME"/"$CLIENT_NAME"-wg0.conf
+PublicKey = $SERVER_PUBKEY" > "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
+qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
   ## Restart WireGuard
 if pgrep systemd-journal; then
   systemctl restart wg-quick@wg0
@@ -691,7 +692,7 @@ fi
   ntpdate pool.ntp.org
 
   ## Echo Client Config File
-  echo "Client Config --> "$HOME"/"$CLIENT_NAME"-wg0.conf"
+  echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
 
   else
 
@@ -745,9 +746,9 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
-PublicKey = $SERVER_PUBKEY" > "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
-qrencode -t ansiutf8 -l L < "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf
-echo "Client config --> "$HOME"/"$NEW_CLIENT_NAME"-wg0.conf"
+PublicKey = $SERVER_PUBKEY" > "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf
+qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf
+echo "Client config --> "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf"
 if pgrep systemd-journal; then
     systemctl restart wg-quick@wg0
   else
@@ -799,6 +800,7 @@ fi
         yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
   fi
     rm -rf /etc/wireguard
+    rm -rf /etc/wireguard/clients
     rm -rf /etc/unbound
     rm -rf /etc/qrencode
     rm /etc/sysctl.d/wireguard.conf
