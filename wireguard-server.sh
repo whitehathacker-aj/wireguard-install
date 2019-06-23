@@ -626,18 +626,17 @@ fi
         sed -i "/search/#search/" /etc/resolv.conf
         echo "nameserver 127.0.0.1" >> /etc/resolv.conf
         chattr +i /etc/resolv.conf
-  }
+## Restart unbound
+if pgrep systemd-journal; then
+  systemctl enable unbound
+  systemctl restart unbound
+else
+   service unbound restart
+fi
+}
 
   ## Install Unbound
   install-unbound
-
-  ## Restart unbound
-      if pgrep systemd-journal; then
-        systemctl enable unbound
-        systemctl restart unbound
-      else
-        service unbound restart
-      fi
 
   ## WireGuard Set Config
   function wireguard-setconf() {
@@ -678,16 +677,15 @@ PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" > "$HOME"/"$CLIENT_NAME"-wg0.conf
 qrencode -t ansiutf8 -l L < "$HOME"/"$CLIENT_NAME"-wg0.conf
+  ## Restart WireGuard
+if pgrep systemd-journal; then
+  systemctl restart wg-quick@wg0
+else
+  service wg-quick@wg0 restart
+fi
 }
   ## Setting Up Wireguard Config
   wireguard-setconf
-
-  ## Restart WireGuard
-if pgrep systemd-journal; then
-    systemctl restart wg-quick@wg0
-  else
-    service wg-quick@wg0 restart
-fi
 
   ## Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
