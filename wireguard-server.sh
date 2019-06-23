@@ -618,14 +618,14 @@ fi
     # Firewall Rule For Unbound
     firewall-cmd --add-service=dns --permanent
   fi
-        # Setting Client DNS For Unbound On WireGuard
-        CLIENT_DNS="10.8.0.1"
-        ## Setting correct nameservers for system.
-        chattr -i /etc/resolv.conf
-        sed -i "/nameserver/#nameserver/" /etc/resolv.conf
-        sed -i "/search/#search/" /etc/resolv.conf
-        echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-        chattr +i /etc/resolv.conf
+    # Setting Client DNS For Unbound On WireGuard
+    CLIENT_DNS="10.8.0.1"
+    ## Setting correct nameservers for system.
+    chattr -i /etc/resolv.conf
+    sed -i "/nameserver/#nameserver/" /etc/resolv.conf
+    sed -i "/search/#search/" /etc/resolv.conf
+    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+    chattr +i /etc/resolv.conf
 ## Restart unbound
 if pgrep systemd-journal; then
   systemctl enable unbound
