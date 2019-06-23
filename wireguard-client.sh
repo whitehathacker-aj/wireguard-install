@@ -2,26 +2,39 @@
 # Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
 # https://github.com/LiveChief/wireguard-install
 
-if [[ "$EUID" -ne 0 ]]; then
+## Sanity Checks and automagic
+function root-check() {
+  if [[ "$EUID" -ne 0 ]]; then
     echo "Sorry, you need to run this as root"
     exit
-fi
+  fi
+}
 
-if [ -e /etc/centos-release ]; then
+## Root Check
+root-check
+
+## Detect OS
+function dist-check() {
+  if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
-elif [ -e /etc/debian_version ]; then
+  elif [ -e /etc/debian_version ]; then
     DISTRO=$( lsb_release -is )
-elif [ -e /etc/arch-release ]; then
+  elif [ -e /etc/arch-release ]; then
     DISTRO="Arch"
-elif [ -e /etc/fedora-release ]; then
+  elif [ -e /etc/fedora-release ]; then
     DISTRO="Fedora"
-elif [ -e /etc/redhat-release ]; then
+  elif [ -e /etc/redhat-release ]; then
     DISTRO="Redhat"
-else
-    echo "Your distribution is not supported (yet)"
+  else
+    echo "Your distribution is not supported (yet)."
     exit
-fi
+  fi
+}
 
+## Check distro
+dist-check
+
+function install-wireguard-client() {
     if [ "$DISTRO" == "Ubuntu" ]; then
 	apt-get update
 	apt-get install software-properties-common -y
@@ -59,3 +72,6 @@ fi
 	yum install epel-release -y
 	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
     fi
+}
+## Install WireGuard Client
+install-wireguard-client
