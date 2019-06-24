@@ -226,6 +226,15 @@ function test-connectivity-v6() {
 
   ## Traffic Forwarding
   client-allowed-ip
+  
+  ## What would you like to name your first WireGuard peer?
+  function client-name() {
+    echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
+    read -rp "Client Name: " -e CLIENT_NAME
+  }
+
+  ## Client Name
+  client-name
 
   function install-wireguard() {
   ## Installation begins here.
