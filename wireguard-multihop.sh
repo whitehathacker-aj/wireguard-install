@@ -1,5 +1,5 @@
 #!/bin/bash
-# Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
+## THIS IS DEV, IT DOSENT WORK.
 # https://github.com/LiveChief/wireguard-install
 
 ## Sanity Checks and automagic
