@@ -636,8 +636,8 @@ else
 fi
 }
 
-  ## Install Unbound
-  install-unbound
+  ## Ask To Install Unbound
+  ask-install-unbound
 
   ## WireGuard Set Config
   function wireguard-setconf() {
