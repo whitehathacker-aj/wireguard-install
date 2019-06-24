@@ -679,6 +679,7 @@ PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" > "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
+echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
   ## Restart WireGuard
 if pgrep systemd-journal; then
   systemctl restart wg-quick@wg0
@@ -691,9 +692,6 @@ fi
 
   ## Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
-
-  ## Echo Client Config File
-  echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
 
   else
 
@@ -712,24 +710,24 @@ fi
     1)
     echo "Tell me a new name for the client config file. Use one word only, no special characters. (No Spaces)"
       read -rp "New client name: " -e NEW_CLIENT_NAME
-CLIENT_PRIVKEY=$( wg genkey )
-CLIENT_PUBKEY=$( echo "$CLIENT_PRIVKEY" | wg pubkey )
-PRESHARED_KEY=$( wg genpsk )
-PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
-PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
-PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
-PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
-SERVER_HOST=$( head -n1 $WG_CONFIG | awk '{print $4}')
-SERVER_PUBKEY=$( head -n1 $WG_CONFIG | awk '{print $5}')
-CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
-MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
-NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
-CLIENT_ALLOWED_IP=$( head -n1 $WG_CONFIG | awk '{print $9}')
-LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
-## TODO: Implement this variable wherever it is intended to go.
-LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
-CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
-CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
+  CLIENT_PRIVKEY=$( wg genkey )
+  CLIENT_PUBKEY=$( echo "$CLIENT_PRIVKEY" | wg pubkey )
+  PRESHARED_KEY=$( wg genpsk )
+  PRIVATE_SUBNET_V4=$( head -n1 $WG_CONFIG | awk '{print $2}')
+  PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
+  PRIVATE_SUBNET_V6=$( head -n1 $WG_CONFIG | awk '{print $3}')
+  PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
+  SERVER_HOST=$( head -n1 $WG_CONFIG | awk '{print $4}')
+  SERVER_PUBKEY=$( head -n1 $WG_CONFIG | awk '{print $5}')
+  CLIENT_DNS=$( head -n1 $WG_CONFIG | awk '{print $6}')
+  MTU_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $7}')
+  NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
+  CLIENT_ALLOWED_IP=$( head -n1 $WG_CONFIG | awk '{print $9}')
+  LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
+  ## TODO: Implement this variable wherever it is intended to go.
+  LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
+  CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
+  CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
 echo "# $NEW_CLIENT_NAME start
 [Peer]
 PublicKey = $CLIENT_PUBKEY
