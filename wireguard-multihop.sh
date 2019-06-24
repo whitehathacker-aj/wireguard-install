@@ -121,10 +121,10 @@ function test-connectivity-v6() {
   if [ ! -f "$WG_CONFIG" ]; then
     INTERACTIVE=${INTERACTIVE:-yes}
     PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
-    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
+    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 1 )
     GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
     PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
-    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
+    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 1 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   ## Determine host port
@@ -385,8 +385,8 @@ fi
     SERVER_PUBKEY=$( echo "$SERVER_PRIVKEY" | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
     CLIENT_PUBKEY=$( echo "$CLIENT_PRIVKEY" | wg pubkey )
-    CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}3"
-    CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}3"
+    CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}2"
+    CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}2"
     PRESHARED_KEY=$( wg genpsk )
     mkdir -p /etc/wireguard
     mkdir -p /etc/wireguard/clients
