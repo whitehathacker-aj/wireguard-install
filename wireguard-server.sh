@@ -326,7 +326,7 @@ function test-connectivity-v6() {
 fi
 }
 
-  ## Unbound or DNS
+  ## Ask To Install Unbound
   ask-install-unbound
 
   ## What would you like to name your first WireGuard peer?
@@ -635,9 +635,6 @@ else
    service unbound restart
 fi
 }
-
-  ## Ask To Install Unbound
-  ask-install-unbound
 
   ## WireGuard Set Config
   function wireguard-setconf() {
