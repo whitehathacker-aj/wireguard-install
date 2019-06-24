@@ -1,5 +1,5 @@
 #!/bin/bash
-## THIS IS DEV, IT DOSENT WORK.
+## THIS IS DEV, IT DOSENT WORK.	
 # https://github.com/LiveChief/wireguard-install
 
 ## Sanity Checks and automagic
@@ -120,11 +120,11 @@ function test-connectivity-v6() {
   WG_CONFIG="/etc/wireguard/wg0.conf"
   if [ ! -f "$WG_CONFIG" ]; then
     INTERACTIVE=${INTERACTIVE:-yes}
-    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
-    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 1 )
+    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.1/24"}
+    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
-    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
-    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 1 )
+    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::1/64"}
+    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   ## Determine host port
@@ -226,7 +226,7 @@ function test-connectivity-v6() {
 
   ## Traffic Forwarding
   client-allowed-ip
-  
+
   ## What would you like to name your first WireGuard peer?
   function client-name() {
     echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
@@ -384,7 +384,6 @@ fi
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo "$SERVER_PRIVKEY" | wg pubkey )
     CLIENT_PRIVKEY=$( wg genkey )
-    CLIENT_PUBKEY=$( echo "$CLIENT_PRIVKEY" | wg pubkey )
     CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}2"
     CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}2"
     PRESHARED_KEY=$( wg genpsk )
@@ -393,30 +392,25 @@ fi
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
     ## Set Wireguard settings for this host and first peer.
 
-echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE $CLIENT_ALLOWED_IP
+echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_ALLOWED_IP
 [Interface]
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
 SaveConfig = false
-# $CLIENT_NAME start
+# $CLIENT_NAME
 [Peer]
 PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
-AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128
-# $CLIENT_NAME end" > $WG_CONFIG
+AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128" > $WG_CONFIG
 
 echo "# $CLIENT_NAME
 [Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
-DNS = $CLIENT_DNS
-MTU = $MTU_CHOICE
 PrivateKey = $CLIENT_PRIVKEY
 [Peer]
 AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
-PersistentKeepalive = $NAT_CHOICE
-PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" > "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
@@ -439,33 +433,13 @@ fi
   function wireguard-next-questions() {
   echo "Looks like Wireguard is already installed."
   echo "What do you want to do?"
-  echo "   1) Remove User From WireGuard"
-  echo "   2) Uninstall WireGuard"
-  echo "   3) Exit"
-  until [[ "$WIREGUARD_OPTIONS" =~ ^[1-3]$ ]]; do
-    read -rp "Select an Option [1-3]: " -e -i 1 WIREGUARD_OPTIONS
+  echo "   1) Uninstall WireGuard"
+  echo "   2) Exit"
+  until [[ "$WIREGUARD_OPTIONS" =~ ^[1-2]$ ]]; do
+    read -rp "Select an Option [1-2]: " -e -i 1 WIREGUARD_OPTIONS
   done
   case $WIREGUARD_OPTIONS in
     1)
-      ## Remove User
-      echo "Which WireGuard User Do You Want To Remove?"
-      cat $WG_CONFIG|grep start| awk '{ print $2 }'
-      read -rp "Type in Client Name : " -e REMOVECLIENT
-      read -rp "Are you sure you want to remove $REMOVECLIENT ? (y/n): " -n 1 -r
-      if [[ $REPLY =~ ^[Yy]$ ]]
-      then
-         echo
-         sed -i "/\# $REMOVECLIENT start/,/\# $REMOVECLIENT end/d" $WG_CONFIG
-      fi
-      exit
-if pgrep systemd-journal; then
-    systemctl restart wg-quick@wg0
-  else
-    service wg-quick@wg0 restart
-fi
-      echo "Client named $REMOVECLIENT has been removed."
-    ;;
-    2)
     ## Uninstall Wireguard
     read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
   if [ "$DISTRO" == "CentOS" ]; then
@@ -505,7 +479,7 @@ fi
     rm /etc/firewalld/firewalld.conf
     rm /etc/default/haveged
     ;;
-    3)
+    2)
     exit
     ;;
   esac
