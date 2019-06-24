@@ -250,6 +250,9 @@ function test-connectivity-v6() {
     esac
   }
 
+  ## Disable Ipv4 or Ipv6
+  disable-ipvx
+
   ## Would you like to allow connections to your LAN neighbors?
   function client-allowed-ip() {
     echo "What traffic do you want the client to forward to wireguard?"
@@ -382,13 +385,11 @@ fi
   function ip-forwaring() {
   echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
   echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+  sysctl --system
 }
 
   ## Ip Forwarding
   ip-forwaring
-
-  ## Disable Ipv4 or Ipv6
-  disable-ipvx
 
   function install-firewall() {
   ## Firewall Rules
@@ -778,26 +779,29 @@ fi
     ## Uninstall Wireguard
     read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
   if [ "$DISTRO" == "CentOS" ]; then
-        wg-quick down wg0
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    wg-quick down wg0
+    yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
   elif [ "$DISTRO" == "Debian" ]; then
-        wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    wg-quick down wg0
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    apt-get autoremove -y
   elif [ "$DISTRO" == "Ubuntu" ]; then
-        wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    wg-quick down wg0
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    apt-get autoremove -y
   elif [ "$DISTRO" == "Raspbian" ]; then
-        wg-quick down wg0
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr iptables-persistent -y
+    wg-quick down wg0
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr iptables-persistent -y
+    apt-get autoremove -y
   elif [ "$DISTRO" == "Arch" ]; then
-        wg-quick down wg0
-        pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    wg-quick down wg0
+    pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
   elif [ "$DISTRO" == "Fedora" ]; then
-        wg-quick down wg0
-        dnf remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    wg-quick down wg0
+    dnf remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
   elif [ "$DISTRO" == "Redhat" ]; then
-        wg-quick down wg0
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    wg-quick down wg0
+    yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
   fi
     rm -rf /etc/wireguard
     rm -rf /etc/wireguard/clients
