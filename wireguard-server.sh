@@ -620,22 +620,22 @@ fi
     prefetch: yes' > /etc/unbound/unbound.conf
     # Firewall Rule For Unbound
     firewall-cmd --add-service=dns --permanent
-  elif
+  fi
     ## Setting correct nameservers for system.
     chattr -i /etc/resolv.conf
     sed -i "/nameserver/#nameserver/" /etc/resolv.conf
     sed -i "/search/#search/" /etc/resolv.conf
     echo "nameserver 127.0.0.1" >> /etc/resolv.conf
     chattr +i /etc/resolv.conf
-fi
-## Restart unbound
-if pgrep systemd-journal; then	
-  systemctl enable unbound	
-  systemctl restart unbound	
-else	
-   service unbound restart	
-fi
 }
+
+## Restart unbound
+if pgrep systemd-journal; then
+  systemctl enable unbound
+  systemctl restart unbound
+else	
+   service unbound restart
+fi
 
   ## WireGuard Set Config
   function wireguard-setconf() {
