@@ -484,6 +484,8 @@ fi
   function install-unbound() {
     ## Set DNS Root Servers
     wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+    # Setting Client DNS For Unbound On WireGuard
+    CLIENT_DNS="10.8.0.1"
     ## Installation Begins Here For Systems
     if [ "$DISTRO" == "Ubuntu" ]; then
     # Install Unbound
@@ -625,8 +627,6 @@ fi
     sed -i "/search/#search/" /etc/resolv.conf
     echo "nameserver 127.0.0.1" >> /etc/resolv.conf
     chattr +i /etc/resolv.conf
-    # Setting Client DNS For Unbound On WireGuard
-    CLIENT_DNS="10.8.0.1"
 }
 
 ## Restart unbound
