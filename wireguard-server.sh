@@ -627,6 +627,7 @@ fi
     sed -i "/search/#search/" /etc/resolv.conf
     echo "nameserver 127.0.0.1" >> /etc/resolv.conf
     chattr +i /etc/resolv.conf
+fi
 ## Restart unbound
 if pgrep systemd-journal; then	
   systemctl enable unbound	
