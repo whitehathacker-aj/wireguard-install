@@ -10,7 +10,7 @@ bash wireguard-server.sh
 wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wireguard-client.sh
 bash wireguard-client.sh
 ```
-### Wireguard Multihop
+### Wireguard Multihop (dosen't fucking work) (DEV)
 ```
 wget https://raw.githubusercontent.com/LiveChief/wireguard-install/master/wireguard-multihop.sh
 bash wireguard-client.sh
