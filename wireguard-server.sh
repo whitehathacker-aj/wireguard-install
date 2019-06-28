@@ -594,7 +594,7 @@ fi
     # Firewall Rule For Unbound
     firewall-cmd --add-service=dns --permanent
   elif [[ "$DISTRO" = "Arch" ]]; then
-    pacman -Syu unbound unbound-host
+    pacman -S unbound unbound-host
     mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
     echo 'server:
     use-syslog: yes
