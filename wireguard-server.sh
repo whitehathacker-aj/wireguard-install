@@ -483,7 +483,6 @@ fi
 
   function install-unbound() {
     if [ "$INSTALL_UNBOUND" = "y" ]; then
-
     ## Set DNS Root Servers
     wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
     ## Installation Begins Here
@@ -634,7 +633,10 @@ if pgrep systemd-journal; then
 else
    service unbound restart
 fi
+fi
 }
+    # Running Install Unbound
+    install-unbound
 
   ## WireGuard Set Config
   function wireguard-setconf() {
