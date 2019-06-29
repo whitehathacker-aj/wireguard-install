@@ -5,12 +5,12 @@
 ## Sanity Checks and automagic
 function root-check() {
   if [[ "$EUID" -ne 0 ]]; then
-    echo "Sorry, you need to run this as root"
+    echo "Hello there non ROOT user, you need to run this as ROOT."
     exit
   fi
 }
 
-## Root Check
+ ## Root Check
 root-check
 
 ## Detect OS
@@ -49,6 +49,17 @@ if [ "$(systemd-detect-virt)" == "lxc" ]; then
 
 ## Virtualization Check
 virt-check
+
+## WG Configurator
+  WG_CONFIG="/etc/wireguard/wg0.conf"
+  if [ ! -f "$WG_CONFIG" ]; then
+    INTERACTIVE=${INTERACTIVE:-yes}
+    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
+    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
+    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
 function detect-ipv4() {
   ## Detect IPV4
@@ -115,17 +126,6 @@ function test-connectivity-v6() {
 
   ## Get IPV6
   test-connectivity-v6
-
-## WG Configurator
-  WG_CONFIG="/etc/wireguard/wg0.conf"
-  if [ ! -f "$WG_CONFIG" ]; then
-    INTERACTIVE=${INTERACTIVE:-yes}
-    PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
-    PRIVATE_SUBNET_MASK_V4=$( echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2 )
-    GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
-    PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
-    PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
-    GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   ## Determine host port
   function set-port() {
@@ -691,7 +691,8 @@ fi
 
   ## Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
-
+  
+  ## After WireGuard Install
   else
 
   ## Already installed what next?
@@ -820,5 +821,4 @@ fi
 
 ## Running Questions Command
 wireguard-next-questions
-
 fi
