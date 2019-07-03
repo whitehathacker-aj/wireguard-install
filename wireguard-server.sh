@@ -2,7 +2,7 @@
 # Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
 # https://github.com/LiveChief/wireguard-install
 
-## Sanity Checks and automagic
+## Check Root
 function root-check() {
   if [[ "$EUID" -ne 0 ]]; then
     echo "Hello there non ROOT user, you need to run this as ROOT."
@@ -13,7 +13,33 @@ function root-check() {
  ## Root Check
 root-check
 
-## Detect OS
+function virt-check() {
+  ## Deny OpenVZ
+if [ "$(systemd-detect-virt)" == "openvz" ]; then
+    echo "OpenVZ virtualization is not supported (yet)."
+    exit
+  fi
+  ## Deny LXC
+if [ "$(systemd-detect-virt)" == "lxc" ]; then
+    echo "LXC virtualization is not supported (yet)."
+    exit
+  fi
+}
+
+## Virtualization Check
+virt-check
+
+function tun-check() {
+if [[ ! -e /dev/net/tun ]]; then
+    echo "The TUN device is not available. You need to enable TUN before running this script"
+    exit
+fi
+}
+
+## Tun Check
+tun-check
+
+## Detect Operating System
 function dist-check() {
   if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
@@ -33,22 +59,6 @@ function dist-check() {
 
 ## Check distro
 dist-check
-
-function virt-check() {
-  ## Deny OpenVZ
-if [ "$(systemd-detect-virt)" == "openvz" ]; then
-    echo "OpenVZ virtualization is not supported (yet)."
-    exit
-  fi
-  ## Deny LXC
-if [ "$(systemd-detect-virt)" == "lxc" ]; then
-    echo "LXC virtualization is not supported (yet)."
-    exit
-  fi
-}
-
-## Virtualization Check
-virt-check
 
 ## WG Configurator
   WG_CONFIG="/etc/wireguard/wg0.conf"
@@ -160,16 +170,20 @@ function test-connectivity-v6() {
   function nat-keepalive() {
     echo "What do you want your keepalive interval to be?"
     echo "   1) 25 (Default)"
-    echo "   2) Custom (Advanced)"
-    until [[ "$NAT_CHOICE" =~ ^[1-2]$ ]]; do
-      read -rp "Nat Choice [1-2]: " -e -i 1 NAT_CHOICE
+    echo "   2) 0 "
+    echo "   3) Custom (Advanced)"
+    until [[ "$NAT_CHOICE" =~ ^[1-3]$ ]]; do
+      read -rp "Nat Choice [1-3]: " -e -i 1 NAT_CHOICE
     done
-    ## Apply
+    ## Nat Choices
     case $NAT_CHOICE in
       1)
       NAT_CHOICE="25"
       ;;
       2)
+      NAT_CHOICE="0"
+      ;;
+      3)
       until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25 ]; do
         read -rp "Custom NAT [0-25]: " -e -i 25 NAT_CHOICE
       done
@@ -177,22 +191,26 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## Keepalive
-  nat-keepalive
+## Keepalive
+nat-keepalive
 
   ## Custom MTU or default settings
   function mtu-set() {
     echo "What MTU do you want to use?"
     echo "   1) 1280 (Recommended)"
+    echo "   1) 1420 "
     echo "   2) Custom (Advanced)"
-    until [[ "$MTU_CHOICE" =~ ^[1-2]$ ]]; do
-      read -rp "MTU choice [1-2]: " -e -i 1 MTU_CHOICE
+    until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
+      read -rp "MTU choice [1-3]: " -e -i 1 MTU_CHOICE
     done
     case $MTU_CHOICE in
     1)
     MTU_CHOICE="1280"
     ;;
     2)
+    MTU_CHOICE="1420"
+    ;;
+    3)
     until [[ "$MTU_CHOICE" =~ ^[0-9]+$ ]] && [ "$MTU_CHOICE" -ge 1 ] && [ "$MTU_CHOICE" -le 1500 ]; do
       read -rp "Custom MTU [1-1500]: " -e -i 1500 MTU_CHOICE
     done
@@ -200,8 +218,8 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## Set MTU
-  mtu-set
+## Set MTU
+mtu-set
 
   ## What ip version would you like to be available on this VPN?
   function ipvx-select() {
@@ -724,10 +742,9 @@ fi
   NAT_CHOICE=$( head -n1 $WG_CONFIG | awk '{print $8}')
   CLIENT_ALLOWED_IP=$( head -n1 $WG_CONFIG | awk '{print $9}')
   LASTIP4=$( grep "/32" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
-  ## TODO: Implement this variable wherever it is intended to go.
-  LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $6}' | cut -d "/" -f 1 | cut -d "." -f 4 )
+  LASTIP6=$( grep "/128" $WG_CONFIG | tail -n1 | awk '{print $3}' | cut -d "/" -f 1 | cut -d "." -f 4 )
   CLIENT_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}$((LASTIP4+1))"
-  CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP4+1))"
+  CLIENT_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}$((LASTIP6+1))"
 echo "# $NEW_CLIENT_NAME start
 [Peer]
 PublicKey = $CLIENT_PUBKEY
