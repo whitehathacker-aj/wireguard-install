@@ -699,6 +699,7 @@ qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
   ## Restart WireGuard
 if pgrep systemd-journal; then
+  systemctl enable wg-quick@wg0
   systemctl restart wg-quick@wg0
 else
   service wg-quick@wg0 restart
