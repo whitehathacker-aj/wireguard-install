@@ -137,12 +137,12 @@ if [ ! -f "$WG_CONFIG" ]; then
   test-connectivity-v6
 
   # Detect public interface and pre-fill for the user
-  function server-nic() {
+  function server-pub-nic() {
     SERVER_PUB_NIC="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
   }
 
   # Run The Function
-  server-nic
+  server-pub-nic
 
   ## Determine host port
   function set-port() {
@@ -733,7 +733,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.con
       rm /etc/unbound/unbound.conf
       rm /etc/ntp.conf
       rm /etc/default/haveged
-      mv /etc/resolv.conf.old /etc/resolv.conf.old
+      mv /etc/resolv.conf.old /etc/resolv.conf
       ;;
     4)
       exit
