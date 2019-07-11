@@ -253,16 +253,21 @@ mtu-set
     done
     case $DISABLE_HOST in
     1)
-    DISABLE_HOST="sysctl --system"
+    DISABLE_HOST="$(echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+    sysctl --system)"
     ;;
     2)
-    DISABLE_HOST="$(sysctl -w net.ipv4.conf.all.disable_ipv4=1
-    sysctl -w net.ipv4.conf.default.disable_ipv4=1
+    DISABLE_HOST="$(echo "net.ipv4.conf.all.disable_ipv4=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv4.conf.default.disable_ipv4=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     sysctl --system)"
     ;;
     3)
-    DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
-    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+    DISABLE_HOST="$(echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     sysctl --system)"
     ;;
     esac
@@ -399,15 +404,6 @@ fi
 
   ## Install WireGuard
   install-wireguard
-
-  function ip-forwaring() {
-  echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-  echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
-  sysctl --system
-}
-
-  ## Ip Forwarding
-  ip-forwaring
 
   function install-unbound() {
     if [ "$INSTALL_UNBOUND" = "y" ]; then
