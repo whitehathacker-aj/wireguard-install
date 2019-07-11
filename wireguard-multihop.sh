@@ -187,16 +187,21 @@ function test-connectivity-v6() {
     done
     case $DISABLE_HOST in
     1)
-    DISABLE_HOST="sysctl --system"
+    DISABLE_HOST="$(echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
+    sysctl --system)"
     ;;
     2)
-    DISABLE_HOST="$(sysctl -w net.ipv4.conf.all.disable_ipv4=1
-    sysctl -w net.ipv4.conf.default.disable_ipv4=1
+    DISABLE_HOST="$(echo "net.ipv4.conf.all.disable_ipv4=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv4.conf.default.disable_ipv4=1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
     sysctl --system)"
     ;;
     3)
-    DISABLE_HOST="$(sysctl -w net.ipv6.conf.all.disable_ipv6=1
-    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+    DISABLE_HOST="$(echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.d/wireguard.conf
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
     sysctl --system)"
     ;;
     esac
@@ -242,13 +247,13 @@ function test-connectivity-v6() {
     apt-get install software-properties-common -y
     add-apt-repository ppa:wireguard/wireguard -y
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged iptables-persistent -y
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Debian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged iptables-persistent -y
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Raspbian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -256,127 +261,28 @@ function test-connectivity-v6() {
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged iptables-persistent -y
+    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
   elif [ "$DISTRO" == "Arch" ]; then
-    pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp firewalld
+    pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp
   elif [ "$DISTRO" = 'Fedora' ]; then
     dnf update -y
     dnf copr enable jdoss/wireguard -y
-    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged firewalld -y
+    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged firewalld -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
   fi
 }
 
   ## Install WireGuard
   install-wireguard
-
-  function ip-forwaring() {
-  echo "net.ipv4.ip_forward=1" >> /etc/sysctl.d/wireguard.conf
-  echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.d/wireguard.conf
-  sysctl --system
-}
-
-  ## Ip Forwarding
-  ip-forwaring
-
-  function install-firewall() {
-  ## Firewall Rules
-  if [ "$DISTRO" == "CentOS" ]; then
-    systemctl enable firewalld
-    systemctl start firewalld
-    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-  elif [ "$DISTRO" == "Debian" ]; then
-    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    iptables-save > /etc/iptables/rules.v4
-  elif [ "$DISTRO" == "Ubuntu" ]; then
-    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    iptables-save > /etc/iptables/rules.v4
-  elif [ "$DISTRO" == "Raspbian" ]; then
-    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    iptables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir in -j ACCEPT
-    ip6tables -A FORWARD -m conntrack --ctstate NEW -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir in -j ACCEPT
-    iptables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V4 -m policy --pol none --dir out -j MASQUERADE
-    ip6tables -t nat -A POSTROUTING -s $PRIVATE_SUBNET_V6 -m policy --pol none --dir out -j MASQUERADE
-    iptables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    ip6tables -A INPUT -p udp --dport $SERVER_PORT -j ACCEPT
-    iptables-save > /etc/iptables/rules.v4
-  elif [ "$DISTRO" == "Arch" ]; then
-    systemctl enable firewalld
-    systemctl start firewalld
-    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-  elif [ "$DISTRO" == "Fedora" ]; then
-    systemctl enable firewalld
-    systemctl start firewalld
-    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-  elif [ "$DISTRO" == "Redhat" ]; then
-    systemctl enable firewalld
-    systemctl start firewalld
-    firewall-cmd --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --permanent --zone=public --add-port=$SERVER_PORT/udp
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V4
-    firewall-cmd --permanent --zone=trusted --add-source=$PRIVATE_SUBNET_V6
-    firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-    firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V4 ! -d $PRIVATE_SUBNET_V4 -j SNAT --to $SERVER_HOST_V4
-    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s $PRIVATE_SUBNET_V6 ! -d $PRIVATE_SUBNET_V6 -j SNAT --to $SERVER_HOST_V6
-fi
-}
-
-  ## Install Firewall
-  install-firewall
 
   ## WireGuard Set Config
   function wireguard-setconf() {
@@ -443,40 +349,38 @@ fi
     read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
   if [ "$DISTRO" == "CentOS" ]; then
     wg-quick down wg0
-    yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
   elif [ "$DISTRO" == "Debian" ]; then
     wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
     apt-get autoremove -y
   elif [ "$DISTRO" == "Ubuntu" ]; then
     wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host iptables-persistent -y
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
     apt-get autoremove -y
   elif [ "$DISTRO" == "Raspbian" ]; then
     wg-quick down wg0
-    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr iptables-persistent -y
+    apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr -y
     apt-get autoremove -y
   elif [ "$DISTRO" == "Arch" ]; then
     wg-quick down wg0
-    pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host -y
   elif [ "$DISTRO" == "Fedora" ]; then
     wg-quick down wg0
-    dnf remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    dnf remove wireguard qrencode ntpdate haveged unbound unbound-host -y
   elif [ "$DISTRO" == "Redhat" ]; then
     wg-quick down wg0
-    yum remove wireguard qrencode ntpdate haveged unbound unbound-host firewalld -y
+    yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
   fi
     rm -rf /etc/wireguard
     rm -rf /etc/wireguard/clients
     rm -rf /etc/unbound
     rm -rf /etc/qrencode
-    rm /etc/sysctl.d/wireguard.conf
-    rm /etc/wireguard/wg0.conf
-    rm /etc/unbound/unbound.conf
-    rm /etc/ntp.conf
-    rm /etc/iptables/rules.v4
-    rm /etc/firewalld/firewalld.conf
-    rm /etc/default/haveged
+    rm -f /etc/sysctl.d/wireguard.conf
+    rm -f /etc/wireguard/wg0.conf
+    rm -f /etc/unbound/unbound.conf
+    rm -f /etc/ntp.conf
+    rm -f /etc/default/haveged
     ;;
     2)
     exit
