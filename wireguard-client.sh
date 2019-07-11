@@ -1,6 +1,5 @@
 #!/bin/bash
 # Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
-# https://github.com/LiveChief/wireguard-install
 
 ## Sanity Checks and automagic
 function root-check() {

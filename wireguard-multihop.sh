@@ -1,6 +1,5 @@
 #!/bin/bash
 ## THIS IS DEV, IT DOSENT WORK.	
-# https://github.com/LiveChief/wireguard-install
 
 ## Sanity Checks and automagic
 function root-check() {
