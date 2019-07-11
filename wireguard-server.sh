@@ -136,6 +136,14 @@ if [ ! -f "$WG_CONFIG" ]; then
   ## Get IPV6
   test-connectivity-v6
 
+  # Detect public interface and pre-fill for the user
+  function server-nic() {
+    SERVER_PUB_NIC="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
+  }
+
+  # Run The Function
+  server-nic
+
   ## Determine host port
   function set-port() {
     echo "What port do you want WireGuard server to listen to?"
@@ -197,7 +205,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   function mtu-set() {
     echo "What MTU do you want to use?"
     echo "   1) 1280 (Recommended)"
-    echo "   1) 1420 "
+    echo "   1) 1420"
     echo "   2) Custom (Advanced)"
     until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "MTU choice [1-3]: " -e -i 1 MTU_CHOICE
@@ -539,7 +547,7 @@ if [ ! -f "$WG_CONFIG" ]; then
       CLIENT_DNS="10.8.0.1"
       ## Setting correct nameservers for system.
       mv /etc/resolv.conf /etc/resolv.conf.old
-      echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+      echo "nameserver 127.0.0.1" >>/etc/resolv.conf
       ## Restart unbound
       if pgrep systemd-journal; then
         systemctl enable unbound
@@ -571,8 +579,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-PostDown = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+PostDown = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 SaveConfig = false
 # $CLIENT_NAME start
 [Peer]
