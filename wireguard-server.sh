@@ -443,8 +443,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         ## Apply settings
         systemctl stop systemd-resolved
         systemctl disable systemd-resolved
-        # Firewall Rule For Unbound
-        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       elif [ "$DISTRO" == "Debian" ]; then
         # Install Unbound
         apt-get install unbound unbound-host e2fsprogs -y
@@ -472,8 +470,6 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-        # Firewall Rule For Unbound
-        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       elif [ "$DISTRO" == "Raspbian" ]; then
         # Install Unbound
         apt-get install unbound unbound-host e2fsprogs -y
@@ -501,8 +497,6 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-        # Firewall Rule For Unbound
-        iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
       elif [[ "$DISTRO" == "CentOS" ]]; then
         # Install Unbound
         yum install unbound unbound-host -y
@@ -511,8 +505,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
         sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
         sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-        # Firewall Rule For Unbound
-        firewall-cmd --add-service=dns --permanent
       elif [[ "$DISTRO" == "Fedora" ]]; then
         dnf install unbound unbound-host -y
         sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
@@ -520,8 +512,6 @@ if [ ! -f "$WG_CONFIG" ]; then
         sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
         sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
         sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-        # Firewall Rule For Unbound
-        firewall-cmd --add-service=dns --permanent
       elif [[ "$DISTRO" == "Arch" ]]; then
         pacman -S unbound unbound-host
         mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
@@ -542,19 +532,14 @@ if [ ! -f "$WG_CONFIG" ]; then
     hide-version: yes
     qname-minimisation: yes
     prefetch: yes' >/etc/unbound/unbound.conf
-        # Firewall Rule For Unbound
-        firewall-cmd --add-service=dns --permanent
       fi
       ## Set DNS Root Servers
       wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
       # Setting Client DNS For Unbound On WireGuard
       CLIENT_DNS="10.8.0.1"
       ## Setting correct nameservers for system.
-      chattr -i /etc/resolv.conf
-      sed -i "/nameserver/#nameserver/" /etc/resolv.conf
-      sed -i "/search/#search/" /etc/resolv.conf
-      echo "nameserver 127.0.0.1" >>/etc/resolv.conf
-      chattr +i /etc/resolv.conf
+      mv /etc/resolv.conf /etc/resolv.conf.old
+      echo "nameserver 127.0.0.1" >> /etc/resolv.conf
       ## Restart unbound
       if pgrep systemd-journal; then
         systemctl enable unbound
@@ -586,8 +571,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+PostDown = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; iptables -A INPUT -s 10.8.0.0/24 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 SaveConfig = false
 # $CLIENT_NAME start
 [Peer]
@@ -740,6 +725,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.con
       rm /etc/unbound/unbound.conf
       rm /etc/ntp.conf
       rm /etc/default/haveged
+      mv /etc/resolv.conf.old /etc/resolv.conf.old
       ;;
     4)
       exit
