@@ -84,7 +84,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Decect IPV4
+  ## Detect IPV4
   detect-ipv4
 
   function test-connectivity-v4() {
@@ -100,7 +100,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Get IPV4
+  ## Test IPV4
   test-connectivity-v4
 
   function detect-ipv6() {
@@ -117,7 +117,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Decect IPV4
+  ## Detect IPV4
   detect-ipv6
 
   function test-connectivity-v6() {
@@ -133,7 +133,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Get IPV6
+  ## Test IPV6
   test-connectivity-v6
 
   # Detect public interface and pre-fill for the user
