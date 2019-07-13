@@ -507,7 +507,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch-key: yes' >/etc/unbound/unbound.conf
       elif [[ "$DISTRO" == "CentOS" ]]; then
         # Install Unbound
-        yum install unbound unbound-host -y
+        yum install unbound unbound-libs -y
         sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
         sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
         sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
