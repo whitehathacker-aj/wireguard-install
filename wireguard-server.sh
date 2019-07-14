@@ -86,7 +86,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Decect IPV4
+  ## Detect IPV4
   detect-ipv4
 
   function test-connectivity-v4() {
