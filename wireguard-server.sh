@@ -12,7 +12,7 @@ function root-check() {
 ## Root Check
 root-check
 
-## Checking For Virtualization 
+## Checking For Virtualization
 function virt-check() {
   ## Deny OpenVZ
   if [ "$(systemd-detect-virt)" == "openvz" ]; then
