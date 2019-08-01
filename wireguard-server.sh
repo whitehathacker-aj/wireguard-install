@@ -325,6 +325,9 @@ if [ ! -f "$WG_CONFIG" ]; then
     ## TODO: Explain to the user why in a few echo's they might want this?
     read -rp "Do You Want To Install Unbound (y/n): " -e -i y INSTALL_UNBOUND
     if [ "$INSTALL_UNBOUND" == "n" ]; then
+    read -rp "Do You Want To Install PiHole (y/n): " -e -i y INSTALL_PIHOLE
+    fi
+    if [ "$INSTALL_PIHOLE" == "n" ]; then
       echo "Which DNS do you want to use with the VPN?"
       echo "   1) AdGuard (Recommended)"
       echo "   2) Google"
@@ -569,6 +572,13 @@ if [ ! -f "$WG_CONFIG" ]; then
   }
   # Running Install Unbound
   install-unbound
+
+  ## Install PiHole
+  function install-pihole() {
+      if [ "$INSTALL_PIHOLE" = "y" ]; then
+        curl -sSL https://install.pi-hole.net | bash
+      fi
+  }
 
   ## WireGuard Set Config
   function wireguard-setconf() {
