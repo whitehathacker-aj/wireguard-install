@@ -573,12 +573,15 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Running Install Unbound
   install-unbound
 
-  ## Install PiHole
+  ## Install PiHole Function
   function install-pihole() {
       if [ "$INSTALL_PIHOLE" = "y" ]; then
         curl -sSL https://install.pi-hole.net | bash
       fi
   }
+  
+  ## Running Install Pihole
+  install-pihole
 
   ## WireGuard Set Config
   function wireguard-setconf() {
