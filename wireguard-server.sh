@@ -154,6 +154,22 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Run The Function
   server-pub-nic
 
+  # Detect public interface and pre-fill for the user
+  function wireguard-pub-nic() {
+    if [ "$WIREGUARD_PUB_NIC" == "" ]; then
+      WIREGUARD_PUB_NIC="wg0"
+      if [ "$INTERACTIVE" == "yes" ]; then
+        read -rp "System public nic address is $WIREGUARD_PUB_NIC. Is that correct? [y/n]: " -e -i y CONFIRM
+        if [ "$CONFIRM" == "n" ]; then
+          echo "Aborted. Use environment variable WIREGUARD_PUB_NIC to set the correct public IP address."
+        fi
+      fi
+    fi
+  }
+
+  # Run The Function
+  wireguard-pub-nic
+  
   ## Determine host port
   function set-port() {
     echo "What port do you want WireGuard server to listen to?"
@@ -602,8 +618,8 @@ if [ ! -f "$WG_CONFIG" ]; then
 Address = $GATEWAY_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$GATEWAY_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 ListenPort = $SERVER_PORT
 PrivateKey = $SERVER_PRIVKEY
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s $PRIVATE_SUBNET_V4 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
-PostDown = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s $PRIVATE_SUBNET_V4 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+PostUp = iptables -A FORWARD -i $WIREGUARD_PUB_NIC -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i $WIREGUARD_PUB_NIC -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s $PRIVATE_SUBNET_V4 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
+PostDown = iptables -A FORWARD -i $WIREGUARD_PUB_NIC -j ACCEPT; iptables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; ip6tables -A FORWARD -i $WIREGUARD_PUB_NIC -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $SERVER_PUB_NIC -j MASQUERADE; iptables -A INPUT -s $PRIVATE_SUBNET_V4 -p udp -m udp --dport 53 -m conntrack --ctstate NEW -j ACCEPT
 SaveConfig = false
 # $CLIENT_NAME start
 [Peer]
