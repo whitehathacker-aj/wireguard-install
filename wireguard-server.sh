@@ -61,17 +61,6 @@ function dist-check() {
 ## Check Operating System
 dist-check
 
-## WG Configurator
-WG_CONFIG="/etc/wireguard/wg0.conf"
-if [ ! -f "$WG_CONFIG" ]; then
-  INTERACTIVE=${INTERACTIVE:-yes}
-  PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
-  PRIVATE_SUBNET_MASK_V4=$(echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2)
-  GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
-  PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
-  PRIVATE_SUBNET_MASK_V6=$(echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2)
-  GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
-
   function detect-ipv4() {
     ## Detect IPV4
     if type ping >/dev/null 2>&1; then
@@ -403,6 +392,17 @@ if [ ! -f "$WG_CONFIG" ]; then
   ## Client Name
   client-name
 
+## WG Configurator
+WG_CONFIG="/etc/wireguard/$WIREGUARD_PUB_NIC.conf"
+if [ ! -f "$WG_CONFIG" ]; then
+  INTERACTIVE=${INTERACTIVE:-yes}
+  PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+  PRIVATE_SUBNET_MASK_V4=$(echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2)
+  GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+  PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
+  PRIVATE_SUBNET_MASK_V6=$(echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2)
+  GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
+
   function install-wireguard() {
     ## Installation begins here.
     if [ "$DISTRO" == "Ubuntu" ]; then
@@ -639,15 +639,15 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
-PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
-    qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
-    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
+PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
+    qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
+    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
     ## Restart WireGuard
     if pgrep systemd-journal; then
-      systemctl enable wg-quick@wg0
-      systemctl restart wg-quick@wg0
+      systemctl enable wg-quick@$WIREGUARD_PUB_NIC
+      systemctl restart wg-quick@$WIREGUARD_PUB_NIC
     else
-      service wg-quick@wg0 restart
+      service wg-quick@$WIREGUARD_PUB_NIC restart
     fi
   }
   ## Setting Up Wireguard Config
@@ -708,13 +708,13 @@ AllowedIPs = $CLIENT_ALLOWED_IP
 Endpoint = $SERVER_HOST$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
-PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf
-      qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf
-      echo "Client config --> "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.conf"
+PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
+      qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
+      echo "Client config --> "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
       if pgrep systemd-journal; then
-        systemctl restart wg-quick@wg0
+        systemctl restart wg-quick@$WIREGUARD_PUB_NIC
       else
-        service wg-quick@wg0 restart
+        service wg-quick@$WIREGUARD_PUB_NIC restart
       fi
       ;;
     2)
@@ -729,9 +729,9 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.con
       fi
       exit
       if pgrep systemd-journal; then
-        systemctl restart wg-quick@wg0
+        systemctl restart wg-quick@$WIREGUARD_PUB_NIC
       else
-        service wg-quick@wg0 restart
+        service wg-quick@$WIREGUARD_PUB_NIC restart
       fi
       echo "Client named $REMOVECLIENT has been removed."
       ;;
@@ -739,28 +739,28 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.con
       ## Uninstall Wireguard
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
       if [ "$DISTRO" == "CentOS" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Debian" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Ubuntu" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Raspbian" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Arch" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Fedora" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         dnf remove wireguard qrencode ntpdate haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Redhat" ]; then
-        wg-quick down wg0
+        wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
       fi
       rm -rf /etc/wireguard
@@ -768,7 +768,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-wg0.con
       rm -rf /etc/unbound
       rm -rf /etc/qrencode
       rm -f /etc/sysctl.d/wireguard.conf
-      rm -f /etc/wireguard/wg0.conf
+      rm -f /etc/wireguard/$WIREGUARD_PUB_NIC.conf
       rm -f /etc/unbound/unbound.conf
       rm -f /etc/ntp.conf
       rm -f /etc/default/haveged
