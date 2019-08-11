@@ -592,7 +592,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   ## Install PiHole Function
   function install-pihole() {
       if [ "$INSTALL_PIHOLE" = "y" ]; then
-        curl -sSL https://install.pi-hole.net | bash
+        curl -sSL https://raw.githubusercontent.com/complexorganizations/install-pihole/master/install-pihole.sh | bash
       fi
   }
   
