@@ -61,6 +61,18 @@ function dist-check() {
 ## Check Operating System
 dist-check
 
+## WG Configurator
+WIREGUARD_PUB_NIC="wg0"
+WG_CONFIG="/etc/wireguard/$WIREGUARD_PUB_NIC.conf"
+if [ ! -f "$WG_CONFIG" ]; then
+  INTERACTIVE=${INTERACTIVE:-yes}
+  PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+  PRIVATE_SUBNET_MASK_V4=$(echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2)
+  GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+  PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
+  PRIVATE_SUBNET_MASK_V6=$(echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2)
+  GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
+
   function detect-ipv4() {
     ## Detect IPV4
     if type ping >/dev/null 2>&1; then
@@ -142,22 +154,6 @@ dist-check
 
   # Run The Function
   server-pub-nic
-
-  # Detect public interface and pre-fill for the user
-  function wireguard-pub-nic() {
-    if [ "$WIREGUARD_PUB_NIC" == "" ]; then
-      WIREGUARD_PUB_NIC="wg0"
-      if [ "$INTERACTIVE" == "yes" ]; then
-        read -rp "System public nic address is $WIREGUARD_PUB_NIC. Is that correct? [y/n]: " -e -i y CONFIRM
-        if [ "$CONFIRM" == "n" ]; then
-          echo "Aborted. Use environment variable WIREGUARD_PUB_NIC to set the correct public IP address."
-        fi
-      fi
-    fi
-  }
-
-  # Run The Function
-  wireguard-pub-nic
   
   ## Determine host port
   function set-port() {
@@ -391,17 +387,6 @@ dist-check
 
   ## Client Name
   client-name
-
-## WG Configurator
-WG_CONFIG="/etc/wireguard/$WIREGUARD_PUB_NIC.conf"
-if [ ! -f "$WG_CONFIG" ]; then
-  INTERACTIVE=${INTERACTIVE:-yes}
-  PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
-  PRIVATE_SUBNET_MASK_V4=$(echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2)
-  GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
-  PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
-  PRIVATE_SUBNET_MASK_V6=$(echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2)
-  GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   function install-wireguard() {
     ## Installation begins here.
