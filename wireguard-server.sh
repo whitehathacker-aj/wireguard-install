@@ -579,6 +579,8 @@ if [ ! -f "$WG_CONFIG" ]; then
       if [ "$INSTALL_PIHOLE" = "y" ]; then
         curl -sSL https://raw.githubusercontent.com/complexorganizations/install-pihole/master/install-pihole.sh | bash
       fi
+    # Setting Client DNS For Unbound On WireGuard
+    CLIENT_DNS="10.8.0.1"
   }
   
   ## Running Install Pihole
