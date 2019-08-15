@@ -765,7 +765,15 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       rm -f /etc/unbound/unbound.conf
       rm -f /etc/ntp.conf
       rm -f /etc/default/haveged
-      mv /etc/resolv.conf.old /etc/resolv.conf
+      # Allow the modification of the file
+      chattr -i /etc/resolv.conf
+      # Disable previous DNS servers
+      sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+      sed -i "s|search|#search|" /etc/resolv.conf
+      # Set localhost as the DNS resolver
+      echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+      # Use -i to enable modifications
+      chattr +i /etc/resolv.conf
       ;;
     4)
       exit
