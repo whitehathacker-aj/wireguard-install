@@ -729,7 +729,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       echo "Client named $REMOVECLIENT has been removed."
       ;;
     3)
-      ## Uninstall Wireguard
+      ## Uninstall Wireguard and purging files
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
       if [ "$DISTRO" == "CentOS" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
@@ -756,16 +756,34 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
         wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
       fi
+      ## Removing Wireguard Files
       rm -rf /etc/wireguard
+      ## Removing Wireguard User Config Files
       rm -rf /etc/wireguard/clients
+      ## Removing Unbound Files
       rm -rf /etc/unbound
+      ## Removing Qrencode
       rm -rf /etc/qrencode
+      ## Removing system wireguard config
       rm -f /etc/sysctl.d/wireguard.conf
+      ## Removing wireguard config
       rm -f /etc/wireguard/$WIREGUARD_PUB_NIC.conf
+      ## Removing Unbound Config
       rm -f /etc/unbound/unbound.conf
+      ## Removing NTP config
       rm -f /etc/ntp.conf
+      ## Removing Haveged Config
       rm -f /etc/default/haveged
-      # Allow the modification of the file
+      ## Uninstall Pihole
+      pihole uninstall
+      ## Remove Pihole Files
+      rm -rf /etc/.pihole
+      rm -rf /etc/pihole
+      rm -rf /opt/pihole
+      rm -rf /usr/bin/pihole-FTL
+      rm -rf /usr/local/bin/pihole
+      rm -rf /var/www/html/pihole
+      # Allow the modification of the resolv file
       chattr -i /etc/resolv.conf
       # Disable previous DNS servers
       sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
