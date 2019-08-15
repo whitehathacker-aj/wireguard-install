@@ -559,9 +559,15 @@ if [ ! -f "$WG_CONFIG" ]; then
       wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
       # Setting Client DNS For Unbound On WireGuard
       CLIENT_DNS="10.8.0.1"
-      ## Setting correct nameservers for system.
-      mv /etc/resolv.conf /etc/resolv.conf.old
-      echo "nameserver 127.0.0.1" >>/etc/resolv.conf
+      # Allow the modification of the file
+      chattr -i /etc/resolv.conf
+      # Disable previous DNS servers
+      sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+      sed -i "s|search|#search|" /etc/resolv.conf
+      # Set localhost as the DNS resolver
+      echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+      # Use -i to enable modifications
+      chattr +i /etc/resolv.conf
       ## Restart unbound
       if pgrep systemd-journal; then
         systemctl enable unbound
