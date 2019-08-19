@@ -35,43 +35,43 @@ dist-check
 
 # Install Wireguard
 function install-wireguard-client() {
-    if [ "$DISTRO" == "Ubuntu" ]; then
-	apt-get update
-	apt-get install software-properties-common -y
-	add-apt-repository ppa:wireguard/wireguard -y
-	apt-get update
-	apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
-    elif [ "$DISTRO" == "Debian" ]; then
-	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
-	apt-get update
-	apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
-    elif [ "$DISTRO" == "Raspbian" ]; then
-	apt-get update
-	echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-	apt-get install dirmngr -y
-	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-	printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
-	apt-get update
-        apt-get install wireguard raspberrypi-kernel-headers resolvconf -y
-    elif [ "$DISTRO" == "Arch" ]; then
-	pacman -Syy
-	pacman -S resolvconf wireguard-dkms wireguard-tools linux-headers -y
-    elif [[ "$DISTRO" = 'Fedora' ]]; then
-	dnf update
-	dnf copr enable jdoss/wireguard -y
-	dnf install kernel-devel-$(uname -r) resolvconf wireguard-dkms wireguard-tools -y
-    elif [ "$DISTRO" == "CentOS" ]; then
-	yum update
-	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	yum install epel-release -y
-	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
-    elif [ "$DISTRO" == "Redhat" ]; then
-	yum update
-	wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-	yum install epel-release -y
-	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
-    fi
+  if [ "$DISTRO" == "Ubuntu" ]; then
+    apt-get update
+    apt-get install software-properties-common -y
+    add-apt-repository ppa:wireguard/wireguard -y
+    apt-get update
+    apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
+  elif [ "$DISTRO" == "Debian" ]; then
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+    printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
+    apt-get update
+    apt-get install wireguard resolvconf linux-headers-$(uname -r) -y
+  elif [ "$DISTRO" == "Raspbian" ]; then
+    apt-get update
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+    apt-get install dirmngr -y
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+    printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' > /etc/apt/preferences.d/limit-unstable
+    apt-get update
+    apt-get install wireguard raspberrypi-kernel-headers resolvconf -y
+  elif [ "$DISTRO" == "Arch" ]; then
+    pacman -Syy
+    pacman -S resolvconf wireguard-dkms wireguard-tools linux-headers -y
+  elif [[ "$DISTRO" = 'Fedora' ]]; then
+    dnf update
+    dnf copr enable jdoss/wireguard -y
+    dnf install kernel-devel-$(uname -r) resolvconf wireguard-dkms wireguard-tools -y
+  elif [ "$DISTRO" == "CentOS" ]; then
+    yum update
+    wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
+  elif [ "$DISTRO" == "Redhat" ]; then
+    yum update
+    wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
+  fi
 }
 
 # Install WireGuard Client

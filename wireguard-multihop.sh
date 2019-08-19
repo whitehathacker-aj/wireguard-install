@@ -1,5 +1,5 @@
 #!/bin/bash
-# THIS IS DEV, IT DOSENT WORK.	
+# THIS IS BETA, IT DOSENT WORK.	
 
 # Sanity Checks and automagic
 function root-check() {
