@@ -342,7 +342,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Client Name
   client-name
 
-  function install-wireguard() {
+  # Install WireGuard Server
+  function install-wireguard-server() {
     # Installation begins here.
     if [ "$DISTRO" == "Ubuntu" ]; then
       apt-get update
@@ -383,8 +384,8 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  # Install WireGuard
-  install-wireguard
+  # Install WireGuard Server
+  install-wireguard-server
 
   # Function to install unbound
   function install-unbound() {

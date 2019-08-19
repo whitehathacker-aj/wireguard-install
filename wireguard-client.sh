@@ -1,7 +1,7 @@
 #!/bin/bash
 # Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
 
-## Sanity Checks and automagic
+# Sanity Checks and automagic
 function root-check() {
   if [[ "$EUID" -ne 0 ]]; then
     echo "Sorry, you need to run this as root"
@@ -9,10 +9,10 @@ function root-check() {
   fi
 }
 
-## Root Check
+# Root Check
 root-check
 
-## Detect OS
+# Detect Operating System
 function dist-check() {
   if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
@@ -30,9 +30,10 @@ function dist-check() {
   fi
 }
 
-## Check distro
+# Check distro
 dist-check
 
+# Install Wireguard
 function install-wireguard-client() {
     if [ "$DISTRO" == "Ubuntu" ]; then
 	apt-get update
@@ -72,5 +73,6 @@ function install-wireguard-client() {
 	yum install wireguard-dkms wireguard-tools resolvconf kernel-headers-$(uname -r) kernel-devel-$(uname -r) -y
     fi
 }
-## Install WireGuard Client
+
+# Install WireGuard Client
 install-wireguard-client

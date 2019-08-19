@@ -1,7 +1,7 @@
 #!/bin/bash
-## THIS IS DEV, IT DOSENT WORK.	
+# THIS IS DEV, IT DOSENT WORK.	
 
-## Sanity Checks and automagic
+# Sanity Checks and automagic
 function root-check() {
   if [[ "$EUID" -ne 0 ]]; then
     echo "Sorry, you need to run this as root"
@@ -9,10 +9,10 @@ function root-check() {
   fi
 }
 
-## Root Check
+# Root Check
 root-check
 
-## Detect OS
+# Detect OS
 function dist-check() {
   if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
@@ -30,27 +30,27 @@ function dist-check() {
   fi
 }
 
-## Check distro
+# Check distro
 dist-check
 
 function virt-check() {
-  ## Deny OpenVZ
+  # Deny OpenVZ
 if [ "$(systemd-detect-virt)" == "openvz" ]; then
     echo "OpenVZ virtualization is not supported (yet)."
     exit
   fi
-  ## Deny LXC
+  # Deny LXC
 if [ "$(systemd-detect-virt)" == "lxc" ]; then
     echo "LXC virtualization is not supported (yet)."
     exit
   fi
 }
 
-## Virtualization Check
+# Virtualization Check
 virt-check
 
 function detect-ipv4() {
-  ## Detect IPV4
+  # Detect IPV4
 if type ping > /dev/null 2>&1; then
     PING="ping -c3 google.com > /dev/null 2>&1"
     else
@@ -63,11 +63,11 @@ else
   fi
 }
 
-## Decect IPV4
+# Decect IPV4
 detect-ipv4
 
 function test-connectivity-v4() {
-  ## Test outward facing IPV4
+  # Test outward facing IPV4
   if [ "$SERVER_HOST_V4" == "" ]; then
     SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
     if [ "$INTERACTIVE" == "yes" ]; then
@@ -79,11 +79,11 @@ function test-connectivity-v4() {
   fi
 }
 
-## Get IPV4
+# Get IPV4
 test-connectivity-v4
 
 function detect-ipv6() {
-  ## Detect IPV6
+  # Detect IPV6
 if type ping > /dev/null 2>&1; then
     PING6="ping6 -c3 ipv6.google.com > /dev/null 2>&1"
 else
@@ -96,11 +96,11 @@ else
   fi
 }
 
- ## Decect IPV4
+ # Decect IPV4
  detect-ipv6
 
 function test-connectivity-v6() {
-  ## Test outward facing IPV6
+  # Test outward facing IPV6
   if [ "$SERVER_HOST_V6" == "" ]; then
     SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
     if [ "$INTERACTIVE" == "yes" ]; then
@@ -112,10 +112,10 @@ function test-connectivity-v6() {
   fi
 }
 
-  ## Get IPV6
+  # Get IPV6
   test-connectivity-v6
 
-## WG Configurator
+# WG Configurator
   WG_CONFIG="/etc/wireguard/wg0.conf"
   if [ ! -f "$WG_CONFIG" ]; then
     INTERACTIVE=${INTERACTIVE:-yes}
@@ -126,7 +126,7 @@ function test-connectivity-v6() {
     PRIVATE_SUBNET_MASK_V6=$( echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2 )
     GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
-  ## Determine host port
+  # Determine host port
   function set-port() {
     echo "What port do you want WireGuard server to listen to?"
     echo "   1) 51820 (Recommended)"
@@ -135,7 +135,7 @@ function test-connectivity-v6() {
     until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
     done
-    ## Apply port response
+    # Apply port response
     case $PORT_CHOICE in
       1)
       SERVER_PORT="51820"
@@ -152,10 +152,10 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## Set Port
+  # Set Port
   set-port
 
-  ## What ip version would you like to be available on this VPN?
+  # What ip version would you like to be available on this VPN?
   function ipvx-select() {
     echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
@@ -173,10 +173,10 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## IPv4 or IPv6 Selector
+  # IPv4 or IPv6 Selector
   ipvx-select
 
-  ## Do you want to disable IPv4 or IPv6 or leave them both enabled?
+  # Do you want to disable IPv4 or IPv6 or leave them both enabled?
   function disable-ipvx() {
     echo "Do you want to disable IPv4 or IPv6 on the server?"
     echo "   1) No (Recommended)"
@@ -207,10 +207,10 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## Disable Ipv4 or Ipv6
+  # Disable Ipv4 or Ipv6
   disable-ipvx
 
-  ## Would you like to allow connections to your LAN neighbors?
+  # Would you like to allow connections to your LAN neighbors?
   function client-allowed-ip() {
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
@@ -228,20 +228,20 @@ function test-connectivity-v6() {
     esac
   }
 
-  ## Traffic Forwarding
+  # Traffic Forwarding
   client-allowed-ip
 
-  ## What would you like to name your first WireGuard peer?
+  # What would you like to name your first WireGuard peer?
   function client-name() {
     echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
     read -rp "Client Name: " -e CLIENT_NAME
   }
 
-  ## Client Name
+  # Client Name
   client-name
 
   function install-wireguard() {
-  ## Installation begins here.
+  # Installation begins here.
   if [ "$DISTRO" == "Ubuntu" ]; then
     apt-get update
     apt-get install software-properties-common -y
@@ -281,10 +281,10 @@ function test-connectivity-v6() {
   fi
 }
 
-  ## Install WireGuard
+  # Install WireGuard
   install-wireguard
 
-  ## WireGuard Set Config
+  # WireGuard Set Config
   function wireguard-setconf() {
     SERVER_PRIVKEY=$( wg genkey )
     SERVER_PUBKEY=$( echo "$SERVER_PRIVKEY" | wg pubkey )
@@ -295,7 +295,7 @@ function test-connectivity-v6() {
     mkdir -p /etc/wireguard
     mkdir -p /etc/wireguard/clients
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
-    ## Set Wireguard settings for this host and first peer.
+    # Set Wireguard settings for this host and first peer.
 
 echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_ALLOWED_IP
 [Interface]
@@ -319,22 +319,22 @@ Endpoint = $SERVER_HOST:$SERVER_PORT
 PublicKey = $SERVER_PUBKEY" > "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 qrencode -t ansiutf8 -l L < "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf
 echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-wg0.conf"
-  ## Restart WireGuard
+  # Restart WireGuard
 if pgrep systemd-journal; then
   systemctl restart wg-quick@wg0
 else
   service wg-quick@wg0 restart
 fi
 }
-  ## Setting Up Wireguard Config
+  # Setting Up Wireguard Config
   wireguard-setconf
 
-  ## Setup Network Time Protocol To Correct Server.
+  # Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
 
   else
 
-  ## Already installed what next?
+  # Already installed what next?
   function wireguard-next-questions() {
   echo "Looks like Wireguard is already installed."
   echo "What do you want to do?"
@@ -345,7 +345,7 @@ fi
   done
   case $WIREGUARD_OPTIONS in
     1)
-    ## Uninstall Wireguard
+    # Uninstall Wireguard
     read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
   if [ "$DISTRO" == "CentOS" ]; then
     wg-quick down wg0
@@ -388,7 +388,7 @@ fi
   esac
 }
 
-## Running Questions Command
+# Running Questions Command
 wireguard-next-questions
 
 fi
