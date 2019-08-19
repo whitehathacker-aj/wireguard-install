@@ -577,6 +577,7 @@ if [ ! -f "$WG_CONFIG" ]; then
       fi
     fi
   }
+
   # Running Install Unbound
   install-unbound
 
