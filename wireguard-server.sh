@@ -1,7 +1,7 @@
 #!/bin/bash
 # Secure WireGuard For CentOS, Debian, Ubuntu, Raspbian, Arch, Fedora, Redhat
 
-## Check Root Function
+# Check Root Function
 function root-check() {
   if [[ "$EUID" -ne 0 ]]; then
     echo "Hello there non ROOT user, you need to run this as ROOT."
@@ -9,27 +9,27 @@ function root-check() {
   fi
 }
 
-## Root Check
+# Root Check
 root-check
 
-## Checking For Virtualization
+# Checking For Virtualization
 function virt-check() {
-  ## Deny OpenVZ
+  # Deny OpenVZ
   if [ "$(systemd-detect-virt)" == "openvz" ]; then
     echo "OpenVZ virtualization is not supported (yet)."
     exit
   fi
-  ## Deny LXC
+  # Deny LXC
   if [ "$(systemd-detect-virt)" == "lxc" ]; then
     echo "LXC virtualization is not supported (yet)."
     exit
   fi
 }
 
-## Virtualization Check
+# Virtualization Check
 virt-check
 
-## Checking For Tun Device
+# Checking For Tun Device
 function tun-check() {
   if [[ ! -e /dev/net/tun ]]; then
     echo "The TUN device is not available. You need to enable TUN before running this script"
@@ -37,10 +37,10 @@ function tun-check() {
   fi
 }
 
-## Tun Check
+# Tun Check
 tun-check
 
-## Detect Operating System
+# Detect Operating System
 function dist-check() {
   if [ -e /etc/centos-release ]; then
     DISTRO="CentOS"
@@ -58,10 +58,10 @@ function dist-check() {
   fi
 }
 
-## Check Operating System
+# Check Operating System
 dist-check
 
-## WG Configurator
+# WG Configurator
 WIREGUARD_PUB_NIC="wg0"
 WG_CONFIG="/etc/wireguard/$WIREGUARD_PUB_NIC.conf"
 if [ ! -f "$WG_CONFIG" ]; then
@@ -74,7 +74,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   function detect-ipv4() {
-    ## Detect IPV4
+    # Detect IPV4
     if type ping >/dev/null 2>&1; then
       PING="ping -c3 google.com > /dev/null 2>&1"
     else
@@ -87,11 +87,11 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Detect IPV4
+  # Detect IPV4
   detect-ipv4
 
   function test-connectivity-v4() {
-    ## Test outward facing IPV4
+    # Test outward facing IPV4
     if [ "$SERVER_HOST_V4" == "" ]; then
       SERVER_HOST_V4="$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)"
       if [ "$INTERACTIVE" == "yes" ]; then
@@ -103,11 +103,11 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Test IPV4 Connectivity
+  # Test IPV4 Connectivity
   test-connectivity-v4
 
   function detect-ipv6() {
-    ## Detect IPV6
+    # Detect IPV6
     if type ping >/dev/null 2>&1; then
       PING6="ping6 -c3 ipv6.google.com > /dev/null 2>&1"
     else
@@ -120,11 +120,11 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Test IPV6 Connectivity
+  # Test IPV6 Connectivity
   detect-ipv6
 
   function test-connectivity-v6() {
-    ## Test outward facing IPV6
+    # Test outward facing IPV6
     if [ "$SERVER_HOST_V6" == "" ]; then
       SERVER_HOST_V6="$(ip -6 addr | grep inet6 | awk '{ print $2}' | cut -d '/' -f1 | grep -v ^::1 | grep -v ^fe80)"
       if [ "$INTERACTIVE" == "yes" ]; then
@@ -136,7 +136,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Test IPV6 Connectivity
+  # Test IPV6 Connectivity
   test-connectivity-v6
 
   # Detect public interface and pre-fill for the user
@@ -155,7 +155,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Run The Function
   server-pub-nic
   
-  ## Determine host port
+  # Determine host port
   function set-port() {
     echo "What port do you want WireGuard server to listen to?"
     echo "   1) 51820 (Recommended)"
@@ -164,7 +164,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
     done
-    ## Apply port response
+    # Apply port response
     case $PORT_CHOICE in
     1)
       SERVER_PORT="51820"
@@ -181,10 +181,10 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## Set Port
+  # Set Port
   set-port
 
-  ## Determine Keepalive interval.
+  # Determine Keepalive interval.
   function nat-keepalive() {
     echo "What do you want your keepalive interval to be?"
     echo "   1) 25 (Default)"
@@ -193,7 +193,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     until [[ "$NAT_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "Nat Choice [1-3]: " -e -i 1 NAT_CHOICE
     done
-    ## Nat Choices
+    # Nat Choices
     case $NAT_CHOICE in
     1)
       NAT_CHOICE="25"
@@ -209,10 +209,10 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## Keepalive
+  # Keepalive
   nat-keepalive
 
-  ## Custom MTU or default settings
+  # Custom MTU or default settings
   function mtu-set() {
     echo "What MTU do you want to use?"
     echo "   1) 1280 (Recommended)"
@@ -236,10 +236,10 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## Set MTU
+  # Set MTU
   mtu-set
 
-  ## What ip version would you like to be available on this VPN?
+  # What ip version would you like to be available on this VPN?
   function ipvx-select() {
     echo "What IPv do you want to use to connect to WireGuard server?"
     echo "   1) IPv4 (Recommended)"
@@ -257,10 +257,10 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## IPv4 or IPv6 Selector
+  # IPv4 or IPv6 Selector
   ipvx-select
 
-  ## Do you want to disable IPv4 or IPv6 or leave them both enabled?
+  # Do you want to disable IPv4 or IPv6 or leave them both enabled?
   function disable-ipvx() {
     echo "Do you want to disable IPv4 or IPv6 on the server?"
     echo "   1) No (Recommended)"
@@ -297,10 +297,10 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## Disable Ipv4 or Ipv6
+  # Disable Ipv4 or Ipv6
   disable-ipvx
 
-  ## Would you like to allow connections to your LAN neighbors?
+  # Would you like to allow connections to your LAN neighbors?
   function client-allowed-ip() {
     echo "What traffic do you want the client to forward to wireguard?"
     echo "   1) Everything (Recommended)"
@@ -318,32 +318,32 @@ if [ ! -f "$WG_CONFIG" ]; then
     esac
   }
 
-  ## Traffic Forwarding
+  # Traffic Forwarding
   client-allowed-ip
 
-  ## Would you like to install Unbound.
+  # Would you like to install Unbound.
   function ask-install-dns() {
-    ## TODO: Explain to the user why in a few echo's they might want this?
+    # TODO: Explain to the user why in a few echo's they might want this?
     read -rp "Do You Want To Install Unbound (y/n): " -e -i y INSTALL_UNBOUND
     if [ "$INSTALL_UNBOUND" == "n" ]; then
     read -rp "Do You Want To Install PiHole (y/n): " -e -i y INSTALL_PIHOLE
     fi
   }
 
-  ## Ask To Install DNS
+  # Ask To Install DNS
   ask-install-dns
 
-  ## What would you like to name your first WireGuard peer?
+  # What would you like to name your first WireGuard peer?
   function client-name() {
     echo "Tell me a name for the client config file. Use one word only, no special characters. (No Spaces)"
     read -rp "Client Name: " -e CLIENT_NAME
   }
 
-  ## Client Name
+  # Client Name
   client-name
 
   function install-wireguard() {
-    ## Installation begins here.
+    # Installation begins here.
     if [ "$DISTRO" == "Ubuntu" ]; then
       apt-get update
       apt-get install software-properties-common -y
@@ -383,17 +383,17 @@ if [ ! -f "$WG_CONFIG" ]; then
     fi
   }
 
-  ## Install WireGuard
+  # Install WireGuard
   install-wireguard
 
-  ## Function to install unbound
+  # Function to install unbound
   function install-unbound() {
     if [ "$INSTALL_UNBOUND" = "y" ]; then
-      ## Installation Begins Here
+      # Installation Begins Here
       if [ "$DISTRO" == "Ubuntu" ]; then
         # Install Unbound
         apt-get install unbound unbound-host e2fsprogs -y
-        ## Set Config
+        # Set Config
         echo 'server:
     num-threads: 4
     verbosity: 1
@@ -417,13 +417,13 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-        ## Apply settings
+        # Apply settings
         systemctl stop systemd-resolved
         systemctl disable systemd-resolved
       elif [ "$DISTRO" == "Debian" ]; then
         # Install Unbound
         apt-get install unbound unbound-host e2fsprogs -y
-        ## Set Config
+        # Set Config
         echo 'server:
     num-threads: 4
     verbosity: 1
@@ -450,7 +450,7 @@ if [ ! -f "$WG_CONFIG" ]; then
       elif [ "$DISTRO" == "Raspbian" ]; then
         # Install Unbound
         apt-get install unbound unbound-host e2fsprogs -y
-        ## Set Config
+        # Set Config
         echo 'server:
     num-threads: 4
     verbosity: 1
@@ -510,7 +510,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     qname-minimisation: yes
     prefetch: yes' >/etc/unbound/unbound.conf
       fi
-      ## Set DNS Root Servers
+      # Set DNS Root Servers
       wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
       # Setting Client DNS For Unbound On WireGuard
       CLIENT_DNS="10.8.0.1"
@@ -523,7 +523,7 @@ if [ ! -f "$WG_CONFIG" ]; then
       echo "nameserver 127.0.0.1" >> /etc/resolv.conf
       # Use -i to enable modifications
       chattr +i /etc/resolv.conf
-      ## Restart unbound
+      # Restart unbound
       if pgrep systemd-journal; then
         systemctl enable unbound
         systemctl restart unbound
@@ -536,19 +536,19 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Running Install Unbound
   install-unbound
 
-  ## Install PiHole Function
+  # Install PiHole Function
   function install-pihole() {
       if [ "$INSTALL_PIHOLE" = "y" ]; then
         curl -sSL https://raw.githubusercontent.com/complexorganizations/install-pihole/master/install-pihole.sh | bash
       fi
-    ## Setting Client DNS For Unbound On WireGuard
+    # Setting Client DNS For Unbound On WireGuard
     CLIENT_DNS="10.8.0.1"
   }
   
-  ## Running Install Pihole
+  # Running Install Pihole
   install-pihole
 
-  ## WireGuard Set Config
+  # WireGuard Set Config
   function wireguard-setconf() {
     SERVER_PRIVKEY=$(wg genkey)
     SERVER_PUBKEY=$(echo "$SERVER_PRIVKEY" | wg pubkey)
@@ -560,7 +560,7 @@ if [ ! -f "$WG_CONFIG" ]; then
     mkdir -p /etc/wireguard
     mkdir -p /etc/wireguard/clients
     touch $WG_CONFIG && chmod 600 $WG_CONFIG
-    ## Set Wireguard settings for this host and first peer.
+    # Set Wireguard settings for this host and first peer.
 
     echo "# $PRIVATE_SUBNET_V4 $PRIVATE_SUBNET_V6 $SERVER_HOST:$SERVER_PORT $SERVER_PUBKEY $CLIENT_DNS $MTU_CHOICE $NAT_CHOICE $CLIENT_ALLOWED_IP
 [Interface]
@@ -589,11 +589,11 @@ Endpoint = $SERVER_HOST:$SERVER_PORT
 PersistentKeepalive = $NAT_CHOICE
 PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
-    ## Generate QR Code
+    # Generate QR Code
     qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
-    ## Echo the file
+    # Echo the file
     echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
-    ## Restart WireGuard
+    # Restart WireGuard
     if pgrep systemd-journal; then
       systemctl enable wg-quick@$WIREGUARD_PUB_NIC
       systemctl restart wg-quick@$WIREGUARD_PUB_NIC
@@ -601,16 +601,16 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
       service wg-quick@$WIREGUARD_PUB_NIC restart
     fi
   }
-  ## Setting Up Wireguard Config
+  # Setting Up Wireguard Config
   wireguard-setconf
 
-  ## Setup Network Time Protocol To Correct Server.
+  # Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
 
-## After WireGuard Install
+# After WireGuard Install
 else
 
-  ## Already installed what next?
+  # Already installed what next?
   function wireguard-next-questions() {
     echo "Looks like Wireguard is already installed."
     echo "What do you want to do?"
@@ -648,7 +648,7 @@ PublicKey = $CLIENT_PUBKEY
 PresharedKey = $PRESHARED_KEY
 AllowedIPs = $CLIENT_ADDRESS_V4/32,$CLIENT_ADDRESS_V6/128
 # $NEW_CLIENT_NAME end" >>$WG_CONFIG
-      echo "## $NEW_CLIENT_NAME
+      echo "# $NEW_CLIENT_NAME
 [Interface]
 Address = $CLIENT_ADDRESS_V4/$PRIVATE_SUBNET_MASK_V4,$CLIENT_ADDRESS_V6/$PRIVATE_SUBNET_MASK_V6
 DNS = $CLIENT_DNS
@@ -662,7 +662,7 @@ PresharedKey = $PRESHARED_KEY
 PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
       qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
       echo "Client config --> "/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
-      ## Restart WireGuard
+      # Restart WireGuard
       if pgrep systemd-journal; then
         systemctl restart wg-quick@$WIREGUARD_PUB_NIC
       else
@@ -670,7 +670,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       fi
       ;;
     2)
-      ## Remove User
+      # Remove User
       echo "Which WireGuard User Do You Want To Remove?"
       cat $WG_CONFIG | grep start | awk '{ print $2 }'
       read -rp "Type in Client Name : " -e REMOVECLIENT
@@ -688,7 +688,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       echo "Client named $REMOVECLIENT has been removed."
       ;;
     3)
-      ## Uninstall Wireguard and purging files
+      # Uninstall Wireguard and purging files
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
       if [ "$DISTRO" == "CentOS" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
@@ -715,27 +715,27 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
         wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
       fi
-      ## Removing Wireguard Files
+      # Removing Wireguard Files
       rm -rf /etc/wireguard
-      ## Removing Wireguard User Config Files
+      # Removing Wireguard User Config Files
       rm -rf /etc/wireguard/clients
-      ## Removing Unbound Files
+      # Removing Unbound Files
       rm -rf /etc/unbound
-      ## Removing Qrencode
+      # Removing Qrencode
       rm -rf /etc/qrencode
-      ## Removing system wireguard config
+      # Removing system wireguard config
       rm -f /etc/sysctl.d/wireguard.conf
-      ## Removing wireguard config
+      # Removing wireguard config
       rm -f /etc/wireguard/$WIREGUARD_PUB_NIC.conf
-      ## Removing Unbound Config
+      # Removing Unbound Config
       rm -f /etc/unbound/unbound.conf
-      ## Removing NTP config
+      # Removing NTP config
       rm -f /etc/ntp.conf
-      ## Removing Haveged Config
+      # Removing Haveged Config
       rm -f /etc/default/haveged
-      ## Uninstall Pihole
+      # Uninstall Pihole
       pihole uninstall
-      ## Remove Pihole Files
+      # Remove Pihole Files
       rm -rf /etc/.pihole
       rm -rf /etc/pihole
       rm -rf /opt/pihole
@@ -758,6 +758,6 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
     esac
   }
 
-  ## Running Questions Command
+  # Running Questions Command
   wireguard-next-questions
 fi
