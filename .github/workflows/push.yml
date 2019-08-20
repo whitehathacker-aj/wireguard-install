@@ -9,3 +9,5 @@ jobs:
       uses: actions/bin/shellcheck@master
       with:
         args: wireguard-server.sh -e SC1091 -e SC2034
+        args: wireguard-client.sh -e SC1091 -e SC2034
+        args: wireguard-multihop.sh -e SC1091 -e SC2034
