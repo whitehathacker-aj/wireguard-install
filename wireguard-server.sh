@@ -61,16 +61,24 @@ function dist-check() {
 # Check Operating System
 dist-check
 
-# WG Configurator
+# Wireguard Public Network Interface
 WIREGUARD_PUB_NIC="wg0"
+# Location For WG_CONFIG
 WG_CONFIG="/etc/wireguard/$WIREGUARD_PUB_NIC.conf"
 if [ ! -f "$WG_CONFIG" ]; then
+  # Yes or No For Questions
   INTERACTIVE=${INTERACTIVE:-yes}
+  # Private Subnet Ipv4
   PRIVATE_SUBNET_V4=${PRIVATE_SUBNET_V4:-"10.8.0.0/24"}
+  # Private Subnet Mask IPv4
   PRIVATE_SUBNET_MASK_V4=$(echo "$PRIVATE_SUBNET_V4" | cut -d "/" -f 2)
+  # IPv4 Getaway
   GATEWAY_ADDRESS_V4="${PRIVATE_SUBNET_V4::-4}1"
+  # Private Subnet Ipv6
   PRIVATE_SUBNET_V6=${PRIVATE_SUBNET_V6:-"fd42:42:42::0/64"}
+  # Private Subnet Mask IPv6
   PRIVATE_SUBNET_MASK_V6=$(echo "$PRIVATE_SUBNET_V6" | cut -d "/" -f 2)
+  # IPv6 Getaway
   GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
   function detect-ipv4() {
