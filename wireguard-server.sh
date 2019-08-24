@@ -81,8 +81,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   # IPv6 Getaway
   GATEWAY_ADDRESS_V6="${PRIVATE_SUBNET_V6::-4}1"
 
+  # Detect IPV4
   function detect-ipv4() {
-    # Detect IPV4
     if type ping >/dev/null 2>&1; then
       PING="ping -c3 google.com > /dev/null 2>&1"
     else
@@ -98,8 +98,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Detect IPV4
   detect-ipv4
 
+  # Test outward facing IPV4
   function test-connectivity-v4() {
-    # Test outward facing IPV4
     if [ "$SERVER_HOST_V4" == "" ]; then
       SERVER_HOST_V4="$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)"
       if [ "$INTERACTIVE" == "yes" ]; then
@@ -114,8 +114,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Test IPV4 Connectivity
   test-connectivity-v4
 
+  # Detect IPV6
   function detect-ipv6() {
-    # Detect IPV6
     if type ping >/dev/null 2>&1; then
       PING6="ping6 -c3 ipv6.google.com > /dev/null 2>&1"
     else
@@ -131,8 +131,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Test IPV6 Connectivity
   detect-ipv6
 
+  # Test outward facing IPV6
   function test-connectivity-v6() {
-    # Test outward facing IPV6
     if [ "$SERVER_HOST_V6" == "" ]; then
       SERVER_HOST_V6="$(ip -6 addr | grep inet6 | awk '{ print $2}' | cut -d '/' -f1 | grep -v ^::1 | grep -v ^fe80)"
       if [ "$INTERACTIVE" == "yes" ]; then
@@ -211,14 +211,14 @@ if [ ! -f "$WG_CONFIG" ]; then
       ;;
     3)
       until [[ "$NAT_CHOICE " =~ ^[0-9]+$ ]] && [ "$NAT_CHOICE " -ge 1 ] && [ "$NAT_CHOICE " -le 25 ]; do
-        read -rp "Custom NAT [0-25]: " -e -i 25 NAT_CHOICE
+        read -rp "Custom NAT [0-25]: " -e -i 25 NA_CHOICE
       done
       ;;
     esac
   }
 
   # Keepalive
-  nat-keepalive
+  nat-keepaliveT
 
   # Custom MTU or default settings
   function mtu-set() {
