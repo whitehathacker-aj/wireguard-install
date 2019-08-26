@@ -351,45 +351,45 @@ if [ ! -f "$WG_CONFIG" ]; then
   client-name
 
   # Install WireGuard Server
-  function install-wireguard-server() {
-    # Installation begins here.
-    if [ "$DISTRO" == "Ubuntu" ]; then
-      apt-get update
-      apt-get install software-properties-common -y
-      add-apt-repository ppa:wireguard/wireguard -y
-      apt-get update
-      apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
-    elif [ "$DISTRO" == "Debian" ]; then
-      apt-get update
-      echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
-      printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
-      apt-get update
-      apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
-    elif [ "$DISTRO" == "Raspbian" ]; then
-      apt-get update
-      echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
-      apt-get install dirmngr -y
-      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-      printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
-      apt-get update
-      apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
-    elif [ "$DISTRO" == "Arch" ]; then
-      pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp
-    elif [ "$DISTRO" = 'Fedora' ]; then
-      dnf update -y
-      dnf copr enable jdoss/wireguard -y
-      dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
-    elif [ "$DISTRO" == "CentOS" ]; then
-      yum update -y
-      wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-      yum install epel-release -y
-      yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
-    elif [ "$DISTRO" == "Redhat" ]; then
-      yum update -y
-      wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
-      yum install epel-release -y
-      yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
-    fi
+function install-wireguard-server() {
+  # Installation begins here.
+  if [ "$DISTRO" == "Ubuntu" ]; then
+    apt-get update
+    apt-get install software-properties-common -y
+    add-apt-repository ppa:wireguard/wireguard -y
+    apt-get update
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+  elif [ "$DISTRO" == "Debian" ]; then
+    apt-get update
+    echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
+    printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
+    apt-get update
+    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+  elif [ "$DISTRO" == "Raspbian" ]; then
+    apt-get update
+    echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
+    apt-get install dirmngr -y
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+    printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
+    apt-get update
+    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
+  elif [ "$DISTRO" == "Arch" ]; then
+    pacman -S linux-headers wireguard-dkms wireguard-tools haveged qrencode ntp
+  elif [ "$DISTRO" = 'Fedora' ]; then
+    dnf update -y
+    dnf copr enable jdoss/wireguard -y
+    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
+  elif [ "$DISTRO" == "CentOS" ]; then
+    yum update -y
+    wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+  elif [ "$DISTRO" == "Redhat" ]; then
+    yum update -y
+    wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
+    yum install epel-release -y
+    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+  fi
   }
 
   # Install WireGuard Server
@@ -397,13 +397,13 @@ if [ ! -f "$WG_CONFIG" ]; then
 
   # Function to install unbound
   function install-unbound() {
-    if [ "$INSTALL_UNBOUND" = "y" ]; then
-      # Installation Begins Here
-      if [ "$DISTRO" == "Ubuntu" ]; then
-        # Install Unbound
-        apt-get install unbound unbound-host e2fsprogs -y
-        # Set Config
-        echo 'server:
+  if [ "$INSTALL_UNBOUND" = "y" ]; then
+  # Installation Begins Here
+  if [ "$DISTRO" == "Ubuntu" ]; then
+    # Install Unbound
+    apt-get install unbound unbound-host e2fsprogs -y
+    # Set Config
+    echo 'server:
     num-threads: 4
     verbosity: 1
     root-hints: "/etc/unbound/root.hints"
@@ -426,14 +426,14 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-        # Apply settings
-        systemctl stop systemd-resolved
-        systemctl disable systemd-resolved
-      elif [ "$DISTRO" == "Debian" ]; then
-        # Install Unbound
-        apt-get install unbound unbound-host e2fsprogs -y
-        # Set Config
-        echo 'server:
+    # Apply settings
+    systemctl stop systemd-resolved
+    systemctl disable systemd-resolved
+  elif [ "$DISTRO" == "Debian" ]; then
+    # Install Unbound
+    apt-get install unbound unbound-host e2fsprogs -y
+    # Set Config
+    echo 'server:
     num-threads: 4
     verbosity: 1
     root-hints: "/etc/unbound/root.hints"
@@ -456,11 +456,11 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-      elif [ "$DISTRO" == "Raspbian" ]; then
-        # Install Unbound
-        apt-get install unbound unbound-host e2fsprogs -y
-        # Set Config
-        echo 'server:
+  elif [ "$DISTRO" == "Raspbian" ]; then
+    # Install Unbound
+    apt-get install unbound unbound-host e2fsprogs -y
+    # Set Config
+    echo 'server:
     num-threads: 4
     verbosity: 1
     root-hints: "/etc/unbound/root.hints"
@@ -483,25 +483,25 @@ if [ ! -f "$WG_CONFIG" ]; then
     prefetch: yes
     qname-minimisation: yes
     prefetch-key: yes' >/etc/unbound/unbound.conf
-      elif [[ "$DISTRO" == "CentOS" ]]; then
-        # Install Unbound
-        yum install unbound unbound-libs -y
-        sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
-        sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
-        sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-      elif [[ "$DISTRO" == "Fedora" ]]; then
-        dnf install unbound unbound-host -y
-        sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
-        sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
-        sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
-        sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
-      elif [[ "$DISTRO" == "Arch" ]]; then
-        pacman -S unbound unbound-host
-        mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
-        echo 'server:
+  elif [[ "$DISTRO" == "CentOS" ]]; then
+    # Install Unbound
+    yum install unbound unbound-libs -y
+    sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
+    sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
+    sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+    sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+    sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+  elif [[ "$DISTRO" == "Fedora" ]]; then
+    dnf install unbound unbound-host -y
+    sed -i 's|# interface: 0.0.0.0$|interface: 10.8.0.1|' /etc/unbound/unbound.conf
+    sed -i 's|# access-control: 127.0.0.0/8 allow|access-control: 10.8.0.1/24 allow|' /etc/unbound/unbound.conf
+    sed -i 's|# hide-identity: no|hide-identity: yes|' /etc/unbound/unbound.conf
+    sed -i 's|# hide-version: no|hide-version: yes|' /etc/unbound/unbound.conf
+    sed -i 's|use-caps-for-id: no|use-caps-for-id: yes|' /etc/unbound/unbound.conf
+  elif [[ "$DISTRO" == "Arch" ]]; then
+    pacman -S unbound unbound-host
+    mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.old
+    echo 'server:
     use-syslog: yes
     do-daemonize: no
     username: "unbound"
@@ -518,28 +518,28 @@ if [ ! -f "$WG_CONFIG" ]; then
     hide-version: yes
     qname-minimisation: yes
     prefetch: yes' >/etc/unbound/unbound.conf
-      fi
-      # Set DNS Root Servers
-      wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
-      # Setting Client DNS For Unbound On WireGuard
-      CLIENT_DNS="10.8.0.1"
-      # Allow the modification of the file
-      chattr -i /etc/resolv.conf
-      # Disable previous DNS servers
-      sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
-      sed -i "s|search|#search|" /etc/resolv.conf
-      # Set localhost as the DNS resolver
-      echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-      # Use -i to enable modifications
-      chattr +i /etc/resolv.conf
-      # Restart unbound
-      if pgrep systemd-journal; then
-        systemctl enable unbound
-        systemctl restart unbound
-      else
-        service unbound restart
-      fi
-    fi
+  fi
+    # Set DNS Root Servers
+    wget -O /etc/unbound/root.hints https://www.internic.net/domain/named.cache
+    # Setting Client DNS For Unbound On WireGuard
+    CLIENT_DNS="10.8.0.1"
+    # Allow the modification of the file
+    chattr -i /etc/resolv.conf
+    # Disable previous DNS servers
+    sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
+    sed -i "s|search|#search|" /etc/resolv.conf
+    # Set localhost as the DNS resolver
+    echo "nameserver 127.0.0.1" >> /etc/resolv.conf
+    # Use -i to enable modifications
+    chattr +i /etc/resolv.conf
+    # Restart unbound
+  if pgrep systemd-journal; then
+    systemctl enable unbound
+    systemctl restart unbound
+  else
+    service unbound restart
+  fi
+fi
   }
 
   # Running Install Unbound
