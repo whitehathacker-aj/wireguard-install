@@ -134,7 +134,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Test outward facing IPV6
   function test-connectivity-v6() {
     if [ "$SERVER_HOST_V6" == "" ]; then
-      SERVER_HOST_V6="$(ip -6 addr | grep inet6 | awk '{ print $2}' | cut -d '/' -f1 | grep -v ^::1 | grep -v ^fe80)"
+      SERVER_HOST_V6="$(ip -6 addr | grep inet6 | awk '{print $2}' | cut -d '/' -f1 | grep -v ^::1 | grep -v ^fe80)"
       if [ "$INTERACTIVE" == "yes" ]; then
         read -rp "System public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
         if [ "$CONFIRM" == "n" ]; then
@@ -218,7 +218,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   }
 
   # Keepalive
-  nat-keepaliveT
+  nat-keepalive
 
   # Custom MTU or default settings
   function mtu-set() {
