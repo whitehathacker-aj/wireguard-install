@@ -162,7 +162,7 @@ if [ ! -f "$WG_CONFIG" ]; then
 
   # Run The Function
   server-pub-nic
-  
+
   # Determine host port
   function set-port() {
     echo "What port do you want WireGuard server to listen to?"
@@ -553,7 +553,7 @@ fi
     # Setting Client DNS For Unbound On WireGuard
     CLIENT_DNS="10.8.0.1"
   }
-  
+
   # Running Install Pihole
   install-pihole
 
