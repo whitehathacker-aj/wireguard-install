@@ -542,9 +542,6 @@ function install-wireguard-server() {
 fi
   }
 
-  # Running Install Unbound
-  install-unbound
-
   # Install PiHole Function
   function install-pihole() {
       if [ "$INSTALL_PIHOLE" = "y" ]; then
@@ -553,9 +550,6 @@ fi
     # Setting Client DNS For Unbound On WireGuard
     CLIENT_DNS="10.8.0.1"
   }
-
-  # Running Install Pihole
-  install-pihole
 
   # WireGuard Set Config
   function wireguard-setconf() {
@@ -615,6 +609,12 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
 
   # Setup Network Time Protocol To Correct Server.
   ntpdate pool.ntp.org
+  
+  # Running Install Pihole
+  install-pihole
+  
+  # Running Install Unbound
+  install-unbound
 
 # After WireGuard Install
 else
