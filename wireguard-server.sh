@@ -101,7 +101,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Test outward facing IPV4
   function test-connectivity-v4() {
     if [ "$SERVER_HOST_V4" == "" ]; then
-      SERVER_HOST_V4="$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)"
+      SERVER_HOST_V4="$(wget -qO- -t1 -T2 ipv4.icanhazip.com)"
       if [ "$INTERACTIVE" == "yes" ]; then
         read -rp "System public IPV4 address is $SERVER_HOST_V4. Is that correct? [y/n]: " -e -i "$IPV4_SUGGESTION" CONFIRM
         if [ "$CONFIRM" == "n" ]; then
@@ -134,7 +134,7 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Test outward facing IPV6
   function test-connectivity-v6() {
     if [ "$SERVER_HOST_V6" == "" ]; then
-      SERVER_HOST_V6="$(ip -6 addr | grep inet6 | awk '{print $2}' | cut -d '/' -f1 | grep -v ^::1 | grep -v ^fe80)"
+      SERVER_HOST_V6="$(wget -qO- -t1 -T2 ipv6.icanhazip.com)"
       if [ "$INTERACTIVE" == "yes" ]; then
         read -rp "System public IPV6 address is $SERVER_HOST_V6. Is that correct? [y/n]: " -e -i "$IPV6_SUGGESTION" CONFIRM
         if [ "$CONFIRM" == "n" ]; then
