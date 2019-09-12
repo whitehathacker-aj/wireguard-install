@@ -29,17 +29,6 @@ function virt-check() {
 # Virtualization Check
 virt-check
 
-# Checking For Tun Device
-function tun-check() {
-  if [[ ! -e /dev/net/tun ]]; then
-    echo "The TUN device is not available. You need to enable TUN before running this script"
-    exit
-  fi
-}
-
-# Tun Check
-tun-check
-
 # Detect Operating System
 function dist-check() {
   if [ -e /etc/centos-release ]; then
