@@ -389,13 +389,13 @@ function install-wireguard-server() {
     apt-get install software-properties-common -y
     add-apt-repository ppa:wireguard/wireguard -y
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Debian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Raspbian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
@@ -403,23 +403,23 @@ function install-wireguard-server() {
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode ntpdate raspberrypi-kernel-headers haveged -y
+    apt-get install wireguard qrencode raspberrypi-kernel-headers haveged -y
   elif [ "$DISTRO" == "Arch" ]; then
     pacman -S linux-headers wireguard-tools wireguard-arch haveged qrencode ntp
   elif [ "$DISTRO" = 'Fedora' ]; then
     dnf update -y
     dnf copr enable jdoss/wireguard -y
-    dnf install qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
+    dnf install qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode ntpdate kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
   fi
   }
 
@@ -632,8 +632,13 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
   # Setting Up Wireguard Config
   wireguard-setconf
 
-  # Setup Network Time Protocol To Correct Server.
-  ntpdate pool.ntp.org
+  # Set correct time
+  function set-correct-time() {
+  dpkg-reconfigure tzdata
+  }
+
+  # Run the function
+  set-correct-time
 
 # After WireGuard Install
 else
@@ -736,28 +741,28 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
       if [ "$DISTRO" == "CentOS" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        yum remove wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Debian" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
+        apt-get remove --purge wireguard qrencode haveged unbound unbound-host -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Ubuntu" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host -y
+        apt-get remove --purge wireguard qrencode haveged unbound unbound-host -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Raspbian" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        apt-get remove --purge wireguard qrencode ntpdate haveged unbound unbound-host dirmngr -y
+        apt-get remove --purge wireguard qrencode haveged unbound unbound-host dirmngr -y
         apt-get autoremove -y
       elif [ "$DISTRO" == "Arch" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        pacman -Rs wireguard qrencode ntpdate haveged unbound unbound-host -y
+        pacman -Rs wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Fedora" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        dnf remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        dnf remove wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Redhat" ]; then
         wg-quick down $WIREGUARD_PUB_NIC
-        yum remove wireguard qrencode ntpdate haveged unbound unbound-host -y
+        yum remove wireguard qrencode haveged unbound unbound-host -y
       fi
       # Removing Wireguard Files
       rm -rf /etc/wireguard
@@ -773,8 +778,6 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       rm -f /etc/wireguard/$WIREGUARD_PUB_NIC.conf
       # Removing Unbound Config
       rm -f /etc/unbound/unbound.conf
-      # Removing NTP config
-      rm -f /etc/ntp.conf
       # Removing Haveged Config
       rm -f /etc/default/haveged
       # Allow the modification of the resolv file
@@ -783,7 +786,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
       sed -i "s|search|#search|" /etc/resolv.conf
       # Set localhost as the DNS resolver
-      echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+      echo "nameserver 127.0.0.53" >> /etc/resolv.conf
       # Use -i to enable modifications
       chattr +i /etc/resolv.conf
       ;;
