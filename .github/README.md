@@ -10,8 +10,3 @@ bash wireguard-server.sh
 wget https://raw.githubusercontent.com/complexorganizations/wireguard-install/master/wireguard-client.sh
 bash wireguard-client.sh
 ```
-### Wireguard Multihop (Beta)
-```
-wget https://raw.githubusercontent.com/complexorganizations/wireguard-install/master/wireguard-multihop.sh
-bash wireguard-client.sh
-```
