@@ -642,15 +642,31 @@ else
   function wireguard-next-questions() {
     echo "Looks like Wireguard is already installed."
     echo "What do you want to do?"
-    echo "   1) Add A New WireGuard User"
-    echo "   2) Remove User From WireGuard"
-    echo "   3) Uninstall WireGuard"
-    echo "   4) Exit"
+    echo "   1) Start WireGuard"
+    echo "   2) Stop WireGuard"
+    echo "   3) Add A New WireGuard User"
+    echo "   4) Remove User From WireGuard"
+    echo "   5) Uninstall WireGuard"
+    echo "   6) Exit"
     until [[ "$WIREGUARD_OPTIONS" =~ ^[1-4]$ ]]; do
-      read -rp "Select an Option [1-4]: " -e -i 1 WIREGUARD_OPTIONS
+      read -rp "Select an Option [1-4]: " -e -i 3 WIREGUARD_OPTIONS
     done
     case $WIREGUARD_OPTIONS in
     1)
+      if pgrep systemd-journal; then
+        systemctl start wg-quick@$WIREGUARD_PUB_NIC
+      else
+        service wg-quick@$WIREGUARD_PUB_NIC start
+      fi
+      ;;
+    2)
+      if pgrep systemd-journal; then
+        systemctl stop wg-quick@$WIREGUARD_PUB_NIC
+      else
+        service wg-quick@$WIREGUARD_PUB_NIC stop
+      fi
+      ;;
+    3)
       echo "Tell me a new name for the client config file. Use one word only, no special characters. (No Spaces)"
       read -rp "New client name: " -e NEW_CLIENT_NAME
       CLIENT_PRIVKEY=$(wg genkey)
@@ -697,7 +713,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
         service wg-quick@$WIREGUARD_PUB_NIC restart
       fi
       ;;
-    2)
+    4)
       # Remove User
       echo "Which WireGuard User Do You Want To Remove?"
       cat $WG_CONFIG | grep start | awk '{ print $2 }'
@@ -715,7 +731,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       fi
       echo "Client named $REMOVECLIENT has been removed."
       ;;
-    3)
+    5)
       # Uninstall Wireguard and purging files
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
       if [ "$DISTRO" == "CentOS" ]; then
@@ -771,7 +787,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       # Use -i to enable modifications
       chattr +i /etc/resolv.conf
       ;;
-    4)
+    6)
       exit
       ;;
     esac
