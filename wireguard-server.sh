@@ -709,31 +709,31 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
     5)
       # Uninstall Wireguard and purging files
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
+    if [ "$REMOVE_WIREGUARD" = "y" ]; then
+      # Stop WireGuard
+      wg-quick down $WIREGUARD_PUB_NIC
       if [ "$DISTRO" == "CentOS" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Debian" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode haveged unbound unbound-host -y
-        apt-get autoremove -y
       elif [ "$DISTRO" == "Ubuntu" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode haveged unbound unbound-host -y
-        apt-get autoremove -y
       elif [ "$DISTRO" == "Raspbian" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         apt-get remove --purge wireguard qrencode haveged unbound unbound-host dirmngr -y
-        apt-get autoremove -y
       elif [ "$DISTRO" == "Arch" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         pacman -Rs wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Fedora" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         dnf remove wireguard qrencode haveged unbound unbound-host -y
       elif [ "$DISTRO" == "Redhat" ]; then
-        wg-quick down $WIREGUARD_PUB_NIC
         yum remove wireguard qrencode haveged unbound unbound-host -y
       fi
+      # Remove Pi-Hole
+      pihole uninstall
+      # Remove Pi-Hole Files
+      rm -rf /etc/.pihole
+      rm -rf /etc/pihole
+      rm -rf /opt/pihole
+      rm -rf /var/www/html/admin
       # Removing Wireguard Files
       rm -rf /etc/wireguard
       # Removing Wireguard User Config Files
@@ -759,6 +759,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       echo "nameserver 127.0.0.53" >> /etc/resolv.conf
       # Use -i to enable modifications
       chattr +i /etc/resolv.conf
+    fi
       ;;
     6)
       exit
