@@ -310,7 +310,7 @@ if [ ! -f "$WG_CONFIG" ]; then
       CLIENT_ALLOWED_IP="0.0.0.0/0,::/0"
       ;;
     2)
-      CLIENT_ALLOWED_IP="0.0.0.0/1,128.0.0.0/1,::/1,8000::/1"
+      CLIENT_ALLOWED_IP="0.0.0.0/5, 8.0.0.0/7, 11.0.0.0/8, 12.0.0.0/6, 16.0.0.0/4, 32.0.0.0/3, 64.0.0.0/2, 128.0.0.0/3, 160.0.0.0/5, 168.0.0.0/6, 172.0.0.0/12, 172.32.0.0/11, 172.64.0.0/10, 172.128.0.0/9, 173.0.0.0/8, 174.0.0.0/7, 176.0.0.0/4, 192.0.0.0/9, 192.128.0.0/11, 192.160.0.0/13, 192.169.0.0/16, 192.170.0.0/15, 192.172.0.0/14, 192.176.0.0/12, 192.192.0.0/10, 193.0.0.0/8, 194.0.0.0/7, 196.0.0.0/6, 200.0.0.0/5, 208.0.0.0/4, ::/0, 176.103.130.130/32, 176.103.130.131/32"
       ;;
     esac
   }
@@ -321,52 +321,9 @@ if [ ! -f "$WG_CONFIG" ]; then
   # Would you like to install Unbound.
   function ask-install-dns() {
     read -rp "Do You Want To Install Unbound (y/n): " -e -i y INSTALL_UNBOUND
-    if [ "$INSTALL_UNBOUND" == "n" ]; then
-      echo "Which DNS do you want to use with the VPN?"
-      echo "   1) AdGuard (Recommended)"
-      echo "   2) Google"
-      echo "   3) OpenDNS"
-      echo "   4) Cloudflare"
-      echo "   5) Verisign"
-      echo "   6) Quad9"
-      echo "   7) FDN"
-      echo "   8) DNS.WATCH"
-      echo "   9) Yandex Basic"
-      echo "   10) Clean Browsing"
-      read -rp "DNS [1-10]: " -e -i 1 DNS_CHOICE
-      case $DNS_CHOICE in
-      1)
-        CLIENT_DNS="176.103.130.130,176.103.130.131,2a00:5a60::ad1:0ff,2a00:5a60::ad2:0ff"
-        ;;
-      2)
-        CLIENT_DNS="8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844"
-        ;;
-      3)
-        CLIENT_DNS="208.67.222.222,208.67.220.220,2620:119:35::35,2620:119:53::53"
-        ;;
-      4)
-        CLIENT_DNS="1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001"
-        ;;
-      5)
-        CLIENT_DNS="64.6.64.6,64.6.65.6,2620:74:1b::1:1,2620:74:1c::2:2"
-        ;;
-      6)
-        CLIENT_DNS="9.9.9.9,149.112.112.112,2620:fe::fe,2620:fe::9"
-        ;;
-      7)
-        CLIENT_DNS="80.67.169.40,80.67.169.12,2001:910:800::40,2001:910:800::12"
-        ;;
-      8)
-        CLIENT_DNS="84.200.69.80,84.200.70.40,2001:1608:10:25::1c04:b12f,2001:1608:10:25::9249:d69b"
-        ;;
-      9)
-        CLIENT_DNS="77.88.8.8,77.88.8.1,2a02:6b8::feed:0ff,2a02:6b8:0:1::feed:0ff"
-        ;;
-      10)
-        CLIENT_DNS="185.228.168.9,185.228.169.9,2a0d:2a00:1::2,2a0d:2a00:2::2"
-        ;;
-      esac
-    fi
+  if [ "$INSTALL_UNBOUND" == "n" ]; then
+    read -rp "Do You Want To Install Pi-Hole (y/n): " -e -i y INSTALL_PIHOLE
+  fi
   }
 
   # Ask To Install DNS
@@ -389,13 +346,13 @@ function install-wireguard-server() {
     apt-get install software-properties-common -y
     add-apt-repository ppa:wireguard/wireguard -y
     apt-get update
-    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Debian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Raspbian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
@@ -403,23 +360,23 @@ function install-wireguard-server() {
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode raspberrypi-kernel-headers haveged -y
+    apt-get install wireguard qrencode raspberrypi-kernel-headers haveged curl -y
   elif [ "$DISTRO" == "Arch" ]; then
-    pacman -S linux-headers wireguard-tools wireguard-arch haveged qrencode ntp
+    pacman -S linux-headers wireguard-tools wireguard-arch haveged qrencode curl
   elif [ "$DISTRO" = 'Fedora' ]; then
     dnf update -y
     dnf copr enable jdoss/wireguard -y
-    dnf install qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
+    dnf install qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged curl -y
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged curl -y
   fi
   }
 
@@ -575,7 +532,18 @@ fi
   
   # Running Install Unbound
   install-unbound
-
+  
+  # Install pihole
+  function install-pihole() {
+    # Install Pi-Hole
+    curl -sSL https://install.pi-hole.net | bash
+    # Set Client DNS
+    CLIENT_DNS="10.8.0.1"
+  }
+  
+  # Run The Function
+  install-pihole
+  
   # WireGuard Set Config
   function wireguard-setconf() {
     SERVER_PRIVKEY=$(wg genkey)
