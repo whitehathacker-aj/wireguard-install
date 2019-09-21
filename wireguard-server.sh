@@ -213,8 +213,8 @@ if [ ! -f "$WG_CONFIG" ]; then
   function mtu-set() {
     echo "What MTU do you want to use?"
     echo "   1) 1280 (Recommended)"
-    echo "   1) 1420"
-    echo "   2) Custom (Advanced)"
+    echo "   2) 1420"
+    echo "   3) Custom (Advanced)"
     until [[ "$MTU_CHOICE" =~ ^[1-3]$ ]]; do
       read -rp "MTU choice [1-3]: " -e -i 1 MTU_CHOICE
     done
@@ -622,8 +622,8 @@ else
     echo "   4) Remove User From WireGuard"
     echo "   5) Uninstall WireGuard"
     echo "   6) Exit"
-    until [[ "$WIREGUARD_OPTIONS" =~ ^[1-4]$ ]]; do
-      read -rp "Select an Option [1-4]: " -e -i 3 WIREGUARD_OPTIONS
+    until [[ "$WIREGUARD_OPTIONS" =~ ^[1-6]$ ]]; do
+      read -rp "Select an Option [1-6]: " -e -i 3 WIREGUARD_OPTIONS
     done
     case $WIREGUARD_OPTIONS in
     1)
