@@ -589,8 +589,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
     # Generate QR Code
     qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
     # Echo the file
-    echo "Server Config --> "/etc/wireguard"/"$WIREGUARD_PUB_NIC.conf"
-    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME-$WIREGUARD_PUB_NIC.conf"
+    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
     # Restart WireGuard
     if pgrep systemd-journal; then
       systemctl enable wg-quick@$WIREGUARD_PUB_NIC
