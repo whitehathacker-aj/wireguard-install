@@ -346,13 +346,13 @@ function install-wireguard-server() {
     apt-get install software-properties-common -y
     add-apt-repository ppa:wireguard/wireguard -y
     apt-get update
-    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Debian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged -y
+    apt-get install wireguard qrencode linux-headers-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Raspbian" ]; then
     apt-get update
     echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
@@ -360,23 +360,23 @@ function install-wireguard-server() {
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
     apt-get update
-    apt-get install wireguard qrencode raspberrypi-kernel-headers haveged -y
+    apt-get install wireguard qrencode raspberrypi-kernel-headers haveged curl -y
   elif [ "$DISTRO" == "Arch" ]; then
     pacman -S linux-headers wireguard-tools wireguard-arch haveged qrencode
   elif [ "$DISTRO" = 'Fedora' ]; then
     dnf update -y
     dnf copr enable jdoss/wireguard -y
-    dnf install qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged -y
+    dnf install qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" wireguard-dkms wireguard-tools haveged curl -y
   elif [ "$DISTRO" == "CentOS" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged curl -y
   elif [ "$DISTRO" == "Redhat" ]; then
     yum update -y
     wget -O /etc/yum.repos.d/wireguard.repo https://copr.fedorainfracloud.org/coprs/jdoss/wireguard/repo/epel-7/jdoss-wireguard-epel-7.repo
     yum install epel-release -y
-    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged -y
+    yum install wireguard-dkms wireguard-tools qrencode kernel-headers-"$(uname -r)" kernel-devel-"$(uname -r)" haveged curl -y
   fi
   }
 
@@ -536,7 +536,7 @@ fi
   # Install Pi-Hole
   function install-pihole() {
   if [ "$INSTALL_PIHOLE" = "y" ]; then
-    wget -qO- -t1 -T2 https://install.pi-hole.net | bash
+    curl -sSL https://install.pi-hole.net | bash
   fi
     # Set Client DNS
     CLIENT_DNS="10.8.0.1"
