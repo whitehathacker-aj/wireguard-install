@@ -541,10 +541,12 @@ fi
     # Set Client DNS
     CLIENT_DNS="10.8.0.1"
 }
-  
-  # Run The Function
-  install-pihole
-  
+
+  # Set correct time
+  function set-correct-time() {
+  dpkg-reconfigure tzdata
+  }
+
   # WireGuard Set Config
   function wireguard-setconf() {
     SERVER_PRIVKEY=$(wg genkey)
@@ -602,10 +604,8 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
   # Setting Up Wireguard Config
   wireguard-setconf
 
-  # Set correct time
-  function set-correct-time() {
-  dpkg-reconfigure tzdata
-  }
+  # Run The Function
+  install-pihole
 
   # Run the function
   set-correct-time
