@@ -599,6 +599,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
       service wg-quick@$WIREGUARD_PUB_NIC restart
     fi
   }
+
   # Setting Up Wireguard Config
   wireguard-setconf
 
