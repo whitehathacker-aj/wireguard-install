@@ -537,9 +537,9 @@ fi
   function install-pihole() {
   if [ "$INSTALL_PIHOLE" = "y" ]; then
     wget -qO- -t1 -T2 https://install.pi-hole.net | bash
+  fi
     # Set Client DNS
     CLIENT_DNS="10.8.0.1"
-  fi
 }
   
   # Run The Function
@@ -590,7 +590,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_
     qrencode -t ansiutf8 -l L <"/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf
     # Echo the file
     echo "Server Config --> "/etc/wireguard"/"$WIREGUARD_PUB_NIC.conf"
-    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME"-$WIREGUARD_PUB_NIC.conf"
+    echo "Client Config --> "/etc/wireguard/clients"/"$CLIENT_NAME-$WIREGUARD_PUB_NIC.conf"
     # Restart WireGuard
     if pgrep systemd-journal; then
       systemctl enable wg-quick@$WIREGUARD_PUB_NIC
