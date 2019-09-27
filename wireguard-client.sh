@@ -56,7 +56,7 @@ function install-wireguard-client() {
     apt-get install wireguard raspberrypi-kernel-headers resolvconf -y
   elif [ "$DISTRO" == "Arch" ]; then
     pacman -Syy
-    pacman -S resolvconf wireguard-dkms wireguard-tools linux-headers wireguard-arch
+    pacman -S openresolv wireguard-tools wireguard-arch
   elif [[ "$DISTRO" = 'Fedora' ]]; then
     dnf update
     dnf copr enable jdoss/wireguard -y
