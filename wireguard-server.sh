@@ -619,12 +619,13 @@ else
     echo "What do you want to do?"
     echo "   1) Start WireGuard"
     echo "   2) Stop WireGuard"
-    echo "   3) Add A New WireGuard User"
-    echo "   4) Remove User From WireGuard"
-    echo "   5) Uninstall WireGuard"
-    echo "   6) Exit"
-    until [[ "$WIREGUARD_OPTIONS" =~ ^[1-6]$ ]]; do
-      read -rp "Select an Option [1-6]: " -e -i 3 WIREGUARD_OPTIONS
+    echo "   3) Show WireGuard"
+    echo "   4 Add A New WireGuard User"
+    echo "   5 Remove User From WireGuard"
+    echo "   6) Uninstall WireGuard"
+    echo "   7) Exit"
+    until [[ "$WIREGUARD_OPTIONS" =~ ^[1-7]$ ]]; do
+      read -rp "Select an Option [1-7]: " -e -i 4 WIREGUARD_OPTIONS
     done
     case $WIREGUARD_OPTIONS in
     1)
@@ -642,6 +643,13 @@ else
       fi
       ;;
     3)
+      if pgrep systemd-journal; then
+        wg show
+      else
+        sudo wg show
+      fi
+      ;;
+    4)
       echo "Tell me a new name for the client config file. Use one word only, no special characters. (No Spaces)"
       read -rp "New client name: " -e NEW_CLIENT_NAME
       CLIENT_PRIVKEY=$(wg genkey)
@@ -688,7 +696,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
         service wg-quick@$WIREGUARD_PUB_NIC restart
       fi
       ;;
-    4)
+    5)
       # Remove User
       echo "Which WireGuard User Do You Want To Remove?"
       cat $WG_CONFIG | grep start | awk '{ print $2 }'
@@ -706,7 +714,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       fi
       echo "Client named $REMOVECLIENT has been removed."
       ;;
-    5)
+    6)
       # Uninstall Wireguard and purging files
       read -rp "Do you really want to remove Wireguard? [y/n]:" -e -i n REMOVE_WIREGUARD
     if [ "$REMOVE_WIREGUARD" = "y" ]; then
@@ -761,7 +769,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       chattr +i /etc/resolv.conf
     fi
       ;;
-    6)
+    7)
       exit
       ;;
     esac
