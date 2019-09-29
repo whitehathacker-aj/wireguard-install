@@ -617,12 +617,12 @@ else
   function wireguard-next-questions() {
     echo "Looks like Wireguard is already installed."
     echo "What do you want to do?"
-    echo "   1) Show WireGuard Peer"
-    echo "   2) Start WireGuard Peer"
-    echo "   3) Stop WireGuard Peer"
+    echo "   1) Show WireGuard Interface"
+    echo "   2) Start WireGuard Interface"
+    echo "   3) Stop WireGuard Interface"
     echo "   4) Add WireGuard Peer"
     echo "   5) Remove WireGuard Peer"
-    echo "   6) Uninstall WireGuard"
+    echo "   6) Uninstall WireGuard Interface"
     echo "   7) Exit"
     until [[ "$WIREGUARD_OPTIONS" =~ ^[1-7]$ ]]; do
       read -rp "Select an Option [1-7]: " -e -i 1 WIREGUARD_OPTIONS
