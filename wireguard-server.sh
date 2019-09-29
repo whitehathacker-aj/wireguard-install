@@ -617,36 +617,36 @@ else
   function wireguard-next-questions() {
     echo "Looks like Wireguard is already installed."
     echo "What do you want to do?"
-    echo "   1) Start WireGuard"
-    echo "   2) Stop WireGuard"
-    echo "   3) Show WireGuard"
-    echo "   4) Add A New WireGuard User"
-    echo "   5) Remove User From WireGuard"
+    echo "   1) Show WireGuard"
+    echo "   2) Start WireGuard"
+    echo "   3) Stop WireGuard"
+    echo "   4) Add WireGuard Peer"
+    echo "   5) Remove WireGuard Peer"
     echo "   6) Uninstall WireGuard"
     echo "   7) Exit"
     until [[ "$WIREGUARD_OPTIONS" =~ ^[1-7]$ ]]; do
-      read -rp "Select an Option [1-7]: " -e -i 4 WIREGUARD_OPTIONS
+      read -rp "Select an Option [1-7]: " -e -i 1 WIREGUARD_OPTIONS
     done
     case $WIREGUARD_OPTIONS in
     1)
+      if pgrep systemd-journal; then
+        wg show
+      else
+        sudo wg show
+      fi
+      ;;
+    2)
       if pgrep systemd-journal; then
         systemctl start wg-quick@$WIREGUARD_PUB_NIC
       else
         service wg-quick@$WIREGUARD_PUB_NIC start
       fi
       ;;
-    2)
+    3)
       if pgrep systemd-journal; then
         systemctl stop wg-quick@$WIREGUARD_PUB_NIC
       else
         service wg-quick@$WIREGUARD_PUB_NIC stop
-      fi
-      ;;
-    3)
-      if pgrep systemd-journal; then
-        wg show
-      else
-        sudo wg show
       fi
       ;;
     4)
