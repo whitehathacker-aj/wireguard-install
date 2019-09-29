@@ -620,8 +620,8 @@ else
     echo "   1) Start WireGuard"
     echo "   2) Stop WireGuard"
     echo "   3) Show WireGuard"
-    echo "   4 Add A New WireGuard User"
-    echo "   5 Remove User From WireGuard"
+    echo "   4) Add A New WireGuard User"
+    echo "   5) Remove User From WireGuard"
     echo "   6) Uninstall WireGuard"
     echo "   7) Exit"
     until [[ "$WIREGUARD_OPTIONS" =~ ^[1-7]$ ]]; do
