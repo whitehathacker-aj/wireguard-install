@@ -617,9 +617,9 @@ else
   function wireguard-next-questions() {
     echo "Looks like Wireguard is already installed."
     echo "What do you want to do?"
-    echo "   1) Show WireGuard"
-    echo "   2) Start WireGuard"
-    echo "   3) Stop WireGuard"
+    echo "   1) Show WireGuard Peer"
+    echo "   2) Start WireGuard Peer"
+    echo "   3) Stop WireGuard Peer"
     echo "   4) Add WireGuard Peer"
     echo "   5) Remove WireGuard Peer"
     echo "   6) Uninstall WireGuard"
