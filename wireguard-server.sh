@@ -529,10 +529,10 @@ function install-wireguard-server() {
   fi
 fi
   }
-  
+
   # Running Install Unbound
   install-unbound
-  
+
   # Install Pi-Hole
   function install-pihole() {
   if [ "$INSTALL_PIHOLE" = "y" ]; then
