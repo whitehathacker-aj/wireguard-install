@@ -764,7 +764,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       sed -i "s|nameserver|#nameserver|" /etc/resolv.conf
       sed -i "s|search|#search|" /etc/resolv.conf
       # Set localhost as the DNS resolver
-      echo "nameserver 127.0.0.53" >> /etc/resolv.conf
+      echo "nameserver 8.8.8.8" >> /etc/resolv.conf
       # Use -i to enable modifications
       chattr +i /etc/resolv.conf
     fi
