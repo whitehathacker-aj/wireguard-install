@@ -705,6 +705,7 @@ PublicKey = $SERVER_PUBKEY" >"/etc/wireguard/clients"/"$NEW_CLIENT_NAME"-$WIREGU
       if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo
         sed -i "/\# $REMOVECLIENT start/,/\# $REMOVECLIENT end/d" $WG_CONFIG
+        rm /etc/wireguard/clients/$REMOVECLIENT-$WIREGUARD_PUB_NIC.conf
       fi
       exit
       if pgrep systemd-journal; then
